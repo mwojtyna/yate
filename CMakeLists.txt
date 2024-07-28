@@ -10,9 +10,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(yate VERSION 0.1.0 LANGUAGES C CXX)
 add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wswitch-enum -Wformat=2)
 
-set(SOURCE_FILES  "./src/main.cpp")
+set(SOURCE_FILES ./src/main.cpp)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
+# glfw
 FetchContent_Declare(
 		glfw
 		GIT_REPOSITORY https://github.com/glfw/glfw
@@ -20,4 +21,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glfw)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
-target_compile_options(glfw PRIVATE "-w") # Disable warnings
+target_compile_options(glfw PRIVATE -w) # Disable warnings
+
+# opengl
+find_package(OpenGL REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
+
+# glad
+add_library(glad STATIC ./vendor/glad/glad.c)
+target_include_directories(glad PUBLIC ./vendor/glad/include/)
+target_link_libraries(${PROJECT_NAME} PRIVATE glad)
