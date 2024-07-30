@@ -1,13 +1,10 @@
-#include <GLFW/glfw3.h>
-#include <iostream>
-#include <ostream>
-
-#ifdef __APPLE__
-#define GL_SILENCE_DEPRECATION
-#endif
+#include "GLFW/glfw3.h"
+#include "spdlog/cfg/env.h"
+#include "spdlog/spdlog.h"
 
 int main() {
-    std::cerr << glfwGetVersionString() << std::endl;
+    spdlog::cfg::load_env_levels();
+    SPDLOG_INFO("GLFW version: {}", glfwGetVersionString());
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -18,7 +15,7 @@ int main() {
     if (window == nullptr) {
         const char *error;
         glfwGetError(&error);
-        std::cerr << "Failed to create window: " << error << std::endl;
+        SPDLOG_ERROR("Failed to create window: {}", error);
 
         glfwTerminate();
         return -1;

@@ -26,8 +26,21 @@ target_compile_options(glfw PRIVATE -w) # Disable warnings
 # opengl
 find_package(OpenGL REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
+if(APPLE)
+	add_compile_definitions(GL_SILENCE_DEPRECATION)
+endif()
 
 # glad
 add_library(glad STATIC ./vendor/glad/glad.c)
 target_include_directories(glad PUBLIC ./vendor/glad/include/)
 target_link_libraries(${PROJECT_NAME} PRIVATE glad)
+
+# spdlog
+FetchContent_Declare(
+	spdlog
+	GIT_REPOSITORY https://github.com/gabime/spdlog
+	GIT_TAG 27cb4c7 # v1.14.1
+)
+FetchContent_MakeAvailable(spdlog)
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog)
+target_compile_options(spdlog PRIVATE -w) # Disable warnings
