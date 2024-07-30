@@ -34,6 +34,7 @@ endif()
 add_library(glad STATIC ./vendor/glad/glad.c)
 target_include_directories(glad PUBLIC ./vendor/glad/include/)
 target_link_libraries(${PROJECT_NAME} PRIVATE glad)
+target_compile_options(glad PRIVATE -w) # Disable warnings
 
 # spdlog
 FetchContent_Declare(
