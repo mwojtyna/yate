@@ -43,5 +43,6 @@ FetchContent_Declare(
 	GIT_TAG 27cb4c7 # v1.14.1
 )
 FetchContent_MakeAvailable(spdlog)
+target_compile_definitions(spdlog PUBLIC SPDLOG_ACTIVE_LEVEL=0) # trace
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog)
 target_compile_options(spdlog PRIVATE -w) # Disable warnings
