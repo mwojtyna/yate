@@ -1,5 +1,8 @@
-#include "./application.hpp"
+#include "glad/glad.h"
+// GLFW (include after glad)
 #include "GLFW/glfw3.h"
+
+#include "./application.hpp"
 #include "spdlog/cfg/env.h"
 #include "spdlog/spdlog.h"
 
@@ -15,7 +18,6 @@ bool Application::start() {
     GLFWwindow *window =
         glfwCreateWindow(Application::WIDTH, Application::HEIGHT,
                          Application::TITLE, nullptr, nullptr);
-
     if (window == nullptr) {
         const char *error;
         glfwGetError(&error);
@@ -23,8 +25,16 @@ bool Application::start() {
 
         return false;
     }
-
     glfwMakeContextCurrent(window);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        SPDLOG_ERROR("Failed to initialize OpenGL");
+        return false;
+    } else {
+        const GLchar *version = (GLchar *)glGetString(GL_VERSION);
+        SPDLOG_DEBUG("OpenGL version: {}", version);
+    }
+
     SPDLOG_INFO("Application created");
 
     while (!glfwWindowShouldClose(window)) {
