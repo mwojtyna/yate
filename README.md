@@ -8,4 +8,4 @@ Yet Another Terminal Emulator
 
 ## Configuration
 
-- Set log level with `SPDLOG_LEVEL`
+- Set log level with `SPDLOG_LEVEL` environment variable
