@@ -4,7 +4,7 @@ Yet Another Terminal Emulator
 
 ## Build
 
-`cd build && cmake .. && cmake --build . -j`
+`cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug && cmake --build . -j`
 
 ## Configuration
 

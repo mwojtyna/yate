@@ -22,7 +22,6 @@ bool Application::start() {
         const char *error;
         glfwGetError(&error);
         SPDLOG_ERROR("Failed to create window: {}", error);
-
         return false;
     }
     glfwMakeContextCurrent(window);
@@ -35,12 +34,27 @@ bool Application::start() {
         SPDLOG_DEBUG("OpenGL version: {}", version);
     }
 
+    shader_manager.load("../res/shaders/vertex.vert");
+    shader_manager.load("../res/shaders/fragment.frag");
+    if (!shader_manager.link()) {
+        return false;
+    }
+
+    // TODO: Move to resource manager
+    const GLfloat vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
+                                0.0f,  0.0f,  0.5f, 0.0f};
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
+                          (void *)0);
+    glEnableVertexAttribArray(0);
+
     SPDLOG_INFO("Application created");
-
     while (!glfwWindowShouldClose(window)) {
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
+        renderer.render();
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
