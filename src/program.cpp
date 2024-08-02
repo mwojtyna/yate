@@ -1,9 +1,9 @@
-#include "./shader_manager.hpp"
+#include "./program.hpp"
 #include "spdlog/spdlog.h"
 #include <assert.h>
 #include <cstring>
 
-bool ShaderManager::load(const GLchar *const data, const GLuint type) {
+bool Program::load_shader(const GLchar *const data, const GLuint type) {
     assert(std::strlen(data) > 0);
 
     GLuint shader = glCreateShader(type);
@@ -13,8 +13,8 @@ bool ShaderManager::load(const GLchar *const data, const GLuint type) {
     GLint compiled;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
     if (compiled != GL_TRUE) {
-        GLchar message[ShaderManager::LOG_LEN];
-        glGetShaderInfoLog(shader, ShaderManager::LOG_LEN, 0, message);
+        GLchar message[Program::LOG_LEN];
+        glGetShaderInfoLog(shader, Program::LOG_LEN, 0, message);
         SPDLOG_ERROR("Shader with id {} failed to compile:\n{}", shader,
                      message);
         return false;
@@ -26,7 +26,7 @@ bool ShaderManager::load(const GLchar *const data, const GLuint type) {
     return true;
 }
 
-bool ShaderManager::link() {
+GLuint Program::link() {
     assert(shaders.size() > 0);
 
     GLuint program = glCreateProgram();
@@ -41,9 +41,8 @@ bool ShaderManager::link() {
     if (!success) {
         glGetProgramInfoLog(program, 512, nullptr, log);
         SPDLOG_ERROR("Shader program linking error:\n{}", log);
-        return false;
+        return 0;
     }
-    glUseProgram(program);
 
     for (GLuint shader : shaders) {
         glDeleteShader(shader);
@@ -52,5 +51,5 @@ bool ShaderManager::link() {
 
     SPDLOG_DEBUG("Linked shader program");
 
-    return true;
+    return program;
 }

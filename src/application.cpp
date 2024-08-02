@@ -3,6 +3,7 @@
 #include "GLFW/glfw3.h"
 
 #include "./application.hpp"
+#include "program.hpp"
 #include "shaders/fragment.frag.hpp"
 #include "shaders/vertex.vert.hpp"
 #include "spdlog/cfg/env.h"
@@ -35,15 +36,28 @@ bool Application::start() {
         SPDLOG_DEBUG("OpenGL version: {}", version);
     }
 
-    shader_manager.load(vertex_shader, GL_VERTEX_SHADER);
-    shader_manager.load(fragment_shader, GL_FRAGMENT_SHADER);
-    if (!shader_manager.link()) {
+    Program main_program;
+    main_program.load_shader(vertex_shader, GL_VERTEX_SHADER);
+    main_program.load_shader(fragment_shader, GL_FRAGMENT_SHADER);
+    if (GLuint gl_program = main_program.link(); gl_program) {
+        glUseProgram(gl_program);
+    } else {
         return false;
     }
 
     // TODO: Move to resource manager/renderer
-    const GLfloat vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
-                                0.0f,  0.0f,  0.5f, 0.0f};
+    const GLfloat vertices[] = {
+        0.5f,  0.5f,  0.0f, // top right
+        0.5f,  -0.5f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f, // bottom left
+        -0.5f, 0.5f,  0.0f  // top left
+    };
+    const GLuint indices[] = {
+        // note that we start from 0!
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
+
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -53,13 +67,22 @@ bool Application::start() {
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    GLuint ebo;
+    glGenBuffers(1, &ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+                 GL_STATIC_DRAW);
+
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
                           (void *)0);
     glEnableVertexAttribArray(0);
 
-    SPDLOG_INFO("Application created");
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    SPDLOG_INFO("Application initialized");
     while (!glfwWindowShouldClose(window)) {
         renderer.render();
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

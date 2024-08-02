@@ -29,7 +29,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(yate VERSION 0.1.0 LANGUAGES C CXX)
 add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wswitch-enum -Wformat=2)
 
-set(SOURCE_FILES ./src/main.cpp ./src/application.cpp ./src/renderer.cpp ./src/shader_manager.cpp)
+set(SOURCE_FILES ./src/main.cpp ./src/application.cpp ./src/renderer.cpp ./src/program.cpp)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wswitch-enum -Wformat=2)
 set(SOURCE_FILES ./src/main.cpp ./src/application.cpp ./src/renderer.cpp ./src/shader_manager.cpp)

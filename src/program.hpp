@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 
-class ShaderManager {
+class Program {
   public:
-    bool load(const GLchar *const data, const GLuint type);
-    bool link();
+    bool load_shader(const GLchar *const data, const GLuint type);
+    GLuint link();
 
   private:
     const static GLuint LOG_LEN = 1024;
