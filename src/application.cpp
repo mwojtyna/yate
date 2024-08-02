@@ -3,6 +3,8 @@
 #include "GLFW/glfw3.h"
 
 #include "./application.hpp"
+#include "shaders/fragment.frag.hpp"
+#include "shaders/vertex.vert.hpp"
 #include "spdlog/cfg/env.h"
 #include "spdlog/spdlog.h"
 
@@ -15,9 +17,8 @@ bool Application::start() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow *window =
-        glfwCreateWindow(Application::WIDTH, Application::HEIGHT,
-                         Application::TITLE, nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(
+        Application::WIDTH, Application::HEIGHT, "yate", nullptr, nullptr);
     if (window == nullptr) {
         const char *error;
         glfwGetError(&error);
@@ -34,8 +35,8 @@ bool Application::start() {
         SPDLOG_DEBUG("OpenGL version: {}", version);
     }
 
-    shader_manager.load("../res/shaders/vertex.vert");
-    shader_manager.load("../res/shaders/fragment.frag");
+    shader_manager.load(vertex_shader, GL_VERTEX_SHADER);
+    shader_manager.load(fragment_shader, GL_FRAGMENT_SHADER);
     if (!shader_manager.link()) {
         return false;
     }

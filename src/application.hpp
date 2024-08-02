@@ -12,7 +12,6 @@ class Application {
   private:
     const static uint32_t WIDTH = 800;
     const static uint32_t HEIGHT = 600;
-    constexpr const static char *TITLE = "yate";
 
     ShaderManager shader_manager;
     Renderer renderer;

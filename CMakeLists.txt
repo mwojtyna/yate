@@ -1,3 +1,22 @@
+function(embed_shader TARGET_NAME SHADER_NAME VARIABLE_NAME)
+	set(FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/res/shaders/${SHADER_NAME}")
+	get_filename_component(FILE_NAME ${FILE_PATH} NAME)
+	set(OUTPUT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/include/shaders/${FILE_NAME}.hpp")
+
+	add_custom_command(
+		OUTPUT ${OUTPUT_FILE}
+		COMMAND ${CMAKE_COMMAND}
+		-DFILE_PATH=${FILE_PATH}
+		-DVARIABLE_NAME=${VARIABLE_NAME}
+		-DOUTPUT_FILE=${OUTPUT_FILE}
+		-P ${CMAKE_CURRENT_SOURCE_DIR}/EmbedFile.cmake
+		DEPENDS ${FILE_PATH}
+		COMMENT "Generating embedded file: ${FILE_NAME}"
+	)
+
+	target_sources(${TARGET_NAME} PRIVATE ${OUTPUT_FILE})
+endfunction()
+
 include(FetchContent)
 
 cmake_minimum_required(VERSION 3.27)
@@ -12,6 +31,12 @@ add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wsw
 
 set(SOURCE_FILES ./src/main.cpp ./src/application.cpp ./src/renderer.cpp ./src/shader_manager.cpp)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wswitch-enum -Wformat=2)
+set(SOURCE_FILES ./src/main.cpp ./src/application.cpp ./src/renderer.cpp ./src/shader_manager.cpp)
+target_include_directories(${PROJECT_NAME} PUBLIC ./include)
+
+embed_shader(${PROJECT_NAME} "vertex.vert" vertex_shader)
+embed_shader(${PROJECT_NAME} "fragment.frag" fragment_shader)
 
 # glfw
 FetchContent_Declare(
@@ -46,3 +71,5 @@ FetchContent_MakeAvailable(spdlog)
 target_compile_definitions(spdlog PUBLIC SPDLOG_ACTIVE_LEVEL=0) # trace
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog)
 target_compile_options(spdlog PRIVATE -w) # Disable warnings
+
+

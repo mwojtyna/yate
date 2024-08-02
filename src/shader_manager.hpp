@@ -1,13 +1,12 @@
 #pragma once
 
 #include "glad/glad.h"
-#include <filesystem>
 #include <string>
 #include <vector>
 
 class ShaderManager {
   public:
-    bool load(std::filesystem::path path);
+    bool load(const GLchar *const data, const GLuint type);
     bool link();
 
   private:
