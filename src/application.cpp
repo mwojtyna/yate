@@ -41,9 +41,13 @@ bool Application::start() {
         return false;
     }
 
-    // TODO: Move to resource manager
+    // TODO: Move to resource manager/renderer
     const GLfloat vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
                                 0.0f,  0.0f,  0.5f, 0.0f};
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
     GLuint vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
