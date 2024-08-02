@@ -3,6 +3,7 @@
 #include "GLFW/glfw3.h"
 
 #include "./application.hpp"
+#include "./error.hpp"
 #include "program.hpp"
 #include "shaders/fragment.frag.hpp"
 #include "shaders/vertex.vert.hpp"
@@ -32,7 +33,7 @@ bool Application::start() {
         SPDLOG_ERROR("Failed to initialize OpenGL");
         return false;
     } else {
-        const GLchar *version = (GLchar *)glGetString(GL_VERSION);
+        glCall(const GLchar *version = (GLchar *)glGetString(GL_VERSION));
         SPDLOG_DEBUG("OpenGL version: {}", version);
     }
 
@@ -40,7 +41,7 @@ bool Application::start() {
     main_program.load_shader(vertex_shader, GL_VERTEX_SHADER);
     main_program.load_shader(fragment_shader, GL_FRAGMENT_SHADER);
     if (GLuint gl_program = main_program.link(); gl_program) {
-        glUseProgram(gl_program);
+        glCall(glUseProgram(gl_program));
     } else {
         return false;
     }
@@ -59,27 +60,28 @@ bool Application::start() {
     };
 
     GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    glCall(glGenVertexArrays(1, &vao));
+    glCall(glBindVertexArray(vao));
 
     GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glCall(glGenBuffers(1, &vbo));
+    glCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+    glCall(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
+                        GL_STATIC_DRAW));
 
     GLuint ebo;
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-                 GL_STATIC_DRAW);
+    glCall(glGenBuffers(1, &ebo));
+    glCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
+    glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+                        GL_STATIC_DRAW));
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
-                          (void *)0);
-    glEnableVertexAttribArray(0);
+    glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
+                                 (void *)0));
+    glCall(glEnableVertexAttribArray(0));
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
 
-    SPDLOG_INFO("Application initialized");
+    SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
         renderer.render();
 
