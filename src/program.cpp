@@ -2,13 +2,16 @@
 #include "./error.hpp"
 #include "spdlog/spdlog.h"
 #include <assert.h>
+#include <cstddef>
 #include <cstring>
+#include <string>
 
-bool Program::loadShader(const GLchar *const data, const GLuint type) {
-    assert(std::strlen(data) > 0);
+bool Program::loadShader(const std::string contents, const GLuint type) {
+    assert(contents.length() > 0);
+    const GLchar *const string = contents.c_str();
 
     glCall(GLuint shader = glCreateShader(type));
-    glCall(glShaderSource(shader, 1, &data, nullptr));
+    glCall(glShaderSource(shader, 1, &string, nullptr));
     glCall(glCompileShader(shader));
 
     GLint compiled;

@@ -1,11 +1,12 @@
 #pragma once
 
 #include "glad/glad.h"
+#include <string>
 #include <vector>
 
 class Program {
   public:
-    bool loadShader(const GLchar *const data, const GLuint type);
+    bool loadShader(const std::string data, const GLuint type);
     bool link();
     void use();
     ~Program();

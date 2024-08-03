@@ -38,8 +38,8 @@ bool Application::start() {
     }
 
     Program mainProgram;
-    mainProgram.loadShader(vertex_shader, GL_VERTEX_SHADER);
-    mainProgram.loadShader(fragment_shader, GL_FRAGMENT_SHADER);
+    mainProgram.loadShader(vertexShader, GL_VERTEX_SHADER);
+    mainProgram.loadShader(fragmentShader, GL_FRAGMENT_SHADER);
     if (mainProgram.link()) {
         mainProgram.use();
     } else {
