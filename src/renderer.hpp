@@ -4,5 +4,5 @@
 
 class Renderer {
   public:
-    void render();
+    void render() const;
 };

@@ -36,6 +36,7 @@ set(
 	./src/renderer.cpp
 	./src/program.cpp
 	./src/error.cpp
+	./src/index_buffer.cpp
 )
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wswitch-enum -Wformat=2)

@@ -59,7 +59,7 @@ bool Program::link() {
     return true;
 }
 
-void Program::use() {
+void Program::use() const {
     glCall(glUseProgram(m_Program));
 }
 

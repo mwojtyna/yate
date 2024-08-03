@@ -8,7 +8,7 @@ class Program {
   public:
     bool loadShader(const std::string data, const GLuint type);
     bool link();
-    void use();
+    void use() const;
     ~Program();
 
   private:

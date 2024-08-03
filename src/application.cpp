@@ -4,11 +4,13 @@
 
 #include "./application.hpp"
 #include "./error.hpp"
+#include "index_buffer.hpp"
 #include "program.hpp"
 #include "shaders/fragment.frag.hpp"
 #include "shaders/vertex.vert.hpp"
 #include "spdlog/cfg/env.h"
 #include "spdlog/spdlog.h"
+#include "vertex_buffer.hpp"
 
 bool Application::start() {
     spdlog::cfg::load_env_levels();
@@ -63,17 +65,8 @@ bool Application::start() {
     glCall(glGenVertexArrays(1, &vao));
     glCall(glBindVertexArray(vao));
 
-    GLuint vbo;
-    glCall(glGenBuffers(1, &vbo));
-    glCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-    glCall(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
-                        GL_STATIC_DRAW));
-
-    GLuint ebo;
-    glCall(glGenBuffers(1, &ebo));
-    glCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo));
-    glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-                        GL_STATIC_DRAW));
+    VertexBuffer vb(vertices, sizeof(vertices));
+    IndexBuffer ib(indices, sizeof(indices));
 
     glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
                                  (void *)0));
