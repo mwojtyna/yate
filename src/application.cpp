@@ -37,11 +37,11 @@ bool Application::start() {
         SPDLOG_DEBUG("OpenGL version: {}", version);
     }
 
-    Program main_program;
-    main_program.load_shader(vertex_shader, GL_VERTEX_SHADER);
-    main_program.load_shader(fragment_shader, GL_FRAGMENT_SHADER);
-    if (main_program.link()) {
-        main_program.use();
+    Program mainProgram;
+    mainProgram.loadShader(vertex_shader, GL_VERTEX_SHADER);
+    mainProgram.loadShader(fragment_shader, GL_FRAGMENT_SHADER);
+    if (mainProgram.link()) {
+        mainProgram.use();
     } else {
         return false;
     }
@@ -83,7 +83,7 @@ bool Application::start() {
 
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
-        renderer.render();
+        m_Renderer.render();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

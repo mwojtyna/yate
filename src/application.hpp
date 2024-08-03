@@ -12,5 +12,5 @@ class Application {
     const static uint32_t WIDTH = 800;
     const static uint32_t HEIGHT = 600;
 
-    Renderer renderer;
+    Renderer m_Renderer;
 };

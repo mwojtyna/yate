@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <cstring>
 
-bool Program::load_shader(const GLchar *const data, const GLuint type) {
+bool Program::loadShader(const GLchar *const data, const GLuint type) {
     assert(std::strlen(data) > 0);
 
     glCall(GLuint shader = glCreateShader(type));
@@ -16,12 +16,12 @@ bool Program::load_shader(const GLchar *const data, const GLuint type) {
     if (compiled != GL_TRUE) {
         GLchar message[Program::LOG_LEN];
         glCall(glGetShaderInfoLog(shader, Program::LOG_LEN, 0, message));
-        SPDLOG_ERROR("Shader with id {} failed to compile:\n{}", shader,
+        SPDLOG_ERROR("Shader with id={} failed to compile:\n{}", shader,
                      message);
         return false;
     }
 
-    SPDLOG_DEBUG("Compiled shader with id {}", shader);
+    SPDLOG_DEBUG("Compiled shader with id={}", shader);
     m_Shaders.push_back(shader);
 
     return true;
@@ -44,6 +44,7 @@ bool Program::link() {
         SPDLOG_ERROR("Shader program linking error:\n{}", log);
         return false;
     }
+    SPDLOG_DEBUG("Linked shader program with id={}", program);
 
     for (GLuint shader : m_Shaders) {
         glCall(glDeleteShader(shader));
@@ -51,7 +52,6 @@ bool Program::link() {
     m_Shaders.clear();
 
     m_Program = program;
-    SPDLOG_DEBUG("Linked shader program");
 
     return true;
 }
@@ -62,4 +62,5 @@ void Program::use() {
 
 Program::~Program() {
     glCall(glDeleteProgram(m_Program));
+    SPDLOG_DEBUG("Deleted shader program with id={}", m_Program);
 }

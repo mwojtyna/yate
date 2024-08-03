@@ -6,7 +6,7 @@
 
 class Program {
   public:
-    bool load_shader(const GLchar *const data, const GLuint type);
+    bool loadShader(const GLchar *const data, const GLuint type);
     bool link();
     void use();
     ~Program();
