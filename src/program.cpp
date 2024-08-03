@@ -22,16 +22,16 @@ bool Program::load_shader(const GLchar *const data, const GLuint type) {
     }
 
     SPDLOG_DEBUG("Compiled shader with id {}", shader);
-    shaders.push_back(shader);
+    m_Shaders.push_back(shader);
 
     return true;
 }
 
-GLuint Program::link() {
-    assert(shaders.size() > 0);
+bool Program::link() {
+    assert(m_Shaders.size() > 0);
 
     glCall(GLuint program = glCreateProgram());
-    for (GLuint shader : shaders) {
+    for (GLuint shader : m_Shaders) {
         glCall(glAttachShader(program, shader));
     }
     glCall(glLinkProgram(program));
@@ -42,15 +42,24 @@ GLuint Program::link() {
     if (!success) {
         glCall(glGetProgramInfoLog(program, 512, nullptr, log));
         SPDLOG_ERROR("Shader program linking error:\n{}", log);
-        return 0;
+        return false;
     }
 
-    for (GLuint shader : shaders) {
+    for (GLuint shader : m_Shaders) {
         glCall(glDeleteShader(shader));
     }
-    shaders.clear();
+    m_Shaders.clear();
 
+    m_Program = program;
     SPDLOG_DEBUG("Linked shader program");
 
-    return program;
+    return true;
+}
+
+void Program::use() {
+    glCall(glUseProgram(m_Program));
+}
+
+Program::~Program() {
+    glCall(glDeleteProgram(m_Program));
 }

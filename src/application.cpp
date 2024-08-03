@@ -40,8 +40,8 @@ bool Application::start() {
     Program main_program;
     main_program.load_shader(vertex_shader, GL_VERTEX_SHADER);
     main_program.load_shader(fragment_shader, GL_FRAGMENT_SHADER);
-    if (GLuint gl_program = main_program.link(); gl_program) {
-        glCall(glUseProgram(gl_program));
+    if (main_program.link()) {
+        main_program.use();
     } else {
         return false;
     }

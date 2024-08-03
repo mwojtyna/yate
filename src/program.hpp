@@ -7,12 +7,15 @@
 class Program {
   public:
     bool load_shader(const GLchar *const data, const GLuint type);
-    GLuint link();
+    bool link();
+    void use();
+    ~Program();
 
   private:
     const static GLuint LOG_LEN = 1024;
     constexpr const static std::string FRAG_EXTENSION = ".frag";
     constexpr const static std::string VERT_EXTENSION = ".vert";
 
-    std::vector<GLuint> shaders;
+    std::vector<GLuint> m_Shaders;
+    GLuint m_Program;
 };
