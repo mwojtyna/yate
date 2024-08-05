@@ -1,8 +1,7 @@
-#include "./program.hpp"
-#include "./error.hpp"
+#include "program.hpp"
+#include "error.hpp"
 #include "spdlog/spdlog.h"
 #include <assert.h>
-#include <cstddef>
 #include <cstring>
 #include <string>
 
@@ -40,14 +39,14 @@ bool Program::link() {
     glCall(glLinkProgram(program));
 
     GLint success;
-    GLchar log[512];
+    GLchar log[LOG_LEN];
     glCall(glGetProgramiv(program, GL_LINK_STATUS, &success));
     if (!success) {
-        glCall(glGetProgramInfoLog(program, 512, nullptr, log));
+        glCall(glGetProgramInfoLog(program, LOG_LEN, nullptr, log));
         SPDLOG_ERROR("Shader program linking error:\n{}", log);
         return false;
     }
-    SPDLOG_DEBUG("Linked shader program with id={}", program);
+    SPDLOG_TRACE("Linked shader program with id={}", program);
 
     for (GLuint shader : m_Shaders) {
         glCall(glDeleteShader(shader));

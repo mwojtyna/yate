@@ -2,15 +2,14 @@
 // GLFW (include after glad)
 #include "GLFW/glfw3.h"
 
-#include "./application.hpp"
-#include "./error.hpp"
-#include "index_buffer.hpp"
+#include "application.hpp"
+#include "error.hpp"
+#include "mesh.hpp"
 #include "program.hpp"
 #include "shaders/fragment.frag.hpp"
 #include "shaders/vertex.vert.hpp"
 #include "spdlog/cfg/env.h"
 #include "spdlog/spdlog.h"
-#include "vertex_buffer.hpp"
 
 bool Application::start() {
     spdlog::cfg::load_env_levels();
@@ -48,35 +47,36 @@ bool Application::start() {
         return false;
     }
 
-    // TODO: Move to resource manager/renderer
+    // TODO: Move to resource manager
     const GLfloat vertices[] = {
         0.5f,  0.5f,  0.0f, // top right
         0.5f,  -0.5f, 0.0f, // bottom right
         -0.5f, -0.5f, 0.0f, // bottom left
-        -0.5f, 0.5f,  0.0f  // top left
+    };
+    const GLfloat vertices2[] = {
+        -0.5f, -0.5f, 0.0f, // bottom left
+        0.0f,  -0.5f, 0.0f, // bottom right
+        -0.5f, 0.5f,  0.0f, // top right
     };
     const GLuint indices[] = {
         // note that we start from 0!
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
+        0,
+        1,
+        2,
     };
 
-    GLuint vao;
-    glCall(glGenVertexArrays(1, &vao));
-    glCall(glBindVertexArray(vao));
-
-    VertexBuffer vb(vertices, sizeof(vertices));
-    IndexBuffer ib(indices, sizeof(indices));
-
-    glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
-                                 (void *)0));
-    glCall(glEnableVertexAttribArray(0));
+    Mesh mesh("mesh", vertices, sizeof(vertices), indices, sizeof(indices));
+    Mesh mesh2("mesh2", vertices2, sizeof(vertices2), indices, sizeof(indices));
 
     glCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
 
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
-        m_Renderer.render();
+        glCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
+        glCall(glClear(GL_COLOR_BUFFER_BIT));
+
+        mesh.draw();
+        mesh2.draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

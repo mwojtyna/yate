@@ -33,10 +33,12 @@ set(
 	SOURCE_FILES
 	./src/main.cpp
 	./src/application.cpp
-	./src/renderer.cpp
 	./src/program.cpp
 	./src/error.cpp
+	./src/vertex_buffer.cpp
 	./src/index_buffer.cpp
+	./src/vertex_array.cpp
+	./src/mesh.cpp
 )
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wswitch-enum -Wformat=2)

@@ -1,8 +1,7 @@
-#include "./index_buffer.hpp"
+#include "index_buffer.hpp"
 #include "error.hpp"
 #include "glad/glad.h"
 #include "spdlog/spdlog.h"
-#include <cstddef>
 
 IndexBuffer::IndexBuffer(const GLuint indices[], const GLsizeiptr size) {
     glCall(glGenBuffers(1, &m_Id));
@@ -14,15 +13,15 @@ IndexBuffer::IndexBuffer(const GLuint indices[], const GLsizeiptr size) {
 
 IndexBuffer::~IndexBuffer() {
     glCall(glDeleteBuffers(1, &m_Id));
-    SPDLOG_TRACE("Deleted vertex buffer with id={}", m_Id);
+    SPDLOG_TRACE("Deleted index buffer with id={}", m_Id);
 }
 
 void IndexBuffer::bind() const {
     glCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Id));
-    SPDLOG_TRACE("Bound vertex buffer with id={}", m_Id);
+    SPDLOG_TRACE("Bound index buffer with id={}", m_Id);
 }
 
 void IndexBuffer::unbind() const {
     glCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-    SPDLOG_TRACE("Unbound vertex buffer with id={}", m_Id);
+    SPDLOG_TRACE("Unbound index buffer with id={}", m_Id);
 }

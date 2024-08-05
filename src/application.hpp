@@ -1,7 +1,6 @@
 #pragma once
 
-#include "renderer.hpp"
-#include <cstdint>
+#include "glad/glad.h"
 
 class Application {
   public:
@@ -9,8 +8,6 @@ class Application {
     ~Application();
 
   private:
-    const static uint32_t WIDTH = 800;
-    const static uint32_t HEIGHT = 600;
-
-    Renderer m_Renderer;
+    const static GLuint WIDTH = 800;
+    const static GLuint HEIGHT = 600;
 };

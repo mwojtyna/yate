@@ -1,10 +1,10 @@
 #pragma once
 
 #include "glad/glad.h"
-#include <cstddef>
 
 class IndexBuffer {
   public:
+    IndexBuffer() = delete;
     IndexBuffer(const GLuint indices[], const GLsizeiptr size);
     ~IndexBuffer();
 
