@@ -5,5 +5,6 @@
 
 class Renderer {
   public:
-    void draw(Mesh &mesh, Program &program) const;
+    void draw(const Mesh &mesh, const Program &program) const;
+    void setWireframe(const bool enabled) const;
 };

@@ -11,7 +11,7 @@
 #include "spdlog/cfg/env.h"
 #include "spdlog/spdlog.h"
 
-bool Application::start() {
+bool Application::start() const {
     spdlog::cfg::load_env_levels();
     SPDLOG_DEBUG("GLFW version: {}", glfwGetVersionString());
 
@@ -66,7 +66,7 @@ bool Application::start() {
     Mesh mesh("mesh", vertices, sizeof(vertices), indices, sizeof(indices));
     Mesh mesh2("mesh2", vertices2, sizeof(vertices2), indices, sizeof(indices));
 
-    glCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
+    m_Renderer.setWireframe(true);
 
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {

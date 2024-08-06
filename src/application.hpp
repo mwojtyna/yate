@@ -5,8 +5,8 @@
 
 class Application {
   public:
-    bool start();
     ~Application();
+    bool start() const;
 
   private:
     const static GLuint WIDTH = 800;
