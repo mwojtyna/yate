@@ -38,13 +38,6 @@ bool Application::start() const {
         SPDLOG_DEBUG("OpenGL version: {}", version);
     }
 
-    Program program;
-    program.loadShader(vertexShader, GL_VERTEX_SHADER);
-    program.loadShader(fragmentShader, GL_FRAGMENT_SHADER);
-    if (!program.link()) {
-        return false;
-    }
-
     // TODO: Move to resource manager
     const GLfloat vertices[] = {
         0.5f,  0.5f,  0.0f, // top right
@@ -62,6 +55,11 @@ bool Application::start() const {
         1,
         2,
     };
+
+    const Program program = ProgramBuilder()
+                                .loadShader(vertexShader, GL_VERTEX_SHADER)
+                                .loadShader(fragmentShader, GL_FRAGMENT_SHADER)
+                                .build();
 
     Mesh mesh("mesh", vertices, sizeof(vertices), indices, sizeof(indices));
     Mesh mesh2("mesh2", vertices2, sizeof(vertices2), indices, sizeof(indices));

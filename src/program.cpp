@@ -3,9 +3,21 @@
 #include "spdlog/spdlog.h"
 #include <assert.h>
 #include <cstring>
-#include <string>
 
-bool Program::loadShader(const std::string contents, const GLuint type) {
+Program::Program(GLuint id) : m_Id(id){};
+
+Program::~Program() {
+    glCall(glDeleteProgram(m_Id));
+    SPDLOG_DEBUG("Deleted shader program with id={}", m_Id);
+}
+
+void Program::use() const {
+    glCall(glUseProgram(m_Id));
+    SPDLOG_TRACE("Using shader program with id={}", m_Id);
+}
+
+ProgramBuilder &ProgramBuilder::loadShader(const std::string contents,
+                                           const GLuint type) {
     assert(contents.length() > 0);
     const GLchar *const string = contents.c_str();
 
@@ -16,54 +28,42 @@ bool Program::loadShader(const std::string contents, const GLuint type) {
     GLint compiled;
     glCall(glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled));
     if (compiled != GL_TRUE) {
-        GLchar message[Program::LOG_LEN];
-        glCall(glGetShaderInfoLog(shader, Program::LOG_LEN, 0, message));
+        GLchar message[ProgramBuilder::LOG_LEN];
+        glCall(glGetShaderInfoLog(shader, ProgramBuilder::LOG_LEN, 0, message));
         SPDLOG_ERROR("Shader with id={} failed to compile:\n{}", shader,
                      message);
-        return false;
+        assert(false);
     }
 
     SPDLOG_DEBUG("Compiled shader with id={}", shader);
     m_Shaders.push_back(shader);
 
-    return true;
+    return *this;
 }
 
-bool Program::link() {
+Program ProgramBuilder::build() {
     assert(m_Shaders.size() > 0);
 
-    glCall(GLuint program = glCreateProgram());
+    glCall(GLuint programId = glCreateProgram());
     for (GLuint shader : m_Shaders) {
-        glCall(glAttachShader(program, shader));
+        glCall(glAttachShader(programId, shader));
     }
-    glCall(glLinkProgram(program));
+    glCall(glLinkProgram(programId));
 
     GLint success;
-    GLchar log[LOG_LEN];
-    glCall(glGetProgramiv(program, GL_LINK_STATUS, &success));
+    GLchar log[ProgramBuilder::LOG_LEN];
+    glCall(glGetProgramiv(programId, GL_LINK_STATUS, &success));
     if (!success) {
-        glCall(glGetProgramInfoLog(program, LOG_LEN, nullptr, log));
+        glCall(glGetProgramInfoLog(programId, ProgramBuilder::LOG_LEN, nullptr,
+                                   log));
         SPDLOG_ERROR("Shader program linking error:\n{}", log);
-        return false;
+        assert(false);
     }
-    SPDLOG_TRACE("Linked shader program with id={}", program);
+    SPDLOG_DEBUG("Created shader program with id={}", programId);
 
     for (GLuint shader : m_Shaders) {
         glCall(glDeleteShader(shader));
     }
-    m_Shaders.clear();
 
-    m_Id = program;
-
-    return true;
-}
-
-void Program::use() const {
-    glCall(glUseProgram(m_Id));
-    SPDLOG_TRACE("Using shader program with id={}", m_Id);
-}
-
-Program::~Program() {
-    glCall(glDeleteProgram(m_Id));
-    SPDLOG_DEBUG("Deleted shader program with id={}", m_Id);
+    return Program(programId);
 }
