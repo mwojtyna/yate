@@ -34,6 +34,7 @@ set(
 	./src/main.cpp
 	./src/application.cpp
 	./src/program.cpp
+	./src/renderer.cpp
 	./src/error.cpp
 	./src/vertex_buffer.cpp
 	./src/index_buffer.cpp

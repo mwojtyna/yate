@@ -15,12 +15,12 @@ class Mesh {
          const GLsizeiptr indicesSize);
     ~Mesh();
 
-    void draw();
+    void draw() const;
 
   private:
     std::unique_ptr<VertexArray> m_Va;
     std::unique_ptr<VertexBuffer> m_Vb;
     std::unique_ptr<IndexBuffer> m_Ib;
-    GLsizei m_IndicesCount;
+    const GLsizei m_IndicesCount;
     const std::string_view m_Name;
 };

@@ -15,5 +15,5 @@ class Program {
     const static GLuint LOG_LEN = 1024;
 
     std::vector<GLuint> m_Shaders;
-    GLuint m_Program;
+    GLuint m_Id;
 };

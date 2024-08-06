@@ -53,16 +53,17 @@ bool Program::link() {
     }
     m_Shaders.clear();
 
-    m_Program = program;
+    m_Id = program;
 
     return true;
 }
 
 void Program::use() const {
-    glCall(glUseProgram(m_Program));
+    glCall(glUseProgram(m_Id));
+    SPDLOG_TRACE("Using shader program with id={}", m_Id);
 }
 
 Program::~Program() {
-    glCall(glDeleteProgram(m_Program));
-    SPDLOG_DEBUG("Deleted shader program with id={}", m_Program);
+    glCall(glDeleteProgram(m_Id));
+    SPDLOG_DEBUG("Deleted shader program with id={}", m_Id);
 }

@@ -38,12 +38,10 @@ bool Application::start() {
         SPDLOG_DEBUG("OpenGL version: {}", version);
     }
 
-    Program mainProgram;
-    mainProgram.loadShader(vertexShader, GL_VERTEX_SHADER);
-    mainProgram.loadShader(fragmentShader, GL_FRAGMENT_SHADER);
-    if (mainProgram.link()) {
-        mainProgram.use();
-    } else {
+    Program program;
+    program.loadShader(vertexShader, GL_VERTEX_SHADER);
+    program.loadShader(fragmentShader, GL_FRAGMENT_SHADER);
+    if (!program.link()) {
         return false;
     }
 
@@ -75,8 +73,8 @@ bool Application::start() {
         glCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
         glCall(glClear(GL_COLOR_BUFFER_BIT));
 
-        mesh.draw();
-        mesh2.draw();
+        m_Renderer.draw(mesh, program);
+        m_Renderer.draw(mesh2, program);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

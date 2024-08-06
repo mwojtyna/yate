@@ -22,7 +22,7 @@ Mesh::~Mesh() {
     SPDLOG_DEBUG("Deleted mesh '{}'", m_Name);
 }
 
-void Mesh::draw() {
+void Mesh::draw() const {
     m_Va->bind();
     glCall(glDrawElements(GL_TRIANGLES, m_IndicesCount, GL_UNSIGNED_INT,
                           (void *)0));
