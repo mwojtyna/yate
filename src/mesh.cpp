@@ -11,9 +11,9 @@ Mesh::Mesh(const std::string_view name, const GLfloat vertices[],
            const GLsizeiptr verticesSize, const GLuint indices[],
            const GLsizeiptr indicesSize)
     : m_IndicesCount(indicesSize / sizeof(GLuint)), m_Name(name) {
-    m_Va = std::make_unique<VertexArray>();
-    m_Ib = std::make_unique<IndexBuffer>(indices, indicesSize);
-    m_Vb = std::make_unique<VertexBuffer>(vertices, verticesSize);
+    m_Va = std::make_unique<const VertexArray>();
+    m_Ib = std::make_unique<const IndexBuffer>(indices, indicesSize);
+    m_Vb = std::make_unique<const VertexBuffer>(vertices, verticesSize);
     m_Va->addBuffer(*m_Vb, VertexArrayLayout::POSITION);
     SPDLOG_DEBUG("Created mesh '{}'", name);
 }

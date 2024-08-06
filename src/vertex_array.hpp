@@ -13,7 +13,8 @@ class VertexArray {
     VertexArray();
     ~VertexArray();
 
-    void addBuffer(VertexBuffer &vb, VertexArrayLayout layout) const;
+    void addBuffer(const VertexBuffer &vb,
+                   const VertexArrayLayout layout) const;
     void bind() const;
     void unbind() const;
 

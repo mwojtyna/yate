@@ -14,7 +14,8 @@ VertexArray::~VertexArray() {
     SPDLOG_TRACE("Deleted vertex array with id={}", m_Id);
 }
 
-void VertexArray::addBuffer(VertexBuffer &vb, VertexArrayLayout layout) const {
+void VertexArray::addBuffer(const VertexBuffer &vb,
+                            const VertexArrayLayout layout) const {
     vb.bind();
 
     switch (layout) {
