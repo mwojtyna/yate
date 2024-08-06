@@ -9,8 +9,8 @@ class Application {
     bool start() const;
 
   private:
-    const static GLuint WIDTH = 800;
-    const static GLuint HEIGHT = 600;
+    constexpr static GLuint WIDTH = 800;
+    constexpr static GLuint HEIGHT = 600;
 
     Renderer m_Renderer;
 };

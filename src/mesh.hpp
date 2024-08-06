@@ -10,7 +10,7 @@
 class Mesh {
   public:
     Mesh() = delete;
-    Mesh(const std::string_view name, const GLfloat vertices[],
+    Mesh(const std::string_view name, const Vertex vertices[],
          const GLsizeiptr verticiesSize, const GLuint indices[],
          const GLsizeiptr indicesSize);
     ~Mesh();

@@ -2,6 +2,7 @@
 #include "error.hpp"
 #include "spdlog/spdlog.h"
 #include "vertex_buffer.hpp"
+#include <cstddef>
 
 VertexArray::VertexArray() {
     glCall(glGenVertexArrays(1, &m_Id));
@@ -14,18 +15,16 @@ VertexArray::~VertexArray() {
     SPDLOG_TRACE("Deleted vertex array with id={}", m_Id);
 }
 
-void VertexArray::addBuffer(const VertexBuffer &vb,
-                            const VertexArrayLayout layout) const {
+void VertexArray::addBuffer(const VertexBuffer &vb) const {
     vb.bind();
 
-    switch (layout) {
-    case VertexArrayLayout::POSITION: {
-        glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                                     3 * sizeof(GLfloat), (void *)0));
-        glCall(glEnableVertexAttribArray(0));
-        break;
-    }
-    }
+    glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, VertexArray::STRIDE,
+                                 (const void *)offsetof(Vertex, pos)));
+    glCall(glEnableVertexAttribArray(0));
+
+    glCall(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, VertexArray::STRIDE,
+                                 (const void *)offsetof(Vertex, color)));
+    glCall(glEnableVertexAttribArray(1));
 
     SPDLOG_TRACE("Added vertex buffer with id={} to vertex array with id={}",
                  vb.getId(), m_Id);

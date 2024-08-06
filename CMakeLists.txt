@@ -82,4 +82,13 @@ target_compile_definitions(spdlog PUBLIC SPDLOG_ACTIVE_LEVEL=0) # trace
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog)
 target_compile_options(spdlog PRIVATE -w) # Disable warnings
 
+# glm
+FetchContent_Declare(
+	glm
+	GIT_REPOSITORY https://github.com/g-truc/glm
+	GIT_TAG 0af55cc # v1.0.1
+)
+FetchContent_MakeAvailable(glm)
+target_link_libraries(${PROJECT_NAME} PRIVATE glm)
+target_compile_options(glm PRIVATE -w) # Disable warnings
 

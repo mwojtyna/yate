@@ -10,6 +10,7 @@
 #include "shaders/vertex.vert.hpp"
 #include "spdlog/cfg/env.h"
 #include "spdlog/spdlog.h"
+#include "vertex_buffer.hpp"
 
 bool Application::start() const {
     spdlog::cfg::load_env_levels();
@@ -38,33 +39,24 @@ bool Application::start() const {
         SPDLOG_DEBUG("OpenGL version: {}", version);
     }
 
-    // TODO: Move to resource manager
-    const GLfloat vertices[] = {
-        0.5f,  0.5f,  0.0f, // top right
-        0.5f,  -0.5f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f, // bottom left
-    };
-    const GLfloat vertices2[] = {
-        -0.5f, -0.5f, 0.0f, // bottom left
-        0.0f,  -0.5f, 0.0f, // bottom right
-        -0.5f, 0.5f,  0.0f, // top right
-    };
+    const Vertex vertices[] = {
+        {{0.5f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},   // top right
+        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}},  // bottom right
+        {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, // bottom left
+        {{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}}}; // top left
     const GLuint indices[] = {
         // note that we start from 0!
-        0,
-        1,
-        2,
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
     };
 
     const Program program = ProgramBuilder()
                                 .loadShader(vertexShader, GL_VERTEX_SHADER)
                                 .loadShader(fragmentShader, GL_FRAGMENT_SHADER)
                                 .build();
+    Mesh mesh("quad", vertices, sizeof(vertices), indices, sizeof(indices));
 
-    Mesh mesh("mesh", vertices, sizeof(vertices), indices, sizeof(indices));
-    Mesh mesh2("mesh2", vertices2, sizeof(vertices2), indices, sizeof(indices));
-
-    m_Renderer.setWireframe(true);
+    m_Renderer.setWireframe(false);
 
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
@@ -72,7 +64,6 @@ bool Application::start() const {
         glCall(glClear(GL_COLOR_BUFFER_BIT));
 
         m_Renderer.draw(mesh, program);
-        m_Renderer.draw(mesh2, program);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
