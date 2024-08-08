@@ -6,7 +6,7 @@
 class Application {
 public:
     ~Application();
-    bool start() const;
+    bool start();
 
 private:
     constexpr static GLuint WIDTH = 800;

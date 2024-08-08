@@ -15,8 +15,9 @@
 #include "spdlog/cfg/env.h"
 #include "spdlog/spdlog.h"
 #include "vertex_buffer.hpp"
+#include <iostream>
 
-bool Application::start() const {
+bool Application::start() {
     spdlog::cfg::load_env_levels();
     SPDLOG_DEBUG("GLFW version: {}", glfwGetVersionString());
 
@@ -58,9 +59,10 @@ bool Application::start() const {
                           .loadShader(vertexShader, GL_VERTEX_SHADER)
                           .loadShader(fragmentShader, GL_FRAGMENT_SHADER)
                           .build();
-    auto transform = glm::scale(glm::mat4(1.0f), glm::vec3(1.5f));
+    glm::mat4 transform = glm::scale(glm::mat4(1.0f), glm::vec3(1.5f));
     Mesh mesh(vertices, sizeof(vertices), indices, sizeof(indices));
     Object quad(mesh, transform, program);
+    m_Renderer.addObject(quad);
 
     m_Renderer.setWireframe(false);
 
@@ -69,7 +71,7 @@ bool Application::start() const {
         glCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
         glCall(glClear(GL_COLOR_BUFFER_BIT));
 
-        quad.draw();
+        m_Renderer.draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

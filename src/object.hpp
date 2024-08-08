@@ -9,7 +9,7 @@ public:
     Object() = delete;
     Object(Mesh &mesh, glm::mat4 &transform, Program &program);
 
-    void draw();
+    void draw() const;
 
 private:
     glm::mat4 &m_Transform;

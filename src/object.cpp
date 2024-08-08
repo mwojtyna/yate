@@ -5,6 +5,6 @@ Object::Object(Mesh &mesh, glm::mat4 &transform, Program &program)
     m_Program.setUniformMatrix4f("u_Transform", m_Transform);
 };
 
-void Object::draw() {
+void Object::draw() const {
     m_Mesh.draw();
 }
