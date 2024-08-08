@@ -3,7 +3,7 @@
 #include "glad/glad.h"
 
 class IndexBuffer {
-  public:
+public:
     IndexBuffer() = delete;
     IndexBuffer(const GLuint indices[], const GLsizeiptr size);
     ~IndexBuffer();
@@ -11,6 +11,6 @@ class IndexBuffer {
     void bind() const;
     void unbind() const;
 
-  private:
+private:
     GLuint m_Id;
 };

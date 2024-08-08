@@ -4,7 +4,7 @@
 #include "vertex_buffer.hpp"
 
 class VertexArray {
-  public:
+public:
     VertexArray();
     ~VertexArray();
 
@@ -12,7 +12,7 @@ class VertexArray {
     void bind() const;
     void unbind() const;
 
-  private:
+private:
     constexpr static GLsizei STRIDE = (3 + 4) * sizeof(GLfloat);
     GLuint m_Id;
 };

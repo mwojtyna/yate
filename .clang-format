@@ -5,3 +5,4 @@ UseTab: Never
 ReflowComments: false
 AllowShortFunctionsOnASingleLine: Empty
 AlwaysBreakTemplateDeclarations: true
+AccessModifierOffset: -4

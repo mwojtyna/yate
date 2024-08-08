@@ -4,11 +4,11 @@
 #include "renderer.hpp"
 
 class Application {
-  public:
+public:
     ~Application();
     bool start() const;
 
-  private:
+private:
     constexpr static GLuint WIDTH = 800;
     constexpr static GLuint HEIGHT = 600;
 

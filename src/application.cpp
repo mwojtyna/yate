@@ -4,7 +4,11 @@
 
 #include "application.hpp"
 #include "error.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/vector_float3.hpp"
 #include "mesh.hpp"
+#include "object.hpp"
 #include "program.hpp"
 #include "shaders/fragment.frag.hpp"
 #include "shaders/vertex.vert.hpp"
@@ -50,11 +54,13 @@ bool Application::start() const {
         1, 2, 3  // second triangle
     };
 
-    const Program program = ProgramBuilder()
-                                .loadShader(vertexShader, GL_VERTEX_SHADER)
-                                .loadShader(fragmentShader, GL_FRAGMENT_SHADER)
-                                .build();
-    Mesh mesh("quad", vertices, sizeof(vertices), indices, sizeof(indices));
+    Program program = ProgramBuilder()
+                          .loadShader(vertexShader, GL_VERTEX_SHADER)
+                          .loadShader(fragmentShader, GL_FRAGMENT_SHADER)
+                          .build();
+    auto transform = glm::scale(glm::mat4(1.0f), glm::vec3(1.5f));
+    Mesh mesh(vertices, sizeof(vertices), indices, sizeof(indices));
+    Object quad(mesh, transform, program);
 
     m_Renderer.setWireframe(false);
 
@@ -63,7 +69,7 @@ bool Application::start() const {
         glCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
         glCall(glClear(GL_COLOR_BUFFER_BIT));
 
-        m_Renderer.draw(mesh, program);
+        quad.draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

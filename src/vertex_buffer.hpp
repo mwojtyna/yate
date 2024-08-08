@@ -10,7 +10,7 @@ struct Vertex {
 };
 
 class VertexBuffer {
-  public:
+public:
     VertexBuffer() = delete;
     VertexBuffer(const Vertex vertices[], const GLsizeiptr size);
     ~VertexBuffer();
@@ -20,6 +20,6 @@ class VertexBuffer {
 
     GLuint getId() const;
 
-  private:
+private:
     GLuint m_Id;
 };

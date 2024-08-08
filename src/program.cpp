@@ -1,8 +1,10 @@
 #include "program.hpp"
 #include "error.hpp"
+#include "glad/glad.h"
+#include "glm/ext/matrix_float4x4.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "spdlog/spdlog.h"
 #include <assert.h>
-#include <cstring>
 
 Program::Program(GLuint id) : m_Id(id){};
 
@@ -14,6 +16,14 @@ Program::~Program() {
 void Program::use() const {
     glCall(glUseProgram(m_Id));
     SPDLOG_TRACE("Using shader program with id={}", m_Id);
+}
+
+void Program::setUniformMatrix4f(const GLchar *const name,
+                                 const glm::mat4 &mat) {
+    use();
+    const GLint location = getUniformLocation(name);
+    glCall(glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat)));
+    SPDLOG_TRACE("Set uniform '{}'", name);
 }
 
 ProgramBuilder &ProgramBuilder::loadShader(const std::string contents,
