@@ -18,18 +18,18 @@ void Program::use() const {
     SPDLOG_TRACE("Using shader program with id={}", m_Id);
 }
 
-void Program::setUniformMatrix4f(const GLchar *const name,
-                                 const glm::mat4 &mat) {
+void Program::setUniformMatrix4f(const GLchar* const name,
+                                 const glm::mat4& mat) {
     use();
     const GLint location = getUniformLocation(name);
     glCall(glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat)));
     SPDLOG_TRACE("Set uniform '{}'", name);
 }
 
-ProgramBuilder &ProgramBuilder::loadShader(const std::string contents,
+ProgramBuilder& ProgramBuilder::loadShader(const std::string contents,
                                            const GLuint type) {
     assert(contents.length() > 0);
-    const GLchar *const string = contents.c_str();
+    const GLchar* const string = contents.c_str();
 
     glCall(GLuint shader = glCreateShader(type));
     glCall(glShaderSource(shader, 1, &string, nullptr));

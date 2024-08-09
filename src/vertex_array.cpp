@@ -15,15 +15,15 @@ VertexArray::~VertexArray() {
     SPDLOG_TRACE("Deleted vertex array with id={}", m_Id);
 }
 
-void VertexArray::addBuffer(const VertexBuffer &vb) const {
+void VertexArray::addBuffer(const VertexBuffer& vb) const {
     vb.bind();
 
     glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, VertexArray::STRIDE,
-                                 (const void *)offsetof(Vertex, pos)));
+                                 (const void*)offsetof(Vertex, pos)));
     glCall(glEnableVertexAttribArray(0));
 
     glCall(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, VertexArray::STRIDE,
-                                 (const void *)offsetof(Vertex, color)));
+                                 (const void*)offsetof(Vertex, color)));
     glCall(glEnableVertexAttribArray(1));
 
     SPDLOG_TRACE("Added vertex buffer with id={} to vertex array with id={}",

@@ -7,12 +7,12 @@
 class Object {
 public:
     Object() = delete;
-    Object(Mesh &mesh, glm::mat4 &transform, Program &program);
+    Object(Mesh& mesh, glm::mat4& transform, Program& program);
 
     void draw() const;
 
 private:
-    glm::mat4 &m_Transform;
-    Mesh &m_Mesh;
-    Program &m_Program;
+    glm::mat4& m_Transform;
+    Mesh& m_Mesh;
+    Program& m_Program;
 };

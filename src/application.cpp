@@ -27,10 +27,10 @@ bool Application::start() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    GLFWwindow *window = glfwCreateWindow(
+    GLFWwindow* window = glfwCreateWindow(
         Application::WIDTH, Application::HEIGHT, "yate", nullptr, nullptr);
     if (window == nullptr) {
-        const char *error;
+        const char* error;
         glfwGetError(&error);
         SPDLOG_ERROR("Failed to create window: {}", error);
         return false;
@@ -41,7 +41,7 @@ bool Application::start() {
         SPDLOG_ERROR("Failed to initialize OpenGL");
         return false;
     } else {
-        glCall(const GLchar *version = (GLchar *)glGetString(GL_VERSION));
+        glCall(const GLchar* version = (GLchar*)glGetString(GL_VERSION));
         SPDLOG_DEBUG("OpenGL version: {}", version);
     }
 
@@ -70,9 +70,6 @@ bool Application::start() {
 
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
-        glCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
-        glCall(glClear(GL_COLOR_BUFFER_BIT));
-
         m_Renderer.draw();
 
         glfwSwapBuffers(window);

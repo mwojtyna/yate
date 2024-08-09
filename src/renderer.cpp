@@ -10,13 +10,16 @@ glm::mat4 Renderer::PROJECTION = glm::ortho(
     (float)-Application::ASPECT, (float)Application::ASPECT, -1.0f, 1.0f);
 
 void Renderer::draw() const {
+    glCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
+    glCall(glClear(GL_COLOR_BUFFER_BIT));
+
     for (size_t i = 0; i < m_Objects.size(); i++) {
         SPDLOG_TRACE("Drawing object with index={}", i);
         m_Objects[i].draw();
     }
 }
 
-void Renderer::addObject(Object &object) {
+void Renderer::addObject(Object& object) {
     m_Objects.push_back(object);
 }
 

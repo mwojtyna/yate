@@ -6,7 +6,7 @@
 class Renderer {
 public:
     void draw() const;
-    void addObject(Object &object);
+    void addObject(Object& object);
     void setWireframe(const bool enabled) const;
 
     static glm::mat4 PROJECTION;
