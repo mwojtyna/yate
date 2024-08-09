@@ -5,6 +5,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "spdlog/spdlog.h"
 #include <assert.h>
+#include <cstdlib>
 
 Program::Program(GLuint id) : m_Id(id){};
 
@@ -31,22 +32,24 @@ ProgramBuilder& ProgramBuilder::loadShader(const std::string contents,
     assert(contents.length() > 0);
     const GLchar* const string = contents.c_str();
 
-    glCall(GLuint shader = glCreateShader(type));
-    glCall(glShaderSource(shader, 1, &string, nullptr));
-    glCall(glCompileShader(shader));
+    glCall(GLuint shaderId = glCreateShader(type));
+    glCall(glShaderSource(shaderId, 1, &string, nullptr));
+    glCall(glCompileShader(shaderId));
 
     GLint compiled;
-    glCall(glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled));
+    glCall(glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compiled));
     if (compiled != GL_TRUE) {
-        GLchar message[ProgramBuilder::LOG_LEN];
-        glCall(glGetShaderInfoLog(shader, ProgramBuilder::LOG_LEN, 0, message));
-        SPDLOG_ERROR("Shader with id={} failed to compile:\n{}", shader,
-                     message);
-        assert(false);
+        GLint logLen = 0;
+        glCall(glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &logLen));
+
+        GLchar* log = (GLchar*)std::malloc(logLen);
+        glCall(glGetShaderInfoLog(shaderId, logLen, 0, log));
+        SPDLOG_ERROR("Shader with id={} failed to compile:\n{}", shaderId, log);
+        std::free(log);
     }
 
-    SPDLOG_DEBUG("Compiled shader with id={}", shader);
-    m_Shaders.push_back(shader);
+    SPDLOG_DEBUG("Compiled shader with id={}", shaderId);
+    m_Shaders.push_back(shaderId);
 
     return *this;
 }
@@ -61,13 +64,15 @@ Program ProgramBuilder::build() {
     glCall(glLinkProgram(programId));
 
     GLint success;
-    GLchar log[ProgramBuilder::LOG_LEN];
     glCall(glGetProgramiv(programId, GL_LINK_STATUS, &success));
     if (!success) {
-        glCall(glGetProgramInfoLog(programId, ProgramBuilder::LOG_LEN, nullptr,
-                                   log));
+        GLint logLen = 0;
+        glCall(glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &logLen));
+
+        GLchar* log = (GLchar*)std::malloc(logLen);
+        glCall(glGetProgramInfoLog(programId, logLen, nullptr, log));
         SPDLOG_ERROR("Shader program linking error:\n{}", log);
-        assert(false);
+        std::free(log);
     }
     SPDLOG_DEBUG("Created shader program with id={}", programId);
 

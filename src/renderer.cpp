@@ -6,8 +6,8 @@
 #include "spdlog/spdlog.h"
 #include <cstddef>
 
-glm::mat4 Renderer::PROJECTION = glm::ortho(
-    (float)-Application::ASPECT, (float)Application::ASPECT, -1.0f, 1.0f);
+glm::mat4 Renderer::PROJECTION =
+    glm::ortho(-Application::ASPECT, Application::ASPECT, -1.0f, 1.0f);
 
 void Renderer::draw() const {
     glCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
