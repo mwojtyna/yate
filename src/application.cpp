@@ -10,12 +10,12 @@
 #include "mesh.hpp"
 #include "object.hpp"
 #include "program.hpp"
+#include "renderer.hpp"
 #include "shaders/fragment.frag.hpp"
 #include "shaders/vertex.vert.hpp"
 #include "spdlog/cfg/env.h"
 #include "spdlog/spdlog.h"
 #include "vertex_buffer.hpp"
-#include <iostream>
 
 bool Application::start() {
     spdlog::cfg::load_env_levels();
@@ -25,6 +25,7 @@ bool Application::start() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     GLFWwindow *window = glfwCreateWindow(
         Application::WIDTH, Application::HEIGHT, "yate", nullptr, nullptr);
@@ -55,11 +56,12 @@ bool Application::start() {
         1, 2, 3  // second triangle
     };
 
+    // TODO: batching
     Program program = ProgramBuilder()
                           .loadShader(vertexShader, GL_VERTEX_SHADER)
                           .loadShader(fragmentShader, GL_FRAGMENT_SHADER)
                           .build();
-    glm::mat4 transform = glm::scale(glm::mat4(1.0f), glm::vec3(1.5f));
+    glm::mat4 transform = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
     Mesh mesh(vertices, sizeof(vertices), indices, sizeof(indices));
     Object quad(mesh, transform, program);
     m_Renderer.addObject(quad);

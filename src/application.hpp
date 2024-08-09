@@ -8,9 +8,10 @@ public:
     ~Application();
     bool start();
 
-private:
     constexpr static GLuint WIDTH = 800;
     constexpr static GLuint HEIGHT = 600;
+    constexpr static float ASPECT = (float)WIDTH / HEIGHT;
 
+private:
     Renderer m_Renderer;
 };

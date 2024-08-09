@@ -1,8 +1,13 @@
 #include "renderer.hpp"
+#include "application.hpp"
 #include "error.hpp"
 #include "glad/glad.h"
+#include "glm/ext/matrix_clip_space.hpp"
 #include "spdlog/spdlog.h"
 #include <cstddef>
+
+glm::mat4 Renderer::PROJECTION = glm::ortho(
+    (float)-Application::ASPECT, (float)Application::ASPECT, -1.0f, 1.0f);
 
 void Renderer::draw() const {
     for (size_t i = 0; i < m_Objects.size(); i++) {

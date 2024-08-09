@@ -9,6 +9,8 @@ public:
     void addObject(Object &object);
     void setWireframe(const bool enabled) const;
 
+    static glm::mat4 PROJECTION;
+
 private:
     std::vector<Object> m_Objects;
 };
