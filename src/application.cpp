@@ -70,9 +70,6 @@ bool Application::start() {
 
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
-        glCall(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
-        glCall(glClear(GL_COLOR_BUFFER_BIT));
-
         m_Renderer.draw();
 
         glfwSwapBuffers(window);

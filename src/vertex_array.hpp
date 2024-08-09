@@ -13,6 +13,6 @@ public:
     void unbind() const;
 
 private:
-    constexpr static GLsizei STRIDE = (3 + 4) * sizeof(GLfloat);
+    constexpr static GLsizei STRIDE = sizeof(Vertex);
     GLuint m_Id;
 };
