@@ -17,7 +17,7 @@ public:
     void setUniformMatrix4f(const GLchar* const name, const glm::mat4& mat);
 
 private:
-    const GLuint m_Id;
+    const GLuint m_Id = 0;
     /// name -> location
     std::unordered_map<const GLchar*, GLint> m_UniformLocations;
 

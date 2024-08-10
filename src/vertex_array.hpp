@@ -14,5 +14,5 @@ public:
 
 private:
     constexpr static GLsizei STRIDE = sizeof(Vertex);
-    GLuint m_Id;
+    GLuint m_Id = 0;
 };

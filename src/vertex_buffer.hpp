@@ -21,5 +21,5 @@ public:
     GLuint getId() const;
 
 private:
-    GLuint m_Id;
+    GLuint m_Id = 0;
 };

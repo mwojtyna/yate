@@ -18,5 +18,5 @@ private:
     std::unique_ptr<const VertexArray> m_Va;
     std::unique_ptr<const VertexBuffer> m_Vb;
     std::unique_ptr<const IndexBuffer> m_Ib;
-    const GLsizei m_IndicesCount;
+    const GLsizei m_IndicesCount = 0;
 };

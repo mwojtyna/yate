@@ -36,7 +36,7 @@ ProgramBuilder& ProgramBuilder::loadShader(const std::string contents,
     glCall(glShaderSource(shaderId, 1, &string, nullptr));
     glCall(glCompileShader(shaderId));
 
-    GLint compiled;
+    GLint compiled = GL_FALSE;
     glCall(glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compiled));
     if (compiled != GL_TRUE) {
         GLint logLen = 0;
@@ -63,9 +63,9 @@ Program ProgramBuilder::build() {
     }
     glCall(glLinkProgram(programId));
 
-    GLint success;
+    GLint success = GL_FALSE;
     glCall(glGetProgramiv(programId, GL_LINK_STATUS, &success));
-    if (!success) {
+    if (success == GL_FALSE) {
         GLint logLen = 0;
         glCall(glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &logLen));
 
