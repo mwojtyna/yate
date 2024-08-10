@@ -9,7 +9,7 @@
 class Mesh {
 public:
     Mesh() = delete;
-    Mesh(const Vertex vertices[], const GLsizeiptr verticiesSize,
+    Mesh(const Vertex vertices[], const GLsizei verticesLength,
          const GLuint indices[], const GLsizeiptr indicesSize);
     ~Mesh();
     void draw() const;

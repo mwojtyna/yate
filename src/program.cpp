@@ -42,10 +42,10 @@ ProgramBuilder& ProgramBuilder::loadShader(const std::string contents,
         GLint logLen = 0;
         glCall(glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &logLen));
 
-        GLchar* log = (GLchar*)std::malloc(logLen);
+        GLchar* log = (GLchar*)malloc(logLen);
         glCall(glGetShaderInfoLog(shaderId, logLen, 0, log));
         SPDLOG_ERROR("Shader with id={} failed to compile:\n{}", shaderId, log);
-        std::free(log);
+        free(log);
     }
 
     SPDLOG_DEBUG("Compiled shader with id={}", shaderId);

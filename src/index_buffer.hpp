@@ -5,7 +5,7 @@
 class IndexBuffer {
 public:
     IndexBuffer() = delete;
-    IndexBuffer(const GLuint indices[], const GLsizeiptr size);
+    IndexBuffer(const GLuint indices[], const GLsizei length);
     ~IndexBuffer();
 
     void bind() const;

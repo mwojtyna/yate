@@ -14,7 +14,7 @@ struct Vertex {
 class VertexBuffer {
 public:
     VertexBuffer() = delete;
-    VertexBuffer(const Vertex vertices[], const GLsizeiptr size);
+    VertexBuffer(const Vertex vertices[], const GLsizei length);
     ~VertexBuffer();
 
     void bind() const;
