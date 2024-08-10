@@ -1,16 +1,18 @@
 #pragma once
 
-#include "object.hpp"
-#include <vector>
+#include "glm/ext/matrix_float4x4.hpp"
+#include "glm/ext/vector_float3.hpp"
+#include <string>
 
 class Renderer {
 public:
-    void draw() const;
-    void addObject(Object& object);
+    // TODO: Replace data type with a custom type when parsed terminal output
+    void draw(const std::string data) const;
     void setWireframe(const bool enabled) const;
+    void setBgColor(const glm::vec3 color);
 
     static glm::mat4 PROJECTION;
 
 private:
-    std::vector<Object> m_Objects;
+    glm::vec3 m_BgColor;
 };

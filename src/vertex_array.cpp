@@ -26,10 +26,15 @@ void VertexArray::addBuffer(const VertexBuffer& vb) const {
                                  (const void*)offsetof(Vertex, color)));
     glCall(glEnableVertexAttribArray(1));
 
+    glCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexArray::STRIDE,
+                                 (const void*)offsetof(Vertex, uv)));
+    glCall(glEnableVertexAttribArray(2));
+
     SPDLOG_TRACE("Added vertex buffer with id={} to vertex array with id={}",
                  vb.getId(), m_Id);
 }
 
+// TODO: Store bind state to avoid calling glBind...
 void VertexArray::bind() const {
     glCall(glBindVertexArray(m_Id));
     SPDLOG_TRACE("Bound vertex array with id={}", m_Id);

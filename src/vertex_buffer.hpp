@@ -1,12 +1,14 @@
 #pragma once
 
 #include "glad/glad.h"
+#include "glm/ext/vector_float2.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "glm/ext/vector_float4.hpp"
 
 struct Vertex {
     glm::vec3 pos;
     glm::vec4 color;
+    glm::vec2 uv;
 };
 
 class VertexBuffer {

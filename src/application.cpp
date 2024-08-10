@@ -45,11 +45,18 @@ bool Application::start() {
         SPDLOG_DEBUG("OpenGL version: {}", version);
     }
 
-    const Vertex vertices[] = {
-        {{0.5f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},   // top right
-        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}},  // bottom right
-        {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, // bottom left
-        {{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 0.0f, 1.0f}}}; // top left
+    const Vertex vertices[] = {{{0.5f, 0.5f, 0.0f},
+                                {1.0f, 0.0f, 0.0f, 1.0f},
+                                {1.0f, 1.0f}}, // top right
+                               {{0.5f, -0.5f, 0.0f},
+                                {0.0f, 1.0f, 0.0f, 1.0f},
+                                {1.0f, 0.0f}}, // bottom right
+                               {{-0.5f, -0.5f, 0.0f},
+                                {0.0f, 0.0f, 1.0f, 1.0f},
+                                {0.0f, 0.0f}}, // bottom left
+                               {{-0.5f, 0.5f, 0.0f},
+                                {0.0f, 0.0f, 0.0f, 1.0f},
+                                {0.0f, 1.0f}}}; // top left
     const GLuint indices[] = {
         // note that we start from 0!
         0, 1, 3, // first triangle
@@ -64,13 +71,14 @@ bool Application::start() {
     glm::mat4 transform = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
     Mesh mesh(vertices, sizeof(vertices), indices, sizeof(indices));
     Object quad(mesh, transform, program);
-    m_Renderer.addObject(quad);
 
+    m_Renderer.setBgColor(glm::vec3(0.2f, 0.3f, 0.3f));
     m_Renderer.setWireframe(false);
 
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
-        m_Renderer.draw();
+        m_Renderer.draw("Hello world!");
+        quad.draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
