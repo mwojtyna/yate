@@ -7,12 +7,12 @@
 #include "vertex_buffer.hpp"
 #include <memory>
 
-Mesh::Mesh(const Vertex vertices[], const GLsizei verticesLength,
-           const GLuint indices[], const GLsizeiptr indicesSize)
-    : m_IndicesCount(indicesSize / sizeof(GLuint)) {
+Mesh::Mesh(const Vertex vertices[], const GLsizei verticesCount,
+           const GLuint indices[], const GLsizei indicesCount)
+    : m_IndicesCount(indicesCount) {
     m_Va = std::make_unique<const VertexArray>();
-    m_Ib = std::make_unique<const IndexBuffer>(indices, indicesSize);
-    m_Vb = std::make_unique<const VertexBuffer>(vertices, verticesLength);
+    m_Ib = std::make_unique<const IndexBuffer>(indices, indicesCount);
+    m_Vb = std::make_unique<const VertexBuffer>(vertices, verticesCount);
     m_Va->addBuffer(*m_Vb);
 
     SPDLOG_DEBUG("Created mesh");

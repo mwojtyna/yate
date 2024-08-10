@@ -56,9 +56,8 @@ void Renderer::draw(std::string data, glm::mat4& transform, Program& program) {
     }
 
     m_Data = data;
-    m_Mesh = std::make_unique<Mesh>(
-        vertices.data(), vertices.size() * sizeof(Vertex), indices.data(),
-        indices.size() * sizeof(GLuint));
+    m_Mesh = std::make_unique<Mesh>(vertices.data(), vertices.size(),
+                                    indices.data(), indices.size());
     m_Characters = std::make_unique<Object>(*m_Mesh, transform, program);
     m_Characters->draw();
 }
