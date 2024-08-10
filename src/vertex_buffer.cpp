@@ -22,7 +22,7 @@ void VertexBuffer::bind() const {
 }
 
 void VertexBuffer::unbind() const {
-    glCall(glBindBuffer(0, m_Id));
+    glCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
     SPDLOG_TRACE("Unbound vertex buffer with id={}", m_Id);
 }
 
