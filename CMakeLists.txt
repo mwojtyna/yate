@@ -29,19 +29,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(yate VERSION 0.1.0 LANGUAGES C CXX)
 add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wswitch-enum -Wformat=2)
 
-set(
-	SOURCE_FILES
-	./src/main.cpp
-	./src/application.cpp
-	./src/program.cpp
-	./src/renderer.cpp
-	./src/error.cpp
-	./src/vertex_buffer.cpp
-	./src/index_buffer.cpp
-	./src/vertex_array.cpp
-	./src/mesh.cpp
-	./src/debug_ui.cpp
-)
+file(GLOB_RECURSE SOURCE_FILES ./src/*.cpp ./src/*.hpp)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wswitch-enum -Wformat=2)
 target_include_directories(${PROJECT_NAME} PRIVATE ./include)
@@ -49,11 +37,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE ./include)
 embed_shader(${PROJECT_NAME} "vertex.vert" "vertexShader")
 embed_shader(${PROJECT_NAME} "fragment.frag" "fragmentShader")
 
-# glfw v3.4
+# glfw
 FetchContent_Declare(
 		glfw
 		GIT_REPOSITORY https://github.com/glfw/glfw
-		GIT_TAG        7b6aead
+		GIT_TAG        3.4
 )
 FetchContent_MakeAvailable(glfw)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
@@ -72,11 +60,11 @@ target_include_directories(glad PUBLIC ./vendor/glad/include/)
 target_link_libraries(${PROJECT_NAME} PRIVATE glad)
 target_compile_options(glad PRIVATE -w) # Disable warnings
 
-# spdlog v1.14.1
+# spdlog
 FetchContent_Declare(
 	spdlog
 	GIT_REPOSITORY https://github.com/gabime/spdlog
-	GIT_TAG 27cb4c7
+	GIT_TAG v1.14.1
 )
 FetchContent_MakeAvailable(spdlog)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -87,11 +75,11 @@ endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog)
 target_compile_options(spdlog PRIVATE -w) # Disable warnings
 
-# glm v1.0.1
+# glm
 FetchContent_Declare(
 	glm
 	GIT_REPOSITORY https://github.com/g-truc/glm
-	GIT_TAG 0af55cc
+	GIT_TAG 1.0.1
 )
 FetchContent_MakeAvailable(glm)
 target_link_libraries(${PROJECT_NAME} PRIVATE glm)
