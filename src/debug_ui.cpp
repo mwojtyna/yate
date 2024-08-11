@@ -42,7 +42,7 @@ void DebugUI::draw(DebugUI::DebugData& data) {
                 1000 / data.frameTimeMs, data.frameTimeMs);
 
         ImGui::Begin(title);
-        ImGui::SliderFloat2("position", &data.translation.x, -2.0f, 2.0f);
+        ImGui::SliderFloat2("position", &data.translation.x, -50.0f, 50.0f);
         ImGui::End();
     }
 
