@@ -22,10 +22,10 @@ private:
     std::unordered_map<const GLchar*, GLint> m_UniformLocations;
 
     GLint getUniformLocation(const GLchar* const name) {
-        use();
         if (m_UniformLocations.contains(name)) {
             return m_UniformLocations.at(name);
         } else {
+            use();
             glCall(const GLint location = glGetUniformLocation(m_Id, name));
             if (location == -1) {
                 SPDLOG_ERROR("Uniform named '{}' not found", name);
