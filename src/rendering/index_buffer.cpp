@@ -1,5 +1,5 @@
 #include "index_buffer.hpp"
-#include "error.hpp"
+#include "../error.hpp"
 #include "glad/glad.h"
 #include "spdlog/spdlog.h"
 

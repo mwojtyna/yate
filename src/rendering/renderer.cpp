@@ -1,6 +1,6 @@
 #include "renderer.hpp"
-#include "application.hpp"
-#include "error.hpp"
+#include "../application.hpp"
+#include "../error.hpp"
 #include "glad/glad.h"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_float4x4.hpp"

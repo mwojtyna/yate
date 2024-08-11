@@ -1,5 +1,5 @@
 #include "program.hpp"
-#include "error.hpp"
+#include "../error.hpp"
 #include "glad/glad.h"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/gtc/type_ptr.hpp"

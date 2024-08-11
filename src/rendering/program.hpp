@@ -1,6 +1,6 @@
 #pragma once
 
-#include "error.hpp"
+#include "../error.hpp"
 #include "glad/glad.h"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "spdlog/spdlog.h"

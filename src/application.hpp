@@ -1,7 +1,7 @@
 #pragma once
 
 #include "glad/glad.h"
-#include "renderer.hpp"
+#include "rendering/renderer.hpp"
 
 class Application {
 public:

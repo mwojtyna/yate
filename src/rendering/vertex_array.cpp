@@ -1,5 +1,5 @@
 #include "vertex_array.hpp"
-#include "error.hpp"
+#include "../error.hpp"
 #include "spdlog/spdlog.h"
 #include "vertex_buffer.hpp"
 #include <cstddef>
