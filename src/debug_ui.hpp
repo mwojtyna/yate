@@ -7,10 +7,15 @@
 
 class DebugUI {
 public:
+    struct DebugData {
+        double frameTimeMs;
+        glm::vec3& translation;
+    };
+
     DebugUI(GLFWwindow* window);
     ~DebugUI();
 
-    void draw(glm::vec3& transform);
+    void draw(DebugUI::DebugData& data);
 
 private:
     std::unique_ptr<ImGuiIO> m_IO;

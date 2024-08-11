@@ -14,12 +14,8 @@
 #include <string>
 #include <vector>
 
-GLfloat Renderer::LEFT = 0;
-GLfloat Renderer::RIGHT = Application::ASPECT * SCALE;
-GLfloat Renderer::BOTTOM = -SCALE;
-GLfloat Renderer::TOP = 0;
-
-glm::mat4 Renderer::PROJECTION = glm::ortho(LEFT, RIGHT, BOTTOM, TOP);
+glm::mat4 Renderer::PROJECTION =
+    glm::ortho(0.0f, Application::ASPECT* SCALE, -SCALE, 0.0f);
 
 void Renderer::draw(std::string data, glm::mat4& transform, Program& program) {
     glCall(glClearColor(m_BgColor.r, m_BgColor.g, m_BgColor.b, 1.0f));
@@ -34,18 +30,18 @@ void Renderer::draw(std::string data, glm::mat4& transform, Program& program) {
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
     for (size_t i = 0, j = 0; i < data.length(); i++, j += 4) {
-        vertices.push_back({{1.0f + i, 1.0f, 0.0f},
-                            {1.0f, 0.0f, 0.0f, 1.0f},
-                            {1.0f, 1.0f}}); // top right
-        vertices.push_back({{1.0f + i, 0.0f, 0.0f},
-                            {0.0f, 1.0f, 0.0f, 1.0f},
-                            {1.0f, 0.0f}}); // bottom right
         vertices.push_back({{0.0f + i, 0.0f, 0.0f},
-                            {0.0f, 0.0f, 1.0f, 1.0f},
-                            {0.0f, 0.0f}}); // bottom left
-        vertices.push_back({{0.0f + i, 1.0f, 0.0f},
                             {0.0f, 0.0f, 0.0f, 1.0f},
                             {0.0f, 1.0f}}); // top left
+        vertices.push_back({{1.0f + i, 0.0f, 0.0f},
+                            {1.0f, 0.0f, 0.0f, 1.0f},
+                            {1.0f, 1.0f}}); // top right
+        vertices.push_back({{1.0f + i, -1.0f, 0.0f},
+                            {0.0f, 1.0f, 0.0f, 1.0f},
+                            {1.0f, 0.0f}}); // bottom right
+        vertices.push_back({{0.0f + i, -1.0f, 0.0f},
+                            {0.0f, 0.0f, 1.0f, 1.0f},
+                            {0.0f, 0.0f}}); // bottom left
 
         indices.push_back(j + 0);
         indices.push_back(j + 1);

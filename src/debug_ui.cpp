@@ -5,6 +5,8 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "spdlog/spdlog.h"
+#include <cstdio>
+#include <cstdlib>
 #include <memory>
 
 DebugUI::DebugUI(GLFWwindow* window) {
@@ -29,14 +31,18 @@ DebugUI::~DebugUI() {
     SPDLOG_DEBUG("Destroyed debug UI");
 }
 
-void DebugUI::draw(glm::vec3& translation) {
+void DebugUI::draw(DebugUI::DebugData& data) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
     {
-        ImGui::Begin("Debug");
-        ImGui::SliderFloat2("position", &translation.x, -2.0f, 2.0f);
+        char title[64];
+        sprintf(title, "Debug (%f FPS, %f ms)###DebugWindow",
+                1000 / data.frameTimeMs, data.frameTimeMs);
+
+        ImGui::Begin(title);
+        ImGui::SliderFloat2("position", &data.translation.x, -2.0f, 2.0f);
         ImGui::End();
     }
 
