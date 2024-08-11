@@ -45,7 +45,7 @@ set(
 )
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wswitch-enum -Wformat=2)
-target_include_directories(${PROJECT_NAME} PUBLIC ./include)
+target_include_directories(${PROJECT_NAME} PRIVATE ./include)
 
 embed_shader(${PROJECT_NAME} "vertex.vert" "vertexShader")
 embed_shader(${PROJECT_NAME} "fragment.frag" "fragmentShader")
@@ -99,4 +99,5 @@ file(GLOB IMGUI_SOURCES "./vendor/imgui/*.cpp")
 add_library(imgui STATIC ${IMGUI_SOURCES})
 target_include_directories(imgui PUBLIC ./vendor/imgui/)
 target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
+target_link_libraries(imgui PRIVATE glfw)
 target_compile_options(imgui PRIVATE -w) # Disable warnings
