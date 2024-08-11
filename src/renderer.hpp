@@ -20,7 +20,7 @@ public:
     static GLfloat BOTTOM;
     static GLfloat TOP;
     static glm::mat4 PROJECTION;
-    constexpr static GLfloat SCALE = 10.0f;
+    constexpr static GLfloat SCALE = 30.0f;
 
 private:
     glm::vec3 m_BgColor;

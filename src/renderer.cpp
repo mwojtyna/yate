@@ -14,13 +14,12 @@
 #include <string>
 #include <vector>
 
-GLfloat Renderer::LEFT = -Application::ASPECT * SCALE;
+GLfloat Renderer::LEFT = 0;
 GLfloat Renderer::RIGHT = Application::ASPECT * SCALE;
 GLfloat Renderer::BOTTOM = -SCALE;
-GLfloat Renderer::TOP = SCALE;
+GLfloat Renderer::TOP = 0;
 
-glm::mat4 Renderer::PROJECTION = glm::ortho(
-    0.0f, (float)Application::WIDTH / 8, 0.0f, (float)Application::HEIGHT / 6);
+glm::mat4 Renderer::PROJECTION = glm::ortho(LEFT, RIGHT, BOTTOM, TOP);
 
 void Renderer::draw(std::string data, glm::mat4& transform, Program& program) {
     glCall(glClearColor(m_BgColor.r, m_BgColor.g, m_BgColor.b, 1.0f));

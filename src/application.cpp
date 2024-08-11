@@ -43,27 +43,24 @@ bool Application::start() {
         SPDLOG_DEBUG("OpenGL version: {}", version);
     }
 
-#ifndef NDEBUG
     DebugUI debugUI(window);
-#endif
 
     Program program = ProgramBuilder()
                           .loadShader(vertexShader, GL_VERTEX_SHADER)
                           .loadShader(fragmentShader, GL_FRAGMENT_SHADER)
                           .build();
-    glm::mat4 transform = glm::translate(
-        glm::scale(glm::mat4(1.0f), glm::vec3(1)), glm::vec3(0.0f));
 
     m_Renderer.setBgColor(glm::vec3(0.2f, 0.3f, 0.3f));
     m_Renderer.setWireframe(false);
 
+    glm::vec3 translation(0.0f);
+
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), translation);
         m_Renderer.draw("Hello world!", transform, program);
 
-#ifndef NDEBUG
-        debugUI.draw();
-#endif
+        debugUI.draw(translation);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
