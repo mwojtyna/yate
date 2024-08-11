@@ -4,7 +4,6 @@
 
 #include "application.hpp"
 #include "debug_ui.hpp"
-#include "error.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/vector_float3.hpp"
@@ -37,8 +36,8 @@ bool Application::start() {
         SPDLOG_ERROR("Failed to initialize OpenGL");
         return false;
     } else {
-        glCall(const GLchar* version = (GLchar*)glGetString(GL_VERSION));
-        SPDLOG_DEBUG("OpenGL version: {}", version);
+        glCall(SPDLOG_DEBUG("OpenGL version: {}",
+                            (GLchar*)glGetString(GL_VERSION)));
     }
 
     m_Renderer.setBgColor(glm::vec3(0.2f, 0.3f, 0.3f));

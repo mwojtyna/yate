@@ -79,7 +79,11 @@ FetchContent_Declare(
 	GIT_TAG 27cb4c7
 )
 FetchContent_MakeAvailable(spdlog)
-target_compile_definitions(spdlog PUBLIC SPDLOG_ACTIVE_LEVEL=0) # trace
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	target_compile_definitions(spdlog PUBLIC SPDLOG_ACTIVE_LEVEL=0) # trace
+else()
+	target_compile_definitions(spdlog PUBLIC SPDLOG_ACTIVE_LEVEL=2) # info
+endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog)
 target_compile_options(spdlog PRIVATE -w) # Disable warnings
 

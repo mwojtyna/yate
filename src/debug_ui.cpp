@@ -28,7 +28,7 @@ DebugUI::~DebugUI() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-    SPDLOG_DEBUG("Destroyed debug UI");
+    SPDLOG_DEBUG("Shutdown debug UI");
 }
 
 void DebugUI::draw(DebugUI::DebugData& data) {
