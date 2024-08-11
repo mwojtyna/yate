@@ -3,7 +3,6 @@
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "mesh.hpp"
-#include "object.hpp"
 #include "program.hpp"
 #include <memory>
 #include <string>
@@ -26,5 +25,4 @@ private:
     glm::vec3 m_BgColor;
     std::string m_Data;
     std::unique_ptr<Mesh> m_Mesh;
-    std::unique_ptr<Object> m_Characters;
 };

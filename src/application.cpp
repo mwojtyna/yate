@@ -9,7 +9,6 @@
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "program.hpp"
-#include "renderer.hpp"
 #include "shaders/fragment.frag.hpp"
 #include "shaders/vertex.vert.hpp"
 #include "spdlog/cfg/env.h"

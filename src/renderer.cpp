@@ -6,11 +6,9 @@
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/fwd.hpp"
 #include "mesh.hpp"
-#include "object.hpp"
 #include "program.hpp"
 #include "vertex_buffer.hpp"
 #include <cstddef>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -22,7 +20,7 @@ void Renderer::draw(std::string data, glm::mat4& transform, Program& program) {
     glCall(glClear(GL_COLOR_BUFFER_BIT));
 
     if (data == m_Data) {
-        m_Characters->draw();
+        m_Mesh->draw();
         return;
     }
 
@@ -53,10 +51,10 @@ void Renderer::draw(std::string data, glm::mat4& transform, Program& program) {
     }
 
     m_Data = data;
-    m_Mesh = std::make_unique<Mesh>(vertices.data(), vertices.size(),
-                                    indices.data(), indices.size());
-    m_Characters = std::make_unique<Object>(*m_Mesh, transform, program);
-    m_Characters->draw();
+    m_Mesh =
+        std::make_unique<Mesh>(vertices.data(), vertices.size(), indices.data(),
+                               indices.size(), transform, program);
+    m_Mesh->draw();
 }
 
 void Renderer::setWireframe(const bool enabled) const {

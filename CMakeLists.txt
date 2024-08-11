@@ -40,7 +40,6 @@ set(
 	./src/index_buffer.cpp
 	./src/vertex_array.cpp
 	./src/mesh.cpp
-	./src/object.cpp
 	./src/debug_ui.cpp
 )
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
