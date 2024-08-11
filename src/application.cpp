@@ -3,6 +3,7 @@
 #include "GLFW/glfw3.h"
 
 #include "application.hpp"
+#include "debug_ui.hpp"
 #include "error.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
@@ -42,12 +43,16 @@ bool Application::start() {
         SPDLOG_DEBUG("OpenGL version: {}", version);
     }
 
-    // TODO: batching
+#ifndef NDEBUG
+    DebugUI debugUI(window);
+#endif
+
     Program program = ProgramBuilder()
                           .loadShader(vertexShader, GL_VERTEX_SHADER)
                           .loadShader(fragmentShader, GL_FRAGMENT_SHADER)
                           .build();
-    glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(0));
+    glm::mat4 transform = glm::translate(
+        glm::scale(glm::mat4(1.0f), glm::vec3(1)), glm::vec3(0.0f));
 
     m_Renderer.setBgColor(glm::vec3(0.2f, 0.3f, 0.3f));
     m_Renderer.setWireframe(false);
@@ -55,6 +60,10 @@ bool Application::start() {
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
         m_Renderer.draw("Hello world!", transform, program);
+
+#ifndef NDEBUG
+        debugUI.draw();
+#endif
 
         glfwSwapBuffers(window);
         glfwPollEvents();

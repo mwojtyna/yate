@@ -8,8 +8,8 @@ public:
     ~Application();
     bool start();
 
-    constexpr static GLuint WIDTH = 800;
-    constexpr static GLuint HEIGHT = 600;
+    constexpr static GLsizei WIDTH = 800;
+    constexpr static GLsizei HEIGHT = 600;
     constexpr static float ASPECT = (float)WIDTH / HEIGHT;
 
 private:

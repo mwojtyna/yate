@@ -15,12 +15,12 @@ public:
     void setWireframe(const bool enabled) const;
     void setBgColor(const glm::vec3 color);
 
-    static float LEFT;
-    static float RIGHT;
-    static float BOTTOM;
-    static float TOP;
+    static GLfloat LEFT;
+    static GLfloat RIGHT;
+    static GLfloat BOTTOM;
+    static GLfloat TOP;
     static glm::mat4 PROJECTION;
-    constexpr static float SCALE = 10.0f;
+    constexpr static GLfloat SCALE = 10.0f;
 
 private:
     glm::vec3 m_BgColor;

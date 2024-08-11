@@ -41,6 +41,7 @@ set(
 	./src/vertex_array.cpp
 	./src/mesh.cpp
 	./src/object.cpp
+	./src/debug_ui.cpp
 )
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wswitch-enum -Wformat=2)
@@ -49,11 +50,11 @@ target_include_directories(${PROJECT_NAME} PUBLIC ./include)
 embed_shader(${PROJECT_NAME} "vertex.vert" "vertexShader")
 embed_shader(${PROJECT_NAME} "fragment.frag" "fragmentShader")
 
-# glfw
+# glfw v3.4
 FetchContent_Declare(
 		glfw
 		GIT_REPOSITORY https://github.com/glfw/glfw
-		GIT_TAG        7b6aead # v3.4
+		GIT_TAG        7b6aead
 )
 FetchContent_MakeAvailable(glfw)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
@@ -72,24 +73,30 @@ target_include_directories(glad PUBLIC ./vendor/glad/include/)
 target_link_libraries(${PROJECT_NAME} PRIVATE glad)
 target_compile_options(glad PRIVATE -w) # Disable warnings
 
-# spdlog
+# spdlog v1.14.1
 FetchContent_Declare(
 	spdlog
 	GIT_REPOSITORY https://github.com/gabime/spdlog
-	GIT_TAG 27cb4c7 # v1.14.1
+	GIT_TAG 27cb4c7
 )
 FetchContent_MakeAvailable(spdlog)
 target_compile_definitions(spdlog PUBLIC SPDLOG_ACTIVE_LEVEL=0) # trace
 target_link_libraries(${PROJECT_NAME} PRIVATE spdlog)
 target_compile_options(spdlog PRIVATE -w) # Disable warnings
 
-# glm
+# glm v1.0.1
 FetchContent_Declare(
 	glm
 	GIT_REPOSITORY https://github.com/g-truc/glm
-	GIT_TAG 0af55cc # v1.0.1
+	GIT_TAG 0af55cc
 )
 FetchContent_MakeAvailable(glm)
 target_link_libraries(${PROJECT_NAME} PRIVATE glm)
 target_compile_options(glm PRIVATE -w) # Disable warnings
 
+# imgui v1.91.0
+file(GLOB IMGUI_SOURCES "./vendor/imgui/*.cpp")
+add_library(imgui STATIC ${IMGUI_SOURCES})
+target_include_directories(imgui PUBLIC ./vendor/imgui/)
+target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
+target_compile_options(imgui PRIVATE -w) # Disable warnings

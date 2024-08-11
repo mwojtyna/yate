@@ -14,12 +14,13 @@
 #include <string>
 #include <vector>
 
-float Renderer::LEFT = -Application::ASPECT * SCALE;
-float Renderer::RIGHT = Application::ASPECT * SCALE;
-float Renderer::BOTTOM = -SCALE;
-float Renderer::TOP = SCALE;
+GLfloat Renderer::LEFT = -Application::ASPECT * SCALE;
+GLfloat Renderer::RIGHT = Application::ASPECT * SCALE;
+GLfloat Renderer::BOTTOM = -SCALE;
+GLfloat Renderer::TOP = SCALE;
 
-glm::mat4 Renderer::PROJECTION = glm::ortho(LEFT, RIGHT, BOTTOM, TOP);
+glm::mat4 Renderer::PROJECTION = glm::ortho(
+    0.0f, (float)Application::WIDTH / 8, 0.0f, (float)Application::HEIGHT / 6);
 
 void Renderer::draw(std::string data, glm::mat4& transform, Program& program) {
     glCall(glClearColor(m_BgColor.r, m_BgColor.g, m_BgColor.b, 1.0f));
@@ -30,6 +31,7 @@ void Renderer::draw(std::string data, glm::mat4& transform, Program& program) {
         return;
     }
 
+    // TODO: Don't allocate new buffers every time data is changed
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
     for (size_t i = 0, j = 0; i < data.length(); i++, j += 4) {
