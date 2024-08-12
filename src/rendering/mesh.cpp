@@ -9,13 +9,14 @@
 #include "vertex_buffer.hpp"
 #include <memory>
 
-Mesh::Mesh(const Vertex vertices[], const GLsizei verticesCount,
-           const GLuint indices[], const GLsizei indicesCount,
-           glm::mat4& transform, Program& program)
-    : m_IndicesCount(indicesCount), m_Transform(transform), m_Program(program) {
+Mesh::Mesh(const std::vector<Vertex>& vertices,
+           const std::vector<GLuint>& indices, glm::mat4& transform,
+           Program& program)
+    : m_IndicesCount(indices.size()), m_Transform(transform),
+      m_Program(program) {
     m_Va = std::make_unique<const VertexArray>();
-    m_Ib = std::make_unique<const IndexBuffer>(indices, indicesCount);
-    m_Vb = std::make_unique<const VertexBuffer>(vertices, verticesCount);
+    m_Ib = std::make_unique<const IndexBuffer>(indices);
+    m_Vb = std::make_unique<const VertexBuffer>(vertices);
     m_Va->addBuffer(*m_Vb);
 
     SPDLOG_DEBUG("Created mesh");

@@ -3,12 +3,12 @@
 #include "glad/glad.h"
 #include "spdlog/spdlog.h"
 
-VertexBuffer::VertexBuffer(const Vertex vertices[], const GLsizei length) {
+VertexBuffer::VertexBuffer(const std::vector<Vertex>& vertices) {
     glCall(glGenBuffers(1, &m_Id));
     SPDLOG_TRACE("Generated vertex buffer with id={}", m_Id);
     bind();
-    glCall(glBufferData(GL_ARRAY_BUFFER, length * sizeof(Vertex), vertices,
-                        GL_STATIC_DRAW));
+    glCall(glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex),
+                        vertices.data(), GL_STATIC_DRAW));
 }
 
 VertexBuffer::~VertexBuffer() {

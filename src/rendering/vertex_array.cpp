@@ -34,7 +34,6 @@ void VertexArray::addBuffer(const VertexBuffer& vb) const {
                  vb.getId(), m_Id);
 }
 
-// TODO: Store bind state to avoid calling glBind...
 void VertexArray::bind() const {
     glCall(glBindVertexArray(m_Id));
     SPDLOG_TRACE("Bound vertex array with id={}", m_Id);

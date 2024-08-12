@@ -7,13 +7,14 @@
 #include "vertex_array.hpp"
 #include "vertex_buffer.hpp"
 #include <memory>
+#include <vector>
 
 class Mesh {
 public:
     Mesh() = delete;
-    Mesh(const Vertex vertices[], const GLsizei verticesCount,
-         const GLuint indices[], const GLsizei indicesCount,
-         glm::mat4& transform, Program& program);
+    Mesh(const std::vector<Vertex>& vertices,
+         const std::vector<GLuint>& indices, glm::mat4& transform,
+         Program& program);
     ~Mesh();
     void draw() const;
 

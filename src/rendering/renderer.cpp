@@ -78,8 +78,7 @@ void Renderer::draw(std::string data, glm::mat4& transform, Program& program) {
     }
 
     m_Data = data;
-    m_CharMesh = new Mesh(vertices.data(), vertices.size(), indices.data(),
-                          indices.size(), transform, program);
+    m_CharMesh = new Mesh(vertices, indices, transform, program);
     m_CharMesh->draw();
 }
 

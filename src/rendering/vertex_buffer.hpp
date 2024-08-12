@@ -4,6 +4,7 @@
 #include "glm/ext/vector_float2.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "glm/ext/vector_float4.hpp"
+#include <vector>
 
 struct Vertex {
     glm::vec3 pos;
@@ -14,7 +15,7 @@ struct Vertex {
 class VertexBuffer {
 public:
     VertexBuffer() = delete;
-    VertexBuffer(const Vertex vertices[], const GLsizei length);
+    VertexBuffer(const std::vector<Vertex>& vertices);
     ~VertexBuffer();
 
     void bind() const;
