@@ -3,21 +3,22 @@
 #include "glm/ext/vector_float3.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
-#include <memory>
 
 class DebugUI {
 public:
     struct DebugData {
         double frameTimeMs;
-        glm::vec3& translation;
+        glm::vec3& charPos;
+        glm::vec3& cameraPos;
+        float& cameraScale;
     };
 
-    DebugUI(GLFWwindow* window);
-    ~DebugUI();
+    static void initialize(GLFWwindow* window);
+    static void destroy();
 
-    void draw(DebugUI::DebugData& data);
+    static void draw(DebugUI::DebugData& data);
 
 private:
-    std::unique_ptr<ImGuiIO> m_IO;
-    bool m_ShowDemoWindow = false;
+    static ImGuiIO m_IO;
+    static bool m_ShowDemoWindow;
 };

@@ -2,10 +2,6 @@
 
 int main() {
     Application app;
-
-    if (!app.start()) {
-        return -1;
-    } else {
-        return 0;
-    }
+    app.start();
+    return 0;
 }

@@ -4,25 +4,28 @@
 #include "glm/ext/vector_float3.hpp"
 #include "mesh.hpp"
 #include "program.hpp"
-#include <memory>
 #include <string>
 
 class Renderer {
 public:
-    // TODO: Replace data type with a custom type when parsed terminal output
-    void draw(std::string data, glm::mat4& transform, Program& program);
-    void setWireframe(const bool enabled) const;
-    void setBgColor(const glm::vec3 color);
+    Renderer() = delete;
+    Renderer(Renderer& renderer) = delete;
+    Renderer(Renderer&& renderer) = delete;
 
-    static GLfloat LEFT;
-    static GLfloat RIGHT;
-    static GLfloat BOTTOM;
-    static GLfloat TOP;
-    static glm::mat4 PROJECTION;
-    constexpr static GLfloat SCALE = 30.0f;
+    static void initialize();
+    static void destroy();
+
+    // TODO: Replace data type with a custom type when parsed terminal output
+    static void draw(std::string data, glm::mat4& transform, Program& program);
+    static void setWireframe(const bool enabled);
+    static void setBgColor(const glm::vec3 color);
+
+    static glm::mat4 projection;
+    static glm::mat4 view;
+    static GLfloat scale;
 
 private:
-    glm::vec3 m_BgColor;
-    std::string m_Data;
-    std::unique_ptr<Mesh> m_Mesh;
+    static glm::vec3 m_BgColor;
+    static std::string m_Data;
+    static Mesh* m_CharMesh;
 };

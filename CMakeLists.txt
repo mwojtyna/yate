@@ -25,6 +25,7 @@ set(CMAKE_C_STANDARD_REQUIRED True)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 project(yate VERSION 0.1.0 LANGUAGES C CXX)
 add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wswitch-enum -Wformat=2)
@@ -92,3 +93,19 @@ target_include_directories(imgui PUBLIC ./vendor/imgui/)
 target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
 target_link_libraries(imgui PRIVATE glfw)
 target_compile_options(imgui PRIVATE -w) # Disable warnings
+
+# freetype
+FetchContent_Declare(
+	freetype
+	GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype
+	GIT_TAG VER-2-13-2
+)
+set(FT_DISABLE_ZLIB ON CACHE BOOL "" FORCE)
+set(FT_DISABLE_BZIP2 ON CACHE BOOL "" FORCE)
+set(FT_DISABLE_PNG ON CACHE BOOL "" FORCE)
+set(FT_DISABLE_HARFBUZZ ON CACHE BOOL "" FORCE)
+set(FT_DISABLE_BROTLI ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(freetype)
+target_link_libraries(${PROJECT_NAME} PRIVATE freetype)
+target_compile_definitions(freetype PUBLIC FT_CONFIG_OPTION_ERROR_STRINGS)
+target_compile_options(freetype PRIVATE -w) # Disable warnings

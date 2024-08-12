@@ -8,12 +8,14 @@
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "rendering/program.hpp"
+#include "rendering/renderer.hpp"
+#include "rendering/text_renderer.hpp"
 #include "shaders/fragment.frag.hpp"
 #include "shaders/vertex.vert.hpp"
 #include "spdlog/cfg/env.h"
 #include "spdlog/spdlog.h"
 
-bool Application::start() {
+void Application::start() {
     spdlog::cfg::load_env_levels();
     SPDLOG_DEBUG("GLFW version: {}", glfwGetVersionString());
 
@@ -28,49 +30,54 @@ bool Application::start() {
         const char* error;
         glfwGetError(&error);
         SPDLOG_ERROR("Failed to create window: {}", error);
-        return false;
+        assert(false);
     }
     glfwMakeContextCurrent(window);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        SPDLOG_ERROR("Failed to initialize OpenGL");
-        return false;
-    } else {
-        glCall(SPDLOG_DEBUG("OpenGL version: {}",
-                            (GLchar*)glGetString(GL_VERSION)));
-    }
+    Renderer::initialize();
+    Renderer::setBgColor(glm::vec3(0.2f, 0.3f, 0.3f));
+    Renderer::setWireframe(false);
 
-    m_Renderer.setBgColor(glm::vec3(0.2f, 0.3f, 0.3f));
-    m_Renderer.setWireframe(false);
+    TextRenderer::initialize();
+    TextRenderer::loadFont("/usr/share/fonts/TTF/JetBrainsMono-Regular.ttf");
+    TextRenderer::renderChar('A');
 
     Program program = ProgramBuilder()
                           .loadShader(vertexShader, GL_VERTEX_SHADER)
                           .loadShader(fragmentShader, GL_FRAGMENT_SHADER)
                           .build();
 
-    DebugUI debugUI(window);
+    DebugUI::initialize(window);
     double prevTime = glfwGetTime();
-    glm::vec3 translation(0.0f);
-    auto debugData =
-        DebugUI::DebugData{.frameTimeMs = 0, .translation = translation};
+    glm::vec3 charPos(0.0f), cameraPos(0.0f);
+    float cameraScale = 1.0f;
+    auto debugData = DebugUI::DebugData{
+        .frameTimeMs = 0,
+        .charPos = charPos,
+        .cameraPos = cameraPos,
+        .cameraScale = cameraScale,
+    };
 
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), translation);
-        m_Renderer.draw("Hello world!", transform, program);
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), charPos);
+        Renderer::view = glm::scale(glm::translate(glm::mat4(1.0f), cameraPos),
+                                    glm::vec3(cameraScale));
+        Renderer::draw("Hello world!", transform, program);
 
         debugData.frameTimeMs = (glfwGetTime() - prevTime) * 1000;
         prevTime = glfwGetTime();
-        debugUI.draw(debugData);
+        DebugUI::draw(debugData);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    return true;
 }
 
 Application::~Application() {
     SPDLOG_INFO("Application exiting");
+    DebugUI::destroy();
+    TextRenderer::destroy();
+    Renderer::destroy();
     glfwTerminate();
 }

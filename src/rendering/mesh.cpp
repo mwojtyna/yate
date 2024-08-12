@@ -26,8 +26,7 @@ Mesh::~Mesh() {
 }
 
 void Mesh::draw() const {
-    glm::mat4 view = glm::mat4(1.0f);
-    glm::mat4 mvp = Renderer::PROJECTION * view * m_Transform;
+    glm::mat4 mvp = Renderer::projection * Renderer::view * m_Transform;
     m_Program.setUniformMatrix4f("u_MVP", mvp);
 
     m_Va->bind();

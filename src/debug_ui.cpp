@@ -7,16 +7,18 @@
 #include "spdlog/spdlog.h"
 #include <cstdio>
 #include <cstdlib>
-#include <memory>
 
-DebugUI::DebugUI(GLFWwindow* window) {
+ImGuiIO DebugUI::m_IO;
+bool DebugUI::m_ShowDemoWindow = false;
+
+void DebugUI::initialize(GLFWwindow* window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    m_IO = std::make_unique<ImGuiIO>(ImGui::GetIO());
-    m_IO->ConfigFlags |=
+    m_IO = ImGui::GetIO();
+    m_IO.ConfigFlags |=
         ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-    m_IO->Fonts->AddFontDefault();
-    m_IO->Fonts->Build();
+    m_IO.Fonts->AddFontDefault();
+    m_IO.Fonts->Build();
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
@@ -24,7 +26,7 @@ DebugUI::DebugUI(GLFWwindow* window) {
     SPDLOG_DEBUG("Initialized debug UI");
 }
 
-DebugUI::~DebugUI() {
+void DebugUI::destroy() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -42,7 +44,16 @@ void DebugUI::draw(DebugUI::DebugData& data) {
                 1000 / data.frameTimeMs, data.frameTimeMs);
 
         ImGui::Begin(title);
-        ImGui::SliderFloat2("position", &data.translation.x, -50.0f, 50.0f);
+
+        ImGui::SeparatorText("Characters");
+        ImGui::SliderFloat2("position###charPos", &data.charPos.x, -50.0f,
+                            50.0f);
+
+        ImGui::SeparatorText("Camera");
+        ImGui::SliderFloat2("position###camPos", &data.cameraPos.x, -5.0f,
+                            5.0f);
+        ImGui::SliderFloat("scale###camScale", &data.cameraScale, 0.0f, 2.0f);
+
         ImGui::End();
     }
 
