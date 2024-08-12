@@ -20,11 +20,15 @@ public:
     static void setWireframe(const bool enabled);
     static void setBgColor(const glm::vec3 color);
 
-    static glm::mat4 projection;
-    static glm::mat4 view;
-    static GLfloat scale;
+    static glm::mat4& getProjectionMat();
+    static glm::mat4& getViewMat();
+    static void setViewMat(glm::mat4& mat);
+    static void setViewMat(glm::mat4&& mat);
 
 private:
+    static glm::mat4 m_Projection;
+    static glm::mat4 m_View;
+    static GLfloat m_Scale;
     static glm::vec3 m_BgColor;
     static std::string m_Data;
     static Mesh* m_CharMesh;

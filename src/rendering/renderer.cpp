@@ -14,9 +14,9 @@
 #include <string>
 #include <vector>
 
-glm::mat4 Renderer::projection = glm::ortho(
+glm::mat4 Renderer::m_Projection = glm::ortho(
     0.0f, (float)Application::WIDTH / (float)Application::HEIGHT, -1.0f, 0.0f);
-glm::mat4 Renderer::view = glm::mat4(1.0f);
+glm::mat4 Renderer::m_View = glm::mat4(1.0f);
 
 glm::vec3 Renderer::m_BgColor;
 std::string Renderer::m_Data;
@@ -89,4 +89,19 @@ void Renderer::setWireframe(const bool enabled) {
 
 void Renderer::setBgColor(const glm::vec3 color) {
     m_BgColor = color;
+}
+
+glm::mat4& Renderer::getProjectionMat() {
+    return m_Projection;
+}
+
+glm::mat4& Renderer::getViewMat() {
+    return m_View;
+}
+
+void Renderer::setViewMat(glm::mat4& mat) {
+    m_View = mat;
+}
+void Renderer::setViewMat(glm::mat4&& mat) {
+    m_View = mat;
 }

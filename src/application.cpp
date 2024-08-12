@@ -61,8 +61,9 @@ void Application::start() {
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), charPos);
-        Renderer::view = glm::scale(glm::translate(glm::mat4(1.0f), cameraPos),
-                                    glm::vec3(cameraScale));
+        Renderer::setViewMat(
+            glm::scale(glm::translate(glm::mat4(1.0f), cameraPos),
+                       glm::vec3(cameraScale)));
         Renderer::draw("Hello world!", transform, program);
 
         debugData.frameTimeMs = (glfwGetTime() - prevTime) * 1000;
