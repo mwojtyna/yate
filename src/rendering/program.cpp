@@ -42,10 +42,11 @@ ProgramBuilder& ProgramBuilder::loadShader(const std::string contents,
         GLint logLen = 0;
         glCall(glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &logLen));
 
-        GLchar* log = (GLchar*)malloc(logLen);
+        GLchar* log = (GLchar*)std::malloc(logLen);
         glCall(glGetShaderInfoLog(shaderId, logLen, 0, log));
         SPDLOG_ERROR("Shader with id={} failed to compile:\n{}", shaderId, log);
-        free(log);
+        std::free(log);
+        std::exit(1);
     }
 
     SPDLOG_DEBUG("Compiled shader with id={}", shaderId);
@@ -73,6 +74,7 @@ Program ProgramBuilder::build() {
         glCall(glGetProgramInfoLog(programId, logLen, nullptr, log));
         SPDLOG_ERROR("Shader program linking error:\n{}", log);
         std::free(log);
+        std::exit(1);
     }
     SPDLOG_DEBUG("Created shader program with id={}", programId);
 

@@ -1,26 +1,50 @@
 #include "text_renderer.hpp"
 #include "../error.hpp"
 #include "freetype/freetype.h"
-#include "freetype/ftimage.h"
 #include "freetype/fttypes.h"
 #include "glad/glad.h"
+#include "program.hpp"
 #include "spdlog/spdlog.h"
+#include <cstddef>
 #include <filesystem>
 
 FT_Library TextRenderer::m_FT = nullptr;
 FT_Face TextRenderer::m_Face = nullptr;
-FT_F26Dot6 TextRenderer::m_Size = 256 * 64;
+FT_F26Dot6 TextRenderer::m_Size = 64 * 64;
+std::unordered_map<uint64_t, Glyph> TextRenderer::m_GlyphCache;
+
+GLuint TextRenderer::m_TextureArrayId = 0;
+GLint TextRenderer::m_MaxTextureLayers = 0;
 
 void TextRenderer::initialize() {
     FT_Error error = FT_Init_FreeType(&m_FT);
     if (error) {
         SPDLOG_ERROR("Failed initializing FreeType: {}",
                      FT_Error_String(error));
-        assert(false);
+        std::exit(1);
     }
-
     SPDLOG_DEBUG("FreeType version: {}.{}.{}", FREETYPE_MAJOR, FREETYPE_MINOR,
                  FREETYPE_PATCH);
+
+    glCall(glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &m_MaxTextureLayers));
+    SPDLOG_DEBUG("Max texture array layers = {}", m_MaxTextureLayers);
+
+    glCall(glGenTextures(1, &m_TextureArrayId));
+    glCall(glActiveTexture(GL_TEXTURE0));
+    glCall(glBindTexture(GL_TEXTURE_2D_ARRAY, m_TextureArrayId));
+    glCall(glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RED, 100, 100,
+                        m_MaxTextureLayers, 0, GL_RED, GL_UNSIGNED_BYTE,
+                        nullptr));
+
+    glCall(glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S,
+                           GL_CLAMP_TO_EDGE));
+    glCall(glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T,
+                           GL_CLAMP_TO_EDGE));
+    glCall(
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+    glCall(
+        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+
     SPDLOG_DEBUG("Initialized text renderer");
 }
 
@@ -52,13 +76,25 @@ void TextRenderer::loadFont(const std::filesystem::path path) {
         SPDLOG_ERROR("Failed setting font size: {}", FT_Error_String(error));
     }
 
+    // Cache common printable characters
+    // https://www.ascii-code.com/
+    for (size_t c = ' '; c <= '~'; c++) {
+        Glyph character = getGlyph(c);
+        m_GlyphCache[c] = character;
+    }
+    SPDLOG_DEBUG("Cached common printable characters");
+
     SPDLOG_DEBUG("Loaded font '{}'", path.c_str());
 }
 
-void TextRenderer::renderChar(const FT_ULong charCode) {
-    FT_UInt glyph = FT_Get_Char_Index(m_Face, charCode);
+Glyph TextRenderer::getGlyph(const FT_ULong charCode) {
+    if (auto it = m_GlyphCache.find(charCode); it != m_GlyphCache.end()) {
+        return it->second;
+    }
 
-    FT_Error error = FT_Load_Glyph(m_Face, glyph, FT_LOAD_DEFAULT);
+    FT_UInt glyphIndex = FT_Get_Char_Index(m_Face, charCode);
+
+    FT_Error error = FT_Load_Glyph(m_Face, glyphIndex, FT_LOAD_DEFAULT);
     if (error) {
         SPDLOG_ERROR("Failed to load char '{}': {}", charCode,
                      FT_Error_String(error));
@@ -70,14 +106,30 @@ void TextRenderer::renderChar(const FT_ULong charCode) {
                      FT_Error_String(error));
     }
 
-    FT_Bitmap& bitmap = m_Face->glyph->bitmap;
-    GLuint texture;
-    glCall(glGenTextures(1, &texture));
-    glCall(glBindTexture(GL_TEXTURE_2D, texture));
-    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-    glCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, bitmap.width, bitmap.rows, 0,
-                        GL_RED, GL_UNSIGNED_BYTE, bitmap.buffer));
+    FT_GlyphSlot& ftGlyph = m_Face->glyph;
+
+    Glyph glyph = {
+        .texId = static_cast<GLuint>(charCode),
+        .offsetX = ftGlyph->metrics.horiBearingX,
+        .offsety = ftGlyph->metrics.height - ftGlyph->metrics.horiBearingY,
+        .advance = ftGlyph->metrics.horiAdvance,
+        .bitmap = ftGlyph->bitmap.buffer,
+        .bitmapWidth = ftGlyph->bitmap.width,
+        .bitmapHeight = ftGlyph->bitmap.rows,
+    };
+    glCall(glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, glyph.texId,
+                           glyph.bitmapWidth, glyph.bitmapHeight, 1, GL_RED,
+                           GL_UNSIGNED_BYTE, glyph.bitmap));
+
+    m_GlyphCache[charCode] = glyph;
+
+    // for (size_t y = 0; y < glyph.bitmapHeight; y++) {
+    //     for (size_t x = 0; x < glyph.bitmapWidth; x++) {
+    //         std::cout << (glyph.bitmap[y * glyph.bitmapWidth + x] > 0 ? "@"
+    //                                                                   : " ");
+    //     }
+    //     std::cout << "\n";
+    // }
+
+    return glyph;
 }

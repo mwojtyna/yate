@@ -18,17 +18,21 @@ VertexArray::~VertexArray() {
 void VertexArray::addBuffer(const VertexBuffer& vb) const {
     vb.bind();
 
-    glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, VertexArray::STRIDE,
+    glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                                  (const void*)offsetof(Vertex, pos)));
     glCall(glEnableVertexAttribArray(0));
 
-    glCall(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, VertexArray::STRIDE,
+    glCall(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                                  (const void*)offsetof(Vertex, color)));
     glCall(glEnableVertexAttribArray(1));
 
-    glCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, VertexArray::STRIDE,
+    glCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                                  (const void*)offsetof(Vertex, uv)));
     glCall(glEnableVertexAttribArray(2));
+
+    glCall(glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(Vertex),
+                                  (const void*)offsetof(Vertex, texId)));
+    glCall(glEnableVertexAttribArray(3));
 
     SPDLOG_TRACE("Added vertex buffer with id={} to vertex array with id={}",
                  vb.getId(), m_Id);

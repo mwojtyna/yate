@@ -10,8 +10,8 @@
 #include "rendering/program.hpp"
 #include "rendering/renderer.hpp"
 #include "rendering/text_renderer.hpp"
-#include "shaders/fragment.frag.hpp"
-#include "shaders/vertex.vert.hpp"
+#include "shaders/shader.frag.hpp"
+#include "shaders/shader.vert.hpp"
 #include "spdlog/cfg/env.h"
 #include "spdlog/spdlog.h"
 
@@ -30,7 +30,7 @@ void Application::start() {
         const char* error;
         glfwGetError(&error);
         SPDLOG_ERROR("Failed to create window: {}", error);
-        assert(false);
+        std::exit(1);
     }
     glfwMakeContextCurrent(window);
 
@@ -40,7 +40,6 @@ void Application::start() {
 
     TextRenderer::initialize();
     TextRenderer::loadFont("/usr/share/fonts/TTF/JetBrainsMono-Regular.ttf");
-    TextRenderer::renderChar('A');
 
     Program program = ProgramBuilder()
                           .loadShader(vertexShader, GL_VERTEX_SHADER)

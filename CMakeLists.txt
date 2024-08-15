@@ -35,8 +35,8 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wswitch-enum -Wformat=2)
 target_include_directories(${PROJECT_NAME} PRIVATE ./include)
 
-embed_shader(${PROJECT_NAME} "vertex.vert" "vertexShader")
-embed_shader(${PROJECT_NAME} "fragment.frag" "fragmentShader")
+embed_shader(${PROJECT_NAME} "shader.vert" "vertexShader")
+embed_shader(${PROJECT_NAME} "shader.frag" "fragmentShader")
 
 # glfw
 FetchContent_Declare(

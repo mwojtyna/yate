@@ -9,6 +9,7 @@
 #include "mesh.hpp"
 #include "program.hpp"
 #include "spdlog/spdlog.h"
+#include "text_renderer.hpp"
 #include "vertex_buffer.hpp"
 #include <cstddef>
 #include <string>
@@ -25,7 +26,7 @@ Mesh* Renderer::m_CharMesh = nullptr;
 void Renderer::initialize() {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         SPDLOG_ERROR("Failed to initialize OpenGL");
-        assert(false);
+        std::exit(1);
     }
 
     glCall(
@@ -33,6 +34,7 @@ void Renderer::initialize() {
     glCall(glEnable(GL_BLEND));
     glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+    glCall(glDepthMask(GL_FALSE));
 
     SPDLOG_DEBUG("Initialized renderer");
 }
@@ -55,18 +57,24 @@ void Renderer::draw(std::string data, glm::mat4& transform, Program& program) {
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
     for (size_t i = 0, j = 0; i < data.length(); i++, j += 4) {
+        Glyph glyph = TextRenderer::getGlyph(data[i]);
+
         vertices.push_back({{0.0f + i, 0.0f, 0.0f},
                             {0.0f, 0.0f, 0.0f, 1.0f},
-                            {0.0f, 0.0f}}); // top left
+                            {0.0f, 0.0f},
+                            glyph.texId}); // top left
         vertices.push_back({{1.0f + i, 0.0f, 0.0f},
                             {1.0f, 0.0f, 0.0f, 1.0f},
-                            {1.0f, 0.0f}}); // top right
+                            {1.0f, 0.0f},
+                            glyph.texId}); // top right
         vertices.push_back({{1.0f + i, -1.0f, 0.0f},
                             {0.0f, 1.0f, 0.0f, 1.0f},
-                            {1.0f, 1.0f}}); // bottom right
+                            {1.0f, 1.0f},
+                            glyph.texId}); // bottom right
         vertices.push_back({{0.0f + i, -1.0f, 0.0f},
                             {0.0f, 0.0f, 1.0f, 1.0f},
-                            {0.0f, 1.0f}}); // bottom left
+                            {0.0f, 1.0f},
+                            glyph.texId}); // bottom left
 
         indices.push_back(j + 0);
         indices.push_back(j + 1);
