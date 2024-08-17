@@ -10,17 +10,19 @@ struct Vertex {
     glm::vec3 pos;
     glm::vec4 color;
     glm::vec2 uv;
-    GLuint texId;
 };
+
+// TODO: Derive from interface
 
 class VertexBuffer {
 public:
     VertexBuffer() = delete;
-    VertexBuffer(const std::vector<Vertex>& vertices);
+    VertexBuffer(const GLsizei count);
     ~VertexBuffer();
 
     void bind() const;
     void unbind() const;
+    void update(std::vector<Vertex>& vertices);
 
     GLuint getId() const;
 

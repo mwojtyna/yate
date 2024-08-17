@@ -3,13 +3,12 @@
 #include "glad/glad.h"
 #include "spdlog/spdlog.h"
 
-IndexBuffer::IndexBuffer(const std::vector<GLuint>& indices) {
+IndexBuffer::IndexBuffer(GLsizei count) : m_Count(count) {
     glCall(glGenBuffers(1, &m_Id));
     SPDLOG_TRACE("Generated index buffer with id={}", m_Id);
     bind();
-    glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                        indices.size() * sizeof(GLuint), indices.data(),
-                        GL_STATIC_DRAW));
+    glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(Index), nullptr,
+                        GL_DYNAMIC_DRAW));
 }
 
 IndexBuffer::~IndexBuffer() {
@@ -25,4 +24,14 @@ void IndexBuffer::bind() const {
 void IndexBuffer::unbind() const {
     glCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     SPDLOG_TRACE("Unbound index buffer with id={}", m_Id);
+}
+
+void IndexBuffer::update(std::vector<Index>& indices) {
+    bind();
+    glCall(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0,
+                           indices.size() * sizeof(Index), indices.data()));
+}
+
+GLsizei IndexBuffer::getCount() const {
+    return m_Count;
 }

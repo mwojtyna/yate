@@ -1,27 +1,22 @@
-#include "renderer.hpp"
-#include "../application.hpp"
-#include "../error.hpp"
-#include "GLFW/glfw3.h"
+#include "font.hpp"
 #include "glad/glad.h"
-#include "glm/ext/matrix_clip_space.hpp"
+// GLFW (include after glad)
+#include "GLFW/glfw3.h"
+
+#include "../error.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/fwd.hpp"
-#include "mesh.hpp"
+#include "index_buffer.hpp"
 #include "program.hpp"
+#include "renderer.hpp"
 #include "spdlog/spdlog.h"
-#include "text_renderer.hpp"
 #include "vertex_buffer.hpp"
 #include <cstddef>
+#include <memory>
 #include <string>
 #include <vector>
 
-glm::mat4 Renderer::m_Projection = glm::ortho(
-    0.0f, (float)Application::WIDTH / (float)Application::HEIGHT, -1.0f, 0.0f);
-glm::mat4 Renderer::m_View = glm::mat4(1.0f);
-
-glm::vec3 Renderer::m_BgColor;
-std::string Renderer::m_Data;
-Mesh* Renderer::m_CharMesh = nullptr;
+RendererData* Renderer::s_Data;
 
 void Renderer::initialize() {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -36,45 +31,51 @@ void Renderer::initialize() {
     glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
     glCall(glDepthMask(GL_FALSE));
 
+    s_Data = new RendererData();
     SPDLOG_DEBUG("Initialized renderer");
 }
 
 void Renderer::destroy() {
-    delete m_CharMesh;
+    delete s_Data;
     SPDLOG_DEBUG("Shutdown renderer");
 }
 
-void Renderer::draw(std::string data, glm::mat4& transform, Program& program) {
-    glCall(glClearColor(m_BgColor.r, m_BgColor.g, m_BgColor.b, 1.0f));
+void Renderer::drawText(std::string codes, Font& font, glm::mat4& transform,
+                        Program& program) {
+    glCall(glClearColor(s_Data->bgColor.r, s_Data->bgColor.g, s_Data->bgColor.b,
+                        1.0f));
     glCall(glClear(GL_COLOR_BUFFER_BIT));
 
-    if (data == m_Data && m_CharMesh != nullptr) {
-        m_CharMesh->draw();
+    if (codes == s_Data->codes) {
+        s_Data->glyphMesh->draw();
         return;
     }
 
-    // TODO: Don't allocate new buffers every time data is changed
-    std::vector<Vertex> vertices;
-    std::vector<GLuint> indices;
-    for (size_t i = 0, j = 0; i < data.length(); i++, j += 4) {
-        Glyph glyph = TextRenderer::getGlyph(data[i]);
+    if (s_Data->glyphMesh == nullptr) {
+        s_Data->glyphMesh = std::make_unique<Mesh>(90 * 30 * 4, 90 * 30 * 6,
+                                                   transform, program);
+    }
 
-        vertices.push_back({{0.0f + i, 0.0f, 0.0f},
-                            {0.0f, 0.0f, 0.0f, 1.0f},
-                            {0.0f, 0.0f},
-                            glyph.texId}); // top left
-        vertices.push_back({{1.0f + i, 0.0f, 0.0f},
-                            {1.0f, 0.0f, 0.0f, 1.0f},
-                            {1.0f, 0.0f},
-                            glyph.texId}); // top right
-        vertices.push_back({{1.0f + i, -1.0f, 0.0f},
-                            {0.0f, 1.0f, 0.0f, 1.0f},
-                            {1.0f, 1.0f},
-                            glyph.texId}); // bottom right
-        vertices.push_back({{0.0f + i, -1.0f, 0.0f},
-                            {0.0f, 0.0f, 1.0f, 1.0f},
-                            {0.0f, 1.0f},
-                            glyph.texId}); // bottom left
+    std::vector<Vertex> vertices;
+    std::vector<Index> indices;
+    glm::vec2 prevPos(0, 0);
+    for (size_t i = 0, j = 0; i < codes.length(); i++, j += 4) {
+        Glyph g = font.getGlyph(codes[i]);
+
+        vertices.push_back({{prevPos.x, -g.h, 0.0f},
+                            {1.0f, 1.0f, 1.0f, 1.0f},
+                            {g.l, g.b}}); // bottom left
+        vertices.push_back({{prevPos.x + g.w, -g.h, 0.0f},
+                            {1.0f, 1.0f, 1.0f, 1.0f},
+                            {g.r, g.b}}); // bottom right
+        vertices.push_back({{prevPos.x + g.w, 0.0f, 0.0f},
+                            {1.0f, 1.0f, 1.0f, 1.0f},
+                            {g.r, g.t}}); // top right
+        vertices.push_back({{prevPos.x, 0.0f, 0.0f},
+                            {1.0f, 1.0f, 1.0f, 1.0f},
+                            {g.l, g.t}}); // top left
+
+        prevPos.x += g.w + g.advance;
 
         indices.push_back(j + 0);
         indices.push_back(j + 1);
@@ -85,9 +86,8 @@ void Renderer::draw(std::string data, glm::mat4& transform, Program& program) {
         indices.push_back(j + 3);
     }
 
-    m_Data = data;
-    m_CharMesh = new Mesh(vertices, indices, transform, program);
-    m_CharMesh->draw();
+    s_Data->glyphMesh->update(vertices, indices);
+    s_Data->glyphMesh->draw();
 }
 
 void Renderer::setWireframe(const bool enabled) {
@@ -95,20 +95,20 @@ void Renderer::setWireframe(const bool enabled) {
 }
 
 void Renderer::setBgColor(const glm::vec3 color) {
-    m_BgColor = color;
+    s_Data->bgColor = color;
 }
 
 glm::mat4& Renderer::getProjectionMat() {
-    return m_Projection;
+    return s_Data->projectionMat;
 }
 
 glm::mat4& Renderer::getViewMat() {
-    return m_View;
+    return s_Data->viewMat;
 }
 
 void Renderer::setViewMat(glm::mat4& mat) {
-    m_View = mat;
+    s_Data->viewMat = mat;
 }
 void Renderer::setViewMat(glm::mat4&& mat) {
-    m_View = mat;
+    s_Data->viewMat = mat;
 }

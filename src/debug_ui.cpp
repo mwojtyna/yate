@@ -1,5 +1,5 @@
 #include "debug_ui.hpp"
-#include "GLFW/glfw3.h"
+#include "application.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -46,13 +46,13 @@ void DebugUI::draw(DebugUI::DebugData& data) {
         ImGui::Begin(title);
 
         ImGui::SeparatorText("Characters");
-        ImGui::SliderFloat2("position###charPos", &data.charPos.x, -50.0f,
-                            50.0f);
+        ImGui::SliderFloat2("position###charPos", &data.charsPos->x,
+                            -Application::WIDTH * 2, Application::WIDTH * 2);
+        ImGui::SliderFloat("scale###charScale", data.charsScale, 0.0f, 50.0f);
 
         ImGui::SeparatorText("Camera");
-        ImGui::SliderFloat2("position###camPos", &data.cameraPos.x, -5.0f,
-                            5.0f);
-        ImGui::SliderFloat("scale###camScale", &data.cameraScale, 0.0f, 2.0f);
+        ImGui::SliderFloat2("position###camPos", &data.cameraPos->x,
+                            -Application::WIDTH, Application::WIDTH);
 
         ImGui::End();
     }

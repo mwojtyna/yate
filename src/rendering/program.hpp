@@ -5,21 +5,46 @@
 #include "glm/ext/matrix_float4x4.hpp"
 #include "spdlog/spdlog.h"
 #include <unordered_map>
-#include <vector>
 
 class Program {
 public:
     Program() = delete;
-    Program(GLuint id);
+    Program(const std::string vertexShader, const std::string fragmentShader);
     ~Program();
 
     void use() const;
     void setUniformMatrix4f(const GLchar* const name, const glm::mat4& mat);
 
 private:
-    const GLuint m_Id = 0;
+    GLuint m_Id = 0;
     /// name -> location
     std::unordered_map<const GLchar*, GLint> m_UniformLocations;
+
+    GLuint loadShader(const std::string contents, const GLuint type) {
+        assert(contents.length() > 0);
+        const GLchar* const string = contents.c_str();
+
+        glCall(GLuint shaderId = glCreateShader(type));
+        glCall(glShaderSource(shaderId, 1, &string, nullptr));
+        glCall(glCompileShader(shaderId));
+
+        GLint compiled = GL_FALSE;
+        glCall(glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compiled));
+        if (compiled != GL_TRUE) {
+            GLint logLen = 0;
+            glCall(glGetShaderiv(shaderId, GL_INFO_LOG_LENGTH, &logLen));
+
+            GLchar* log = (GLchar*)std::malloc(logLen);
+            glCall(glGetShaderInfoLog(shaderId, logLen, 0, log));
+            SPDLOG_ERROR("Shader with id={} failed to compile:\n{}", shaderId,
+                         log);
+            std::free(log);
+            std::exit(1);
+        }
+
+        SPDLOG_DEBUG("Compiled shader with id={}", shaderId);
+        return shaderId;
+    }
 
     GLint getUniformLocation(const GLchar* const name) {
         if (m_UniformLocations.contains(name)) {
@@ -35,13 +60,4 @@ private:
             return location;
         }
     }
-};
-
-class ProgramBuilder {
-public:
-    ProgramBuilder& loadShader(const std::string contents, const GLuint type);
-    Program build();
-
-private:
-    std::vector<GLuint> m_Shaders;
 };

@@ -8,9 +8,9 @@ class DebugUI {
 public:
     struct DebugData {
         double frameTimeMs;
-        glm::vec3& charPos;
-        glm::vec3& cameraPos;
-        float& cameraScale;
+        glm::vec3* charsPos;
+        float* charsScale;
+        glm::vec3* cameraPos;
     };
 
     static void initialize(GLFWwindow* window);

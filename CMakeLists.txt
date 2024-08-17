@@ -94,11 +94,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
 target_link_libraries(imgui PRIVATE glfw)
 target_compile_options(imgui PRIVATE -w) # Disable warnings
 
-# freetype
+# freetype (override msdfgen's compiling)
 FetchContent_Declare(
 	freetype
 	GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype
 	GIT_TAG VER-2-13-2
+	OVERRIDE_FIND_PACKAGE
 )
 set(FT_DISABLE_ZLIB ON CACHE BOOL "" FORCE)
 set(FT_DISABLE_BZIP2 ON CACHE BOOL "" FORCE)
@@ -106,6 +107,47 @@ set(FT_DISABLE_PNG ON CACHE BOOL "" FORCE)
 set(FT_DISABLE_HARFBUZZ ON CACHE BOOL "" FORCE)
 set(FT_DISABLE_BROTLI ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(freetype)
+add_library(Freetype::Freetype ALIAS freetype) # For msdfgen
 target_link_libraries(${PROJECT_NAME} PRIVATE freetype)
 target_compile_definitions(freetype PUBLIC FT_CONFIG_OPTION_ERROR_STRINGS)
 target_compile_options(freetype PRIVATE -w) # Disable warnings
+
+# msdfgen
+FetchContent_Declare(
+	msdfgen
+	GIT_REPOSITORY https://github.com/Chlumsky/msdfgen
+	GIT_TAG v1.12
+)
+set(MSDFGEN_CORE_ONLY OFF CACHE BOOL "" FORCE)
+set(MSDFGEN_BUILD_STANDALONE OFF CACHE BOOL "" FORCE)
+set(MSDFGEN_USE_VCPKG OFF CACHE BOOL "" FORCE)
+set(MSDFGEN_USE_OPENMP OFF CACHE BOOL "" FORCE)
+set(MSDFGEN_USE_CPP11 ON CACHE BOOL "" FORCE)
+set(MSDFGEN_USE_SKIA OFF CACHE BOOL "" FORCE)
+set(MSDFGEN_DISABLE_SVG ON CACHE BOOL "" FORCE)
+set(MSDFGEN_DISABLE_PNG ON CACHE BOOL "" FORCE)
+set(MSDFGEN_DISABLE_VARIABLE_FONTS ON CACHE BOOL "" FORCE)
+set(MSDFGEN_INSTALL OFF CACHE BOOL "" FORCE)
+set(MSDFGEN_DYNAMIC_RUNTIME OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(msdfgen)
+target_link_libraries(${PROJECT_NAME} PRIVATE msdfgen-core)
+target_link_libraries(${PROJECT_NAME} PRIVATE msdfgen-ext)
+target_compile_options(msdfgen-core PRIVATE -w)
+target_compile_options(msdfgen-ext PRIVATE -w)
+
+# msdf-atlas-gen
+FetchContent_Declare(
+	msdf-atlas-gen
+	GIT_REPOSITORY https://github.com/Chlumsky/msdf-atlas-gen
+	GIT_TAG v1.3
+)
+set(MSDF_ATLAS_BUILD_STANDALONE OFF CACHE BOOL "" FORCE)
+set(MSDF_ATLAS_USE_VCPKG OFF CACHE BOOL "" FORCE)
+set(MSDF_ATLAS_USE_SKIA OFF CACHE BOOL "" FORCE)
+set(MSDF_ATLAS_NO_ARTERY_FONT ON CACHE BOOL "" FORCE)
+set(MSDF_ATLAS_MSDFGEN_EXTERNAL ON CACHE BOOL "" FORCE)
+set(MSDF_ATLAS_INSTALL OFF CACHE BOOL "" FORCE)
+set(MSDF_ATLAS_DYNAMIC_RUNTIME OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(msdf-atlas-gen)
+target_link_libraries(${PROJECT_NAME} PRIVATE msdf-atlas-gen)
+target_compile_options(msdf-atlas-gen PRIVATE -w)

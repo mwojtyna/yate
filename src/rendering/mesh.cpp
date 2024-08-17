@@ -7,16 +7,13 @@
 #include "spdlog/spdlog.h"
 #include "vertex_array.hpp"
 #include "vertex_buffer.hpp"
-#include <memory>
 
-Mesh::Mesh(const std::vector<Vertex>& vertices,
-           const std::vector<GLuint>& indices, glm::mat4& transform,
-           Program& program)
-    : m_IndicesCount(indices.size()), m_Transform(transform),
-      m_Program(program) {
-    m_Va = std::make_unique<const VertexArray>();
-    m_Ib = std::make_unique<const IndexBuffer>(indices);
-    m_Vb = std::make_unique<const VertexBuffer>(vertices);
+Mesh::Mesh(const GLsizei verticesCount, const GLsizei indicesCount,
+           glm::mat4& transform, Program& program)
+    : m_Transform(transform), m_Program(program) {
+    m_Va = std::make_unique<VertexArray>();
+    m_Ib = std::make_unique<IndexBuffer>(indicesCount);
+    m_Vb = std::make_unique<VertexBuffer>(verticesCount);
     m_Va->addBuffer(*m_Vb);
 
     SPDLOG_DEBUG("Created mesh");
@@ -32,6 +29,11 @@ void Mesh::draw() const {
     m_Program.setUniformMatrix4f("u_MVP", mvp);
 
     m_Va->bind();
-    glCall(glDrawElements(GL_TRIANGLES, m_IndicesCount, GL_UNSIGNED_INT,
+    glCall(glDrawElements(GL_TRIANGLES, m_Ib->getCount(), GL_UNSIGNED_INT,
                           (const void*)0));
+}
+
+void Mesh::update(std::vector<Vertex>& vertices, std::vector<GLuint>& indices) {
+    m_Vb->update(vertices);
+    m_Ib->update(indices);
 }

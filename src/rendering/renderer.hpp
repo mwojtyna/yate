@@ -1,10 +1,26 @@
 #pragma once
 
+#include "../application.hpp"
+#include "font.hpp"
+#include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "mesh.hpp"
 #include "program.hpp"
+#include <memory>
 #include <string>
+
+struct RendererData {
+    glm::mat4 projectionMat =
+        glm::ortho(0.0f,
+                   (float)Application::WIDTH / (float)Application::HEIGHT *
+                       Application::HEIGHT,
+                   -(float)Application::HEIGHT, 0.0f);
+    glm::mat4 viewMat = glm::mat4(1.0f);
+    glm::vec3 bgColor;
+    std::string codes;
+    std::unique_ptr<Mesh> glyphMesh = nullptr;
+};
 
 class Renderer {
 public:
@@ -16,7 +32,8 @@ public:
     static void destroy();
 
     // TODO: Replace data type with a custom type when parsed terminal output
-    static void draw(std::string data, glm::mat4& transform, Program& program);
+    static void drawText(std::string codes, Font& font, glm::mat4& transform,
+                         Program& program);
     static void setWireframe(const bool enabled);
     static void setBgColor(const glm::vec3 color);
 
@@ -26,10 +43,5 @@ public:
     static void setViewMat(glm::mat4&& mat);
 
 private:
-    static glm::mat4 m_Projection;
-    static glm::mat4 m_View;
-    static GLfloat m_Scale;
-    static glm::vec3 m_BgColor;
-    static std::string m_Data;
-    static Mesh* m_CharMesh;
+    static RendererData* s_Data;
 };
