@@ -13,7 +13,6 @@
 #include <glm/fwd.hpp>
 #include <memory>
 #include <spdlog/spdlog.h>
-#include <string>
 #include <vector>
 
 RendererData* Renderer::s_Data;
@@ -40,7 +39,7 @@ void Renderer::destroy() {
     SPDLOG_DEBUG("Shutdown renderer");
 }
 
-void Renderer::drawText(std::string codes, Font& font, glm::mat4& transform,
+void Renderer::drawText(Codes& codes, Font& font, glm::mat4& transform,
                         Program& program) {
     glCall(glClearColor(s_Data->bgColor.r, s_Data->bgColor.g, s_Data->bgColor.b,
                         1.0f));
@@ -48,6 +47,7 @@ void Renderer::drawText(std::string codes, Font& font, glm::mat4& transform,
 
     if (codes == s_Data->codes) {
         s_Data->glyphMesh->draw();
+        s_Data->codes = codes;
         return;
     }
 
@@ -58,10 +58,10 @@ void Renderer::drawText(std::string codes, Font& font, glm::mat4& transform,
 
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
-    glm::vec2 pen(0, 0);
-    for (size_t i = 0, j = 0; i < codes.length(); i++, j += 4) {
+    glm::vec2 pen(0, -font.getMetrics().ascenderY * font.getSize());
+    for (size_t i = 0, j = 0; i < codes.size(); i++, j += 4) {
         std::optional<msdfgen::unicode_t> nextCode =
-            i < codes.length() - 1 ? std::optional(codes[i + 1]) : std::nullopt;
+            i < codes.size() - 1 ? std::optional(codes[i + 1]) : std::nullopt;
         GlyphInfo g = font.getGlyph(codes[i], nextCode);
 
         vertices.push_back({{pen.x + g.pl, pen.y + g.pb, 0.0f},

@@ -24,8 +24,11 @@ Font::Font(std::filesystem::path path, float size)
     }
 
     m_Geometry = std::make_unique<msdf_atlas::FontGeometry>(&m_Glyphs);
-    int amountLoaded =
-        m_Geometry->loadCharset(m_Font, 2, msdf_atlas::Charset::ASCII);
+    msdf_atlas::Charset charset;
+    for (size_t cp = 0; cp <= 0x10FFFF; cp++) {
+        charset.add(cp);
+    }
+    int amountLoaded = m_Geometry->loadCharset(m_Font, 2, charset);
     SPDLOG_DEBUG("Loaded {} glyphs from font '{}'", amountLoaded, path.c_str());
 }
 
@@ -85,7 +88,11 @@ GlyphInfo Font::getGlyph(msdfgen::unicode_t codepoint1,
     GlyphInfo gi;
     msdf_atlas::GlyphGeometry* glyph =
         (msdf_atlas::GlyphGeometry*)m_Geometry->getGlyph(codepoint1);
-    const msdfgen::FontMetrics& metrics = m_Geometry->getMetrics();
+
+    // If glyph not found, set it to � (replacement character)
+    if (glyph == nullptr) {
+        glyph = (msdf_atlas::GlyphGeometry*)m_Geometry->getGlyph(0xFFFD);
+    }
 
     glyph->getQuadAtlasBounds(gi.al, gi.ab, gi.ar, gi.at);
     glyph->getQuadPlaneBounds(gi.pl, gi.pb, gi.pr, gi.pt);
@@ -101,9 +108,16 @@ GlyphInfo Font::getGlyph(msdfgen::unicode_t codepoint1,
     gi.pt *= m_Size;
 
     if (codepoint2.has_value()) {
-        m_Geometry->getAdvance(gi.advance, codepoint1, codepoint2.value());
-        gi.advance *= m_Size;
+        gi.advance = glyph->getAdvance() * m_Size;
     }
 
     return gi;
+}
+
+const msdfgen::FontMetrics& Font::getMetrics() const {
+    return m_Geometry->getMetrics();
+}
+
+float Font::getSize() const {
+    return m_Size;
 }

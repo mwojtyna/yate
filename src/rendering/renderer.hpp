@@ -4,18 +4,20 @@
 #include "font.hpp"
 #include "mesh.hpp"
 #include "program.hpp"
+#include <cstdint>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <memory>
-#include <string>
+
+using Codes = std::vector<uint32_t>;
 
 struct RendererData {
     glm::mat4 projectionMat = glm::ortho(0.0f, (float)Application::WIDTH,
                                          -(float)Application::HEIGHT, 0.0f);
     glm::mat4 viewMat = glm::mat4(1.0f);
     glm::vec3 bgColor;
-    std::string codes;
+    Codes codes;
     std::unique_ptr<Mesh> glyphMesh = nullptr;
 };
 
@@ -29,7 +31,7 @@ public:
     static void destroy();
 
     // TODO: Replace data type with a custom type when parsed terminal output
-    static void drawText(std::string codes, Font& font, glm::mat4& transform,
+    static void drawText(Codes& codes, Font& font, glm::mat4& transform,
                          Program& program);
     static void setWireframe(const bool enabled);
     static void setBgColor(const glm::vec3 color);

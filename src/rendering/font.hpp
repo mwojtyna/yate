@@ -29,6 +29,8 @@ public:
     void createAtlas();
     GlyphInfo getGlyph(msdfgen::unicode_t codepoint1,
                        std::optional<msdfgen::unicode_t> codepoint2) const;
+    const msdfgen::FontMetrics& getMetrics() const;
+    float getSize() const;
 
 private:
     std::filesystem::path m_Path;

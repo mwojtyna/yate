@@ -56,6 +56,10 @@ void Application::start() {
     };
     DebugUI::initialize(window);
 
+    Codes codes = {
+        90,  97,  380, 243, 322, 263, 32,  103, 281,
+        347, 108, 261, 32,  106, 97,  378, 324,
+    };
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
         // TODO: Parse terminal codes
@@ -63,8 +67,7 @@ void Application::start() {
         glm::mat4 transform = glm::scale(
             glm::translate(glm::mat4(1.0f), charsPos), glm::vec3(charScale));
         Renderer::setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));
-        Renderer::drawText("indices.push_back(j + 0);", font, transform,
-                           program);
+        Renderer::drawText(codes, font, transform, program);
 
         debugData.frameTimeMs = (glfwGetTime() - prevTime) * 1000;
         prevTime = glfwGetTime();
