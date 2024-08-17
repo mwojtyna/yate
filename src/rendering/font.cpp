@@ -1,5 +1,6 @@
 #include "font.hpp"
 #include "../error.hpp"
+#include <cassert>
 #include <cstdint>
 #include <glad/glad.h>
 #include <memory>
@@ -8,7 +9,8 @@
 #include <thread>
 #include <vector>
 
-Font::Font(std::filesystem::path path) : m_Path(path) {
+Font::Font(std::filesystem::path path, float size)
+    : m_Path(path), m_Size(size) {
     m_FT = msdfgen::initializeFreetype();
     if (m_FT == nullptr) {
         SPDLOG_ERROR("Failed to initialize freetype");
@@ -74,20 +76,34 @@ void Font::createAtlas() {
                         m_Atlas.pixels));
 }
 
-Glyph Font::getGlyph(msdfgen::unicode_t codepoint) const {
-    Glyph glyph;
+GlyphInfo Font::getGlyph(msdfgen::unicode_t codepoint1,
+                         std::optional<msdfgen::unicode_t> codepoint2) const {
+    if (m_Atlas.width == 0 && m_Atlas.height == 0) {
+        assert(false && "Atlas not generated");
+    }
 
-    const msdf_atlas::GlyphGeometry* glyphInfo =
-        m_Geometry->getGlyph(codepoint);
-    int _ = 0;
-    glyphInfo->getBoxRect(_, _, glyph.w, glyph.h);
+    GlyphInfo gi;
+    msdf_atlas::GlyphGeometry* glyph =
+        (msdf_atlas::GlyphGeometry*)m_Geometry->getGlyph(codepoint1);
+    const msdfgen::FontMetrics& metrics = m_Geometry->getMetrics();
 
-    glyphInfo->getQuadAtlasBounds(glyph.l, glyph.b, glyph.r, glyph.t);
-    glyph.l /= m_Atlas.width;
-    glyph.r /= m_Atlas.width;
-    glyph.b /= m_Atlas.height;
-    glyph.t /= m_Atlas.height;
-    glyph.advance = glyphInfo->getAdvance();
+    glyph->getQuadAtlasBounds(gi.al, gi.ab, gi.ar, gi.at);
+    glyph->getQuadPlaneBounds(gi.pl, gi.pb, gi.pr, gi.pt);
 
-    return glyph;
+    gi.al /= m_Atlas.width;
+    gi.ar /= m_Atlas.width;
+    gi.ab /= m_Atlas.height;
+    gi.at /= m_Atlas.height;
+
+    gi.pl *= m_Size;
+    gi.pr *= m_Size;
+    gi.pb *= m_Size;
+    gi.pt *= m_Size;
+
+    if (codepoint2.has_value()) {
+        m_Geometry->getAdvance(gi.advance, codepoint1, codepoint2.value());
+        gi.advance *= m_Size;
+    }
+
+    return gi;
 }

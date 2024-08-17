@@ -58,24 +58,26 @@ void Renderer::drawText(std::string codes, Font& font, glm::mat4& transform,
 
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
-    glm::vec2 prevPos(0, 0);
+    glm::vec2 pen(0, 0);
     for (size_t i = 0, j = 0; i < codes.length(); i++, j += 4) {
-        Glyph g = font.getGlyph(codes[i]);
+        std::optional<msdfgen::unicode_t> nextCode =
+            i < codes.length() - 1 ? std::optional(codes[i + 1]) : std::nullopt;
+        GlyphInfo g = font.getGlyph(codes[i], nextCode);
 
-        vertices.push_back({{prevPos.x, -g.h, 0.0f},
+        vertices.push_back({{pen.x + g.pl, pen.y + g.pb, 0.0f},
                             {1.0f, 1.0f, 1.0f, 1.0f},
-                            {g.l, g.b}}); // bottom left
-        vertices.push_back({{prevPos.x + g.w, -g.h, 0.0f},
+                            {g.al, g.ab}}); // bottom left
+        vertices.push_back({{pen.x + g.pr, pen.y + g.pb, 0.0f},
                             {1.0f, 1.0f, 1.0f, 1.0f},
-                            {g.r, g.b}}); // bottom right
-        vertices.push_back({{prevPos.x + g.w, 0.0f, 0.0f},
+                            {g.ar, g.ab}}); // bottom right
+        vertices.push_back({{pen.x + g.pr, pen.y + g.pt, 0.0f},
                             {1.0f, 1.0f, 1.0f, 1.0f},
-                            {g.r, g.t}}); // top right
-        vertices.push_back({{prevPos.x, 0.0f, 0.0f},
+                            {g.ar, g.at}}); // top right
+        vertices.push_back({{pen.x + g.pl, pen.y + g.pt, 0.0f},
                             {1.0f, 1.0f, 1.0f, 1.0f},
-                            {g.l, g.t}}); // top left
+                            {g.al, g.at}}); // top left
 
-        prevPos.x += g.w + g.advance;
+        pen.x += g.advance;
 
         indices.push_back(j + 0);
         indices.push_back(j + 1);

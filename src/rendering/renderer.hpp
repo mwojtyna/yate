@@ -11,11 +11,8 @@
 #include <string>
 
 struct RendererData {
-    glm::mat4 projectionMat =
-        glm::ortho(0.0f,
-                   (float)Application::WIDTH / (float)Application::HEIGHT *
-                       Application::HEIGHT,
-                   -(float)Application::HEIGHT, 0.0f);
+    glm::mat4 projectionMat = glm::ortho(0.0f, (float)Application::WIDTH,
+                                         -(float)Application::HEIGHT, 0.0f);
     glm::mat4 viewMat = glm::mat4(1.0f);
     glm::vec3 bgColor;
     std::string codes;

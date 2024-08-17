@@ -12,8 +12,6 @@ struct Vertex {
     glm::vec2 uv;
 };
 
-// TODO: Derive from interface
-
 class VertexBuffer {
 public:
     VertexBuffer() = delete;

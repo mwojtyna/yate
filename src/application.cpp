@@ -40,7 +40,7 @@ void Application::start() {
     Renderer::setBgColor(glm::vec3(0.2f, 0.3f, 0.3f));
     Renderer::setWireframe(false);
 
-    Font font("/usr/share/fonts/TTF/JetBrainsMono-Regular.ttf");
+    Font font("/usr/share/fonts/TTF/JetBrainsMono-Regular.ttf", 11);
     font.createAtlas();
 
     Program program(vertexShader, fragmentShader);
@@ -63,7 +63,8 @@ void Application::start() {
         glm::mat4 transform = glm::scale(
             glm::translate(glm::mat4(1.0f), charsPos), glm::vec3(charScale));
         Renderer::setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));
-        Renderer::drawText("Hello world!", font, transform, program);
+        Renderer::drawText("indices.push_back(j + 0);", font, transform,
+                           program);
 
         debugData.frameTimeMs = (glfwGetTime() - prevTime) * 1000;
         prevTime = glfwGetTime();
