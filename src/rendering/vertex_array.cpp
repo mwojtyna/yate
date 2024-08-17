@@ -1,8 +1,8 @@
 #include "vertex_array.hpp"
 #include "../error.hpp"
-#include "spdlog/spdlog.h"
 #include "vertex_buffer.hpp"
 #include <cstddef>
+#include <spdlog/spdlog.h>
 
 VertexArray::VertexArray() {
     glCall(glGenVertexArrays(1, &m_Id));

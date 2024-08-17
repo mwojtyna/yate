@@ -1,18 +1,18 @@
-#include "font.hpp"
-#include "glad/glad.h"
+#include <glad/glad.h>
 // GLFW (include after glad)
-#include "GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 
 #include "../error.hpp"
-#include "glm/ext/matrix_float4x4.hpp"
-#include "glm/fwd.hpp"
+#include "font.hpp"
 #include "index_buffer.hpp"
 #include "program.hpp"
 #include "renderer.hpp"
-#include "spdlog/spdlog.h"
 #include "vertex_buffer.hpp"
 #include <cstddef>
+#include <glm/ext/matrix_float4x4.hpp>
+#include <glm/fwd.hpp>
 #include <memory>
+#include <spdlog/spdlog.h>
 #include <string>
 #include <vector>
 

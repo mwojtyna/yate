@@ -1,11 +1,11 @@
 #pragma once
 
-#include "glad/glad.h"
-#include "glm/ext/matrix_float4x4.hpp"
 #include "index_buffer.hpp"
 #include "program.hpp"
 #include "vertex_array.hpp"
 #include "vertex_buffer.hpp"
+#include <glad/glad.h>
+#include <glm/ext/matrix_float4x4.hpp>
 #include <vector>
 
 class Mesh {

@@ -1,7 +1,7 @@
 #include "index_buffer.hpp"
 #include "../error.hpp"
-#include "glad/glad.h"
-#include "spdlog/spdlog.h"
+#include <glad/glad.h>
+#include <spdlog/spdlog.h>
 
 IndexBuffer::IndexBuffer(GLsizei count) : m_Count(count) {
     glCall(glGenBuffers(1, &m_Id));

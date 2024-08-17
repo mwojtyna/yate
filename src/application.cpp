@@ -1,19 +1,19 @@
-#include "glad/glad.h"
+#include <glad/glad.h>
 // GLFW (include after glad)
-#include "GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 
 #include "application.hpp"
 #include "debug_ui.hpp"
-#include "glm/ext/matrix_float4x4.hpp"
-#include "glm/ext/matrix_transform.hpp"
-#include "glm/ext/vector_float3.hpp"
 #include "rendering/font.hpp"
 #include "rendering/program.hpp"
 #include "rendering/renderer.hpp"
 #include "shaders/shader.frag.hpp"
 #include "shaders/shader.vert.hpp"
-#include "spdlog/cfg/env.h"
-#include "spdlog/spdlog.h"
+#include <glm/ext/matrix_float4x4.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/vector_float3.hpp>
+#include <spdlog/cfg/env.h>
+#include <spdlog/spdlog.h>
 
 void Application::start() {
     spdlog::cfg::load_env_levels();

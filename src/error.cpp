@@ -1,5 +1,5 @@
-#include "glad/glad.h"
-#include "spdlog/spdlog.h"
+#include <glad/glad.h>
+#include <spdlog/spdlog.h>
 
 bool checkError() {
     while (GLenum error = glGetError()) {

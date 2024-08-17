@@ -1,7 +1,7 @@
 #pragma once
 
-#include "msdf-atlas-gen/msdf-atlas-gen.h"
 #include <filesystem>
+#include <msdf-atlas-gen/msdf-atlas-gen.h>
 
 using AtlasRef = msdfgen::BitmapConstRef<uint8_t, 3>;
 

@@ -1,10 +1,10 @@
 #include "font.hpp"
 #include "../error.hpp"
-#include "glad/glad.h"
-#include "msdf-atlas-gen/msdf-atlas-gen.h"
-#include "spdlog/spdlog.h"
 #include <cstdint>
+#include <glad/glad.h>
 #include <memory>
+#include <msdf-atlas-gen/msdf-atlas-gen.h>
+#include <spdlog/spdlog.h>
 #include <thread>
 #include <vector>
 

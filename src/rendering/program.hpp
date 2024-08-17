@@ -1,9 +1,9 @@
 #pragma once
 
 #include "../error.hpp"
-#include "glad/glad.h"
-#include "glm/ext/matrix_float4x4.hpp"
-#include "spdlog/spdlog.h"
+#include <glad/glad.h>
+#include <glm/ext/matrix_float4x4.hpp>
+#include <spdlog/spdlog.h>
 #include <unordered_map>
 
 class Program {

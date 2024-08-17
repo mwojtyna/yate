@@ -1,12 +1,12 @@
 #include "debug_ui.hpp"
 #include "application.hpp"
-#include "glm/ext/vector_float3.hpp"
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#include "spdlog/spdlog.h"
 #include <cstdio>
 #include <cstdlib>
+#include <glm/ext/vector_float3.hpp>
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+#include <spdlog/spdlog.h>
 
 ImGuiIO DebugUI::m_IO;
 bool DebugUI::m_ShowDemoWindow = false;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "glad/glad.h"
 #include "vertex_buffer.hpp"
+#include <glad/glad.h>
 
 class VertexArray {
 public:

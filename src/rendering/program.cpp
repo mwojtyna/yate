@@ -1,11 +1,11 @@
 #include "program.hpp"
 #include "../error.hpp"
-#include "glad/glad.h"
-#include "glm/ext/matrix_float4x4.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "spdlog/spdlog.h"
 #include <assert.h>
 #include <cstdlib>
+#include <glad/glad.h>
+#include <glm/ext/matrix_float4x4.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <spdlog/spdlog.h>
 
 Program::Program(const std::string vertexShader,
                  const std::string fragmentShader) {
