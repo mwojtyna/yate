@@ -65,16 +65,16 @@ void Renderer::drawText(Codes& codes, Font& font, glm::mat4& transform,
         GlyphInfo g = font.getGlyph(codes[i], nextCode);
 
         vertices.push_back({{pen.x + g.pl, pen.y + g.pb, 0.0f},
-                            {1.0f, 1.0f, 1.0f, 1.0f},
+                            {1.0f, 1.0f, 1.0f},
                             {g.al, g.ab}}); // bottom left
         vertices.push_back({{pen.x + g.pr, pen.y + g.pb, 0.0f},
-                            {1.0f, 1.0f, 1.0f, 1.0f},
+                            {1.0f, 1.0f, 1.0f},
                             {g.ar, g.ab}}); // bottom right
         vertices.push_back({{pen.x + g.pr, pen.y + g.pt, 0.0f},
-                            {1.0f, 1.0f, 1.0f, 1.0f},
+                            {1.0f, 1.0f, 1.0f},
                             {g.ar, g.at}}); // top right
         vertices.push_back({{pen.x + g.pl, pen.y + g.pt, 0.0f},
-                            {1.0f, 1.0f, 1.0f, 1.0f},
+                            {1.0f, 1.0f, 1.0f},
                             {g.al, g.at}}); // top left
 
         pen.x += g.advance;

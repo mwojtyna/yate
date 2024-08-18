@@ -10,6 +10,7 @@
 #include <glm/ext/vector_float3.hpp>
 #include <memory>
 
+// TODO: Replace data type with a custom type when parsed terminal output
 using Codes = std::vector<uint32_t>;
 
 struct RendererData {
@@ -30,7 +31,6 @@ public:
     static void initialize();
     static void destroy();
 
-    // TODO: Replace data type with a custom type when parsed terminal output
     static void drawText(Codes& codes, Font& font, glm::mat4& transform,
                          Program& program);
     static void setWireframe(const bool enabled);

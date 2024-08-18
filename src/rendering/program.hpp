@@ -13,7 +13,8 @@ public:
     ~Program();
 
     void use() const;
-    void setUniformMatrix4f(const GLchar* const name, const glm::mat4& mat);
+    void setUniformFloat(const GLchar* const name, const float value);
+    void setUniformMatrix4(const GLchar* const name, const glm::mat4& mat);
 
 private:
     GLuint m_Id = 0;

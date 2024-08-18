@@ -37,35 +37,37 @@ void Application::start() {
     // TODO: Initialize terminal
 
     Renderer::initialize();
-    Renderer::setBgColor(glm::vec3(0.2f, 0.3f, 0.3f));
+    Renderer::setBgColor(glm::vec3(0.10f, 0.11f, 0.15f));
     Renderer::setWireframe(false);
 
-    Font font("/usr/share/fonts/TTF/JetBrainsMono-Regular.ttf", 11);
+    Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 15);
     font.createAtlas();
 
     Program program(vertexShader, fragmentShader);
 
     glm::vec3 charsPos(0.0f), cameraPos(0.0f);
-    float charScale = 1.0f;
+    float charsScale = 1.0f, charsCutoff = 0.35f;
     double prevTime = glfwGetTime();
     auto debugData = DebugUI::DebugData{
         .frameTimeMs = 0,
         .charsPos = &charsPos,
-        .charsScale = &charScale,
+        .charsScale = &charsScale,
         .cameraPos = &cameraPos,
     };
     DebugUI::initialize(window);
 
-    Codes codes = {
-        90,  97,  380, 243, 322, 263, 32,  103, 281,
-        347, 108, 261, 32,  106, 97,  378, 324,
-    };
+    Codes codes = {32,    62211, 32,    57520, 32,  61564, 32,    126,
+                   47,    100,   101,   118,   101, 108,   111,   112,
+                   101,   114,   47,    121,   97,  116,   101,   47,
+                   98,    117,   105,   108,   100, 32,    57520, 32,
+                   61715, 32,    61734, 32,    109, 97,    105,   110,
+                   32,    42,    50,    32,    33,  51,    32,    57520};
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
         // TODO: Parse terminal codes
 
         glm::mat4 transform = glm::scale(
-            glm::translate(glm::mat4(1.0f), charsPos), glm::vec3(charScale));
+            glm::translate(glm::mat4(1.0f), charsPos), glm::vec3(charsScale));
         Renderer::setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));
         Renderer::drawText(codes, font, transform, program);
 

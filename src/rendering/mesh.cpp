@@ -26,7 +26,7 @@ Mesh::~Mesh() {
 void Mesh::draw() const {
     glm::mat4 mvp =
         Renderer::getProjectionMat() * Renderer::getViewMat() * m_Transform;
-    m_Program.setUniformMatrix4f("u_MVP", mvp);
+    m_Program.setUniformMatrix4("u_MVP", mvp);
 
     m_Va->bind();
     glCall(glDrawElements(GL_TRIANGLES, m_Ib->getCount(), GL_UNSIGNED_INT,

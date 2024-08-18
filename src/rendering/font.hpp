@@ -4,7 +4,7 @@
 #include <msdf-atlas-gen/msdf-atlas-gen.h>
 #include <optional>
 
-using AtlasRef = msdfgen::BitmapConstRef<uint8_t, 3>;
+using AtlasRef = msdfgen::BitmapConstRef<uint8_t, 1>;
 
 struct GlyphInfo {
     double al = 0;

@@ -50,8 +50,15 @@ void Program::use() const {
     SPDLOG_TRACE("Using shader program with id={}", m_Id);
 }
 
-void Program::setUniformMatrix4f(const GLchar* const name,
-                                 const glm::mat4& mat) {
+void Program::setUniformFloat(const GLchar* const name, const float value) {
+    use();
+    const GLint location = getUniformLocation(name);
+    glCall(glUniform1f(location, value));
+    SPDLOG_TRACE("Set uniform '{}'", name);
+}
+
+void Program::setUniformMatrix4(const GLchar* const name,
+                                const glm::mat4& mat) {
     use();
     const GLint location = getUniformLocation(name);
     glCall(glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat)));
