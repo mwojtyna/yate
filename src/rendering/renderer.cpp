@@ -19,12 +19,10 @@ RendererData* Renderer::s_Data;
 
 void Renderer::initialize() {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        SPDLOG_ERROR("Failed to initialize OpenGL");
-        std::exit(1);
+        FATAL("Failed to initialize OpenGL");
     }
 
-    glCall(
-        SPDLOG_DEBUG("OpenGL version: {}", (GLchar*)glGetString(GL_VERSION)));
+    glCall(SPDLOG_INFO("OpenGL version: {}", (GLchar*)glGetString(GL_VERSION)));
     glCall(glEnable(GL_BLEND));
     glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
@@ -58,11 +56,11 @@ void Renderer::drawText(Codes& codes, Font& font, glm::mat4& transform,
 
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
-    glm::vec2 pen(0, -font.getMetrics().ascenderY * font.getSize());
+    glm::vec2 pen(0, -(float)font.getMetrics().ascender *
+                         (1.0 / (float)font.getMetrics().y_scale) *
+                         font.getSize());
     for (size_t i = 0, j = 0; i < codes.size(); i++, j += 4) {
-        std::optional<msdfgen::unicode_t> nextCode =
-            i < codes.size() - 1 ? std::optional(codes[i + 1]) : std::nullopt;
-        GlyphInfo g = font.getGlyph(codes[i], nextCode);
+        Glyph g = font.getGlyph(codes[i]);
 
         vertices.push_back({{pen.x + g.pl, pen.y + g.pb, 0.0f},
                             {1.0f, 1.0f, 1.0f},

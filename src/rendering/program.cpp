@@ -29,9 +29,8 @@ Program::Program(const std::string vertexShader,
 
         GLchar* log = (GLchar*)std::malloc(logLen);
         glCall(glGetProgramInfoLog(programId, logLen, nullptr, log));
-        SPDLOG_ERROR("Shader program linking error:\n{}", log);
+        FATAL("Shader program linking error:\n{}", log);
         std::free(log);
-        std::exit(1);
     }
     SPDLOG_DEBUG("Created shader program with id={}", programId);
 

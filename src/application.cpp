@@ -17,7 +17,7 @@
 
 void Application::start() {
     spdlog::cfg::load_env_levels();
-    SPDLOG_DEBUG("GLFW version: {}", glfwGetVersionString());
+    SPDLOG_INFO("GLFW version: {}", glfwGetVersionString());
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -29,8 +29,7 @@ void Application::start() {
     if (window == nullptr) {
         const char* error;
         glfwGetError(&error);
-        SPDLOG_ERROR("Failed to create window: {}", error);
-        std::exit(1);
+        FATAL("Failed to create window: {}", error);
     }
     glfwMakeContextCurrent(window);
 
@@ -40,7 +39,7 @@ void Application::start() {
     Renderer::setBgColor(glm::vec3(0.10f, 0.11f, 0.15f));
     Renderer::setWireframe(false);
 
-    Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 15);
+    Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 64);
     font.createAtlas();
 
     Program program(vertexShader, fragmentShader);
@@ -56,12 +55,7 @@ void Application::start() {
     };
     DebugUI::initialize(window);
 
-    Codes codes = {32,    62211, 32,    57520, 32,  61564, 32,    126,
-                   47,    100,   101,   118,   101, 108,   111,   112,
-                   101,   114,   47,    121,   97,  116,   101,   47,
-                   98,    117,   105,   108,   100, 32,    57520, 32,
-                   61715, 32,    61734, 32,    109, 97,    105,   110,
-                   32,    42,    50,    32,    33,  51,    32,    57520};
+    Codes codes = {0x61};
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
         // TODO: Parse terminal codes

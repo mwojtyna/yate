@@ -37,10 +37,8 @@ private:
 
             GLchar* log = (GLchar*)std::malloc(logLen);
             glCall(glGetShaderInfoLog(shaderId, logLen, 0, log));
-            SPDLOG_ERROR("Shader with id={} failed to compile:\n{}", shaderId,
-                         log);
+            FATAL("Shader with id={} failed to compile:\n{}", shaderId, log);
             std::free(log);
-            std::exit(1);
         }
 
         SPDLOG_DEBUG("Compiled shader with id={}", shaderId);
