@@ -11,7 +11,7 @@
 using Codepoint = FT_ULong;
 
 struct GlyphGeometry {
-    FT_GlyphSlot slot;
+    FT_Glyph_Metrics metrics;
     stbrp_rect* rect;
     uint8_t* bitmap;
 };
@@ -35,7 +35,7 @@ public:
     const FT_Size_Metrics getMetrics() const;
     float getSize() const;
 
-    static double FracToPixels(size_t value);
+    static double fracToPx(double value);
 
 private:
     const float ATLAS_SIZE = 2048;

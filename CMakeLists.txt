@@ -36,8 +36,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 endif()
 target_include_directories(${PROJECT_NAME} PRIVATE ./include)
 
-embed_shader(${PROJECT_NAME} "shader.vert" "vertexShader")
-embed_shader(${PROJECT_NAME} "shader.frag" "fragmentShader")
+embed_shader(${PROJECT_NAME} "text.vert" "textVertexShader")
+embed_shader(${PROJECT_NAME} "text.frag" "textFragmentShader")
 
 # glfw
 FetchContent_Declare(

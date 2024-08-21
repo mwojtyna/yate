@@ -52,7 +52,7 @@ void Renderer::drawText(Codes& codes, Font& font, glm::mat4& transform,
 
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
-    glm::vec2 pen(0, -Font::FracToPixels(font.getMetrics().ascender));
+    glm::vec2 pen(0, -Font::fracToPx(font.getMetrics().ascender));
     for (size_t i = 0, j = 0; i < codes.size(); i++, j += 4) {
         const GlyphPos g = font.getGlyphPos(codes[i]);
 

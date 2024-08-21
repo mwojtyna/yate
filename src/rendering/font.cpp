@@ -61,7 +61,7 @@ void Font::createAtlas() {
         size_t bitmapSize = sizeof(uint8_t) * m_Font->glyph->bitmap.rows *
                             m_Font->glyph->bitmap.width;
         GlyphGeometry glyph = {
-            .slot = m_Font->glyph,
+            .metrics = m_Font->glyph->metrics,
             .rect = &m_Rects[c - startCodepoint],
             // Have to malloc, otherwise this pointer gets overwritten when loading next glyph
             .bitmap = (uint8_t*)std::malloc(bitmapSize),
@@ -82,8 +82,8 @@ void Font::createAtlas() {
     glCall(glActiveTexture(GL_TEXTURE0));
     glCall(glGenTextures(1, &textureId));
     glCall(glBindTexture(GL_TEXTURE_2D, textureId));
-    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
     glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
     glCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, ATLAS_SIZE, ATLAS_SIZE, 0,
@@ -107,12 +107,12 @@ GlyphPos Font::getGlyphPos(Codepoint codepoint) {
     gi.ar = (gg.rect->x + gg.rect->w) / ATLAS_SIZE;
     gi.ab = gg.rect->y / ATLAS_SIZE;
 
-    gi.pl = 0;
-    gi.pt = 0;
-    gi.pr = gg.rect->w;
-    gi.pb = gg.rect->h;
+    gi.pl = fracToPx(gg.metrics.horiBearingX);
+    gi.pt = -fracToPx(gg.metrics.height - gg.metrics.horiBearingY),
+    gi.pr = gi.pl + gg.rect->w;
+    gi.pb = gi.pt + gg.rect->h;
 
-    gi.advance = FracToPixels(gg.slot->advance.x);
+    gi.advance = fracToPx(gg.metrics.horiAdvance);
 
     return gi;
 }
@@ -125,6 +125,6 @@ float Font::getSize() const {
     return m_Size;
 }
 
-double Font::FracToPixels(size_t value) {
-    return ((double)value) / 64.0;
+double Font::fracToPx(double value) {
+    return value / 64.0;
 }

@@ -3,8 +3,8 @@
 #include "rendering/font.hpp"
 #include "rendering/program.hpp"
 #include "rendering/renderer.hpp"
-#include "shaders/shader.frag.hpp"
-#include "shaders/shader.vert.hpp"
+#include "shaders/text.frag.hpp"
+#include "shaders/text.vert.hpp"
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float3.hpp>
@@ -38,7 +38,7 @@ void Application::start() {
     Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 64);
     font.createAtlas();
 
-    Program program(vertexShader, fragmentShader);
+    Program program(textVertexShader, textFragmentShader);
 
     glm::vec3 charsPos(0.0f), cameraPos(0.0f);
     float charsScale = 1.0f;
@@ -51,7 +51,8 @@ void Application::start() {
     };
     DebugUI::initialize(window);
 
-    Codes codes = {72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 33};
+    Codes codes = {72,  101, 108, 108, 111, 32, 119,
+                   111, 103, 114, 108, 100, 33};
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
         // TODO: Parse terminal codes
