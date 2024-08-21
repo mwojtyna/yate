@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ft2build.h>
+#include <vector>
 #include FT_FREETYPE_H
 
 #include "stb_rect_pack.h"
@@ -9,21 +10,18 @@
 
 using Codepoint = FT_ULong;
 
-struct Glyph {
-    float al;
-    float ab;
-    float ar;
-    float at;
-
-    FT_UInt pl;
-    FT_UInt pb;
-    FT_UInt pr;
-    FT_UInt pt;
-
-    FT_Pos advance;
-
-    stbrp_rect rect;
+struct GlyphGeometry {
+    FT_GlyphSlot slot;
+    stbrp_rect* rect;
     uint8_t* bitmap;
+};
+
+struct GlyphPos {
+    /// Atlas coordinates
+    float al, at, ar, ab;
+    /// World coordinates
+    float pl, pt, pr, pb;
+    FT_Pos advance;
 };
 
 class Font {
@@ -33,15 +31,19 @@ public:
     ~Font();
 
     void createAtlas();
-    Glyph& getGlyph(Codepoint codepoint);
+    GlyphPos getGlyphPos(Codepoint codepoint);
     const FT_Size_Metrics getMetrics() const;
     float getSize() const;
 
+    static double FracToPixels(size_t value);
+
 private:
+    const float ATLAS_SIZE = 2048;
+
     std::filesystem::path m_Path;
     float m_Size;
-
     FT_Library m_Lib;
     FT_Face m_Font;
-    std::unordered_map<FT_UInt, Glyph> m_Glyphs;
+    std::unordered_map<Codepoint, GlyphGeometry> m_Geometry;
+    std::vector<stbrp_rect> m_Rects;
 };

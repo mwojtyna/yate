@@ -1,7 +1,3 @@
-#include <glad/glad.h>
-// GLFW (include after glad)
-#include <GLFW/glfw3.h>
-
 #include "application.hpp"
 #include "debug_ui.hpp"
 #include "rendering/font.hpp"
@@ -45,7 +41,7 @@ void Application::start() {
     Program program(vertexShader, fragmentShader);
 
     glm::vec3 charsPos(0.0f), cameraPos(0.0f);
-    float charsScale = 1.0f, charsCutoff = 0.35f;
+    float charsScale = 1.0f;
     double prevTime = glfwGetTime();
     auto debugData = DebugUI::DebugData{
         .frameTimeMs = 0,
@@ -55,7 +51,7 @@ void Application::start() {
     };
     DebugUI::initialize(window);
 
-    Codes codes = {0x61};
+    Codes codes = {72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100, 33};
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
         // TODO: Parse terminal codes

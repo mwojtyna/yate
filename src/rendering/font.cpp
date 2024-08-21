@@ -1,34 +1,14 @@
 #include "font.hpp"
 #include "../error.hpp"
+#include "freetype/freetype.h"
+#include "opengl.hpp"
 #include <cassert>
 #include <freetype/ftmodapi.h>
-#include <glad/glad.h>
 #include <spdlog/spdlog.h>
-
-#define STB_RECT_PACK_IMPLEMENTATION
+#include <stb_rect_pack.h>
 
 Font::Font(std::filesystem::path path, float size)
-    : m_Path(path), m_Size(size * 64) {
-    // m_FT = msdfgen::initializeFreetype();
-    // if (m_FT == nullptr) {
-    //     SPDLOG_ERROR("Failed to initialize freetype");
-    //     exit(1);
-    // }
-    //
-    // m_Font = msdfgen::loadFont(m_FT, path.c_str());
-    // if (m_Font == nullptr) {
-    //     SPDLOG_ERROR("Failed to load font '{}'", path.c_str());
-    //     exit(1);
-    // }
-    //
-    // m_Geometry = std::make_unique<msdf_atlas::FontGeometry>(&m_Glyphs);
-    //
-    // msdf_atlas::Charset charset = msdf_atlas::Charset::ASCII;
-    // charset.add(0xfffd); // replacement character
-    //
-    // int amountLoaded = m_Geometry->loadCharset(m_Font, 1, charset);
-    // SPDLOG_DEBUG("Loaded {} glyphs from font '{}'", amountLoaded, path.c_str());
-
+    : m_Path(path), m_Size(size) {
     FT_Error error = 0;
 
     error = FT_Init_FreeType(&m_Lib);
@@ -41,20 +21,30 @@ Font::Font(std::filesystem::path path, float size)
         FATAL("Failed to load font '{}'", path.c_str());
     }
 
-    error = FT_Set_Char_Size(m_Font, 0, m_Size, 0, 0);
+    error = FT_Set_Char_Size(m_Font, 0, size * 64, 0, 0);
 }
 
 Font::~Font() {
+    for (auto& g : m_Geometry) {
+        std::free(g.second.bitmap);
+    }
     FT_Done_Face(m_Font);
     FT_Done_Library(m_Lib);
     SPDLOG_DEBUG("Destroyed font '{}'", m_Path.c_str());
 }
 
 // TODO: Create atlas with ASCII characters, then dynamically add more glyphs as needed
-// TODO: Create atlas with antialiased bitmap glyphs
 void Font::createAtlas() {
+    const Codepoint startCodepoint = 0x20, endCodepoint = 0x7e;
+    const size_t numGlyphs = endCodepoint - startCodepoint + 1;
+
     FT_Error error = 0;
-    for (Codepoint c = 0x61; c <= 0x61; c++) {
+
+    stbrp_context context;
+    stbrp_node nodes[numGlyphs];
+    m_Rects = std::vector<stbrp_rect>(numGlyphs);
+
+    for (Codepoint c = startCodepoint; c <= endCodepoint; c++) {
         FT_UInt glyphIndex = FT_Get_Char_Index(m_Font, c);
 
         error = FT_Load_Glyph(m_Font, glyphIndex, FT_LOAD_DEFAULT);
@@ -64,20 +54,29 @@ void Font::createAtlas() {
 
         error = FT_Render_Glyph(m_Font->glyph, FT_RENDER_MODE_NORMAL);
 
-        Glyph g = {
-            .al = 0,
-            .ab = 1,
-            .ar = 1,
-            .at = 0,
-            .pl = 0,
-            .pb = 0,
-            .pr = m_Font->glyph->bitmap.width,
-            .pt = m_Font->glyph->bitmap.rows,
-            .advance = m_Font->glyph->advance.x,
-            .bitmap = m_Font->glyph->bitmap.buffer,
+        m_Rects[c - startCodepoint] = stbrp_rect{
+            .w = static_cast<stbrp_coord>(m_Font->glyph->bitmap.width),
+            .h = static_cast<stbrp_coord>(m_Font->glyph->bitmap.rows)};
+
+        size_t bitmapSize = sizeof(uint8_t) * m_Font->glyph->bitmap.rows *
+                            m_Font->glyph->bitmap.width;
+        GlyphGeometry glyph = {
+            .slot = m_Font->glyph,
+            .rect = &m_Rects[c - startCodepoint],
+            // Have to malloc, otherwise this pointer gets overwritten when loading next glyph
+            .bitmap = (uint8_t*)std::malloc(bitmapSize),
         };
-        m_Glyphs[c] = g;
+        std::memcpy(glyph.bitmap, m_Font->glyph->bitmap.buffer, bitmapSize);
+        m_Geometry[c] = glyph;
     }
+
+    stbrp_init_target(&context, ATLAS_SIZE, ATLAS_SIZE, nodes, numGlyphs);
+    const int success =
+        stbrp_pack_rects(&context, m_Rects.data(), m_Rects.size());
+    if (!success) {
+        FATAL("Failed to calculate glyph packing");
+    }
+    SPDLOG_DEBUG("Calculated glyph packing");
 
     GLuint textureId = 0;
     glCall(glActiveTexture(GL_TEXTURE0));
@@ -87,47 +86,35 @@ void Font::createAtlas() {
     glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
     glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
     glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-    glCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, m_Font->glyph->bitmap.width,
-                        m_Font->glyph->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE,
-                        m_Font->glyph->bitmap.buffer));
+    glCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, ATLAS_SIZE, ATLAS_SIZE, 0,
+                        GL_RED, GL_UNSIGNED_BYTE, nullptr));
 
-    SPDLOG_DEBUG("Generated {}x{} font atlas");
+    for (auto& [_, glyph] : m_Geometry) {
+        glCall(glTexSubImage2D(GL_TEXTURE_2D, 0, glyph.rect->x, glyph.rect->y,
+                               glyph.rect->w, glyph.rect->h, GL_RED,
+                               GL_UNSIGNED_BYTE, glyph.bitmap));
+    }
+
+    SPDLOG_DEBUG("Generated font atlas");
 }
 
-Glyph& Font::getGlyph(Codepoint codepoint) {
-    // if (m_Atlas.width == 0 && m_Atlas.height == 0) {
-    //     assert(false && "Atlas not generated");
-    // }
-    //
-    // GlyphPos gi;
-    // msdf_atlas::GlyphGeometry* glyph =
-    //     (msdf_atlas::GlyphGeometry*)m_Geometry->getGlyph(codepoint1);
-    //
-    // // If glyph not found, set it to � (replacement character)
-    // if (glyph == nullptr) {
-    //     glyph = (msdf_atlas::GlyphGeometry*)m_Geometry->getGlyph(0xFFFD);
-    // }
-    //
-    // glyph->getQuadAtlasBounds(gi.al, gi.ab, gi.ar, gi.at);
-    // glyph->getQuadPlaneBounds(gi.pl, gi.pb, gi.pr, gi.pt);
-    //
-    // gi.al /= m_Atlas.width;
-    // gi.ar /= m_Atlas.width;
-    // gi.ab /= m_Atlas.height;
-    // gi.at /= m_Atlas.height;
-    //
-    // gi.pl *= m_Size;
-    // gi.pr *= m_Size;
-    // gi.pb *= m_Size;
-    // gi.pt *= m_Size;
-    //
-    // if (codepoint2.has_value()) {
-    //     gi.advance = glyph->getAdvance() * m_Size;
-    // }
-    //
-    // return gi;
+GlyphPos Font::getGlyphPos(Codepoint codepoint) {
+    GlyphPos gi{};
+    GlyphGeometry& gg = m_Geometry[codepoint];
 
-    return m_Glyphs[codepoint];
+    gi.al = gg.rect->x / ATLAS_SIZE;
+    gi.at = (gg.rect->y + gg.rect->h) / ATLAS_SIZE;
+    gi.ar = (gg.rect->x + gg.rect->w) / ATLAS_SIZE;
+    gi.ab = gg.rect->y / ATLAS_SIZE;
+
+    gi.pl = 0;
+    gi.pt = 0;
+    gi.pr = gg.rect->w;
+    gi.pb = gg.rect->h;
+
+    gi.advance = FracToPixels(gg.slot->advance.x);
+
+    return gi;
 }
 
 const FT_Size_Metrics Font::getMetrics() const {
@@ -136,4 +123,8 @@ const FT_Size_Metrics Font::getMetrics() const {
 
 float Font::getSize() const {
     return m_Size;
+}
+
+double Font::FracToPixels(size_t value) {
+    return ((double)value) / 64.0;
 }

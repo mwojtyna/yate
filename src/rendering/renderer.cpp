@@ -1,12 +1,8 @@
-#include <glad/glad.h>
-// GLFW (include after glad)
-#include <GLFW/glfw3.h>
-
+#include "renderer.hpp"
 #include "../error.hpp"
 #include "font.hpp"
 #include "index_buffer.hpp"
 #include "program.hpp"
-#include "renderer.hpp"
 #include "vertex_buffer.hpp"
 #include <cstddef>
 #include <glm/ext/matrix_float4x4.hpp>
@@ -56,11 +52,9 @@ void Renderer::drawText(Codes& codes, Font& font, glm::mat4& transform,
 
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
-    glm::vec2 pen(0, -(float)font.getMetrics().ascender *
-                         (1.0 / (float)font.getMetrics().y_scale) *
-                         font.getSize());
+    glm::vec2 pen(0, -Font::FracToPixels(font.getMetrics().ascender));
     for (size_t i = 0, j = 0; i < codes.size(); i++, j += 4) {
-        Glyph g = font.getGlyph(codes[i]);
+        const GlyphPos g = font.getGlyphPos(codes[i]);
 
         vertices.push_back({{pen.x + g.pl, pen.y + g.pb, 0.0f},
                             {1.0f, 1.0f, 1.0f},

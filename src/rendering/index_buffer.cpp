@@ -1,6 +1,6 @@
 #include "index_buffer.hpp"
 #include "../error.hpp"
-#include <glad/glad.h>
+#include "opengl.hpp"
 #include <spdlog/spdlog.h>
 
 IndexBuffer::IndexBuffer(GLsizei count) : m_Count(count) {

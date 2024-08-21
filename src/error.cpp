@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+#include "opengl.hpp"
 #include <spdlog/spdlog.h>
 
 bool checkError() {

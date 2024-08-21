@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glad/glad.h>
+#include "opengl.hpp"
 #include <vector>
 
 using Index = GLuint;
