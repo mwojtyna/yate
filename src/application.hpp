@@ -1,6 +1,6 @@
 #pragma once
 
-#include "opengl.hpp"
+#include "rendering/opengl.hpp"
 
 class Application {
 public:

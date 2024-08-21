@@ -1,5 +1,4 @@
 #include "mesh.hpp"
-#include "../error.hpp"
 #include "index_buffer.hpp"
 #include "opengl.hpp"
 #include "renderer.hpp"

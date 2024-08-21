@@ -1,5 +1,4 @@
 #include "font.hpp"
-#include "../error.hpp"
 #include "freetype/freetype.h"
 #include "opengl.hpp"
 #include <cassert>

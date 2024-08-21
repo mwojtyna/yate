@@ -1,7 +1,7 @@
 #include "renderer.hpp"
-#include "../error.hpp"
 #include "font.hpp"
 #include "index_buffer.hpp"
+#include "opengl.hpp"
 #include "program.hpp"
 #include "vertex_buffer.hpp"
 #include <cstddef>

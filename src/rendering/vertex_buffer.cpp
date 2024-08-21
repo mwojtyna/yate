@@ -1,5 +1,4 @@
 #include "vertex_buffer.hpp"
-#include "../error.hpp"
 #include "opengl.hpp"
 #include <spdlog/spdlog.h>
 
