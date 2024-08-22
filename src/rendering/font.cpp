@@ -24,7 +24,7 @@ Font::Font(std::filesystem::path path, float size)
 
 Font::~Font() {
     glCall(glDeleteTextures(1, &m_AtlasId));
-    for (auto& g : m_Geometry) {
+    for (auto& g : m_CodepointToGeometry) {
         std::free(g.second.bitmap);
     }
     FT_Done_Face(m_Font);
@@ -42,9 +42,10 @@ void Font::createAtlas() {
     stbrp_context context;
     stbrp_node nodes[numGlyphs];
 
-    // Due to stb_rp's api, we have to store the rects array separately
-    // and store a pointer to the corresponding rect in a GlyphGeometry instance
-    m_Rects = std::vector<stbrp_rect>(numGlyphs);
+    // We have pass an array of rects to stbrp_pack_rects later, so we can't just make a Codepoint->stbrp_rect map
+    stbrp_rect rects[numGlyphs];
+    size_t rectIndex = 0;
+    std::unordered_map<Codepoint, size_t> codepointToRectIndex;
     for (Codepoint c = startCodepoint; c <= endCodepoint; c++) {
         FT_UInt glyphIndex = FT_Get_Char_Index(m_Font, c);
 
@@ -55,32 +56,33 @@ void Font::createAtlas() {
 
         error = FT_Render_Glyph(m_Font->glyph, FT_RENDER_MODE_NORMAL);
 
-        m_Rects[c - startCodepoint] = stbrp_rect{
+        rects[rectIndex] = stbrp_rect{
             .w = static_cast<stbrp_coord>(m_Font->glyph->bitmap.width),
             .h = static_cast<stbrp_coord>(m_Font->glyph->bitmap.rows)};
+        codepointToRectIndex[c] = rectIndex;
+        rectIndex++;
 
         size_t bitmapSize = sizeof(uint8_t) * m_Font->glyph->bitmap.rows *
                             m_Font->glyph->bitmap.width;
         GlyphGeometry glyph = {
             .metrics = m_Font->glyph->metrics,
-            .rect = &m_Rects[c - startCodepoint],
             // Have to malloc, otherwise this pointer gets overwritten when loading next glyph
             .bitmap = (uint8_t*)std::malloc(bitmapSize),
         };
         std::memcpy(glyph.bitmap, m_Font->glyph->bitmap.buffer, bitmapSize);
-        m_Geometry[c] = glyph;
+        m_CodepointToGeometry[c] = glyph;
     }
 
     stbrp_init_target(&context, ATLAS_SIZE, ATLAS_SIZE, nodes, numGlyphs);
-    const int success =
-        stbrp_pack_rects(&context, m_Rects.data(), m_Rects.size());
+    const int success = stbrp_pack_rects(&context, rects, numGlyphs);
     if (!success) {
         FATAL("Failed to calculate glyph packing");
     }
     SPDLOG_DEBUG("Calculated glyph packing");
 
-    glCall(glActiveTexture(GL_TEXTURE0));
-    glCall(glGenTextures(1, &m_AtlasId));
+    if (m_AtlasId == 0) {
+        glCall(glGenTextures(1, &m_AtlasId));
+    }
     glCall(glBindTexture(GL_TEXTURE_2D, m_AtlasId));
     glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -89,9 +91,15 @@ void Font::createAtlas() {
     glCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, ATLAS_SIZE, ATLAS_SIZE, 0,
                         GL_RED, GL_UNSIGNED_BYTE, nullptr));
 
-    for (auto& [_, glyph] : m_Geometry) {
-        glCall(glTexSubImage2D(GL_TEXTURE_2D, 0, glyph.rect->x, glyph.rect->y,
-                               glyph.rect->w, glyph.rect->h, GL_RED,
+    for (auto& [codepoint, glyph] : m_CodepointToGeometry) {
+        glyph.rect = rects[codepointToRectIndex[codepoint]];
+        if (!glyph.rect.was_packed) {
+            FATAL("One or more glyphs weren't packed. Probably an issue with "
+                  "pointers");
+        }
+
+        glCall(glTexSubImage2D(GL_TEXTURE_2D, 0, glyph.rect.x, glyph.rect.y,
+                               glyph.rect.w, glyph.rect.h, GL_RED,
                                GL_UNSIGNED_BYTE, glyph.bitmap));
     }
 
@@ -100,17 +108,17 @@ void Font::createAtlas() {
 
 GlyphPos Font::getGlyphPos(Codepoint codepoint) {
     GlyphPos gp{};
-    GlyphGeometry& gg = m_Geometry[codepoint];
+    GlyphGeometry& gg = m_CodepointToGeometry[codepoint];
 
-    gp.al = gg.rect->x / ATLAS_SIZE;
-    gp.at = (gg.rect->y + gg.rect->h) / ATLAS_SIZE;
-    gp.ar = (gg.rect->x + gg.rect->w) / ATLAS_SIZE;
-    gp.ab = gg.rect->y / ATLAS_SIZE;
+    gp.al = gg.rect.x / ATLAS_SIZE;
+    gp.at = (gg.rect.y + gg.rect.h) / ATLAS_SIZE;
+    gp.ar = (gg.rect.x + gg.rect.w) / ATLAS_SIZE;
+    gp.ab = gg.rect.y / ATLAS_SIZE;
 
     gp.pl = fracToPx(gg.metrics.horiBearingX);
     gp.pt = -fracToPx(gg.metrics.height - gg.metrics.horiBearingY),
-    gp.pr = gp.pl + gg.rect->w;
-    gp.pb = gp.pt + gg.rect->h;
+    gp.pr = gp.pl + gg.rect.w;
+    gp.pb = gp.pt + gg.rect.h;
 
     gp.advance = fracToPx(gg.metrics.horiAdvance);
 

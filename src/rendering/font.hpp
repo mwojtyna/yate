@@ -7,13 +7,12 @@
 #include <filesystem>
 #include <stb_rect_pack.h>
 #include <unordered_map>
-#include <vector>
 
 using Codepoint = FT_ULong;
 
 struct GlyphGeometry {
     FT_Glyph_Metrics metrics;
-    stbrp_rect* rect;
+    stbrp_rect rect;
     uint8_t* bitmap;
 };
 
@@ -48,7 +47,5 @@ private:
     FT_Library m_Lib;
     FT_Face m_Font;
     GLuint m_AtlasId = 0;
-
-    std::unordered_map<Codepoint, GlyphGeometry> m_Geometry;
-    std::vector<stbrp_rect> m_Rects;
+    std::unordered_map<Codepoint, GlyphGeometry> m_CodepointToGeometry;
 };
