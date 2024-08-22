@@ -1,12 +1,13 @@
 #pragma once
 
 #include <ft2build.h>
-#include <vector>
 #include FT_FREETYPE_H
 
-#include "stb_rect_pack.h"
+#include "opengl.hpp"
 #include <filesystem>
+#include <stb_rect_pack.h>
 #include <unordered_map>
+#include <vector>
 
 using Codepoint = FT_ULong;
 
@@ -32,6 +33,7 @@ public:
 
     void createAtlas();
     GlyphPos getGlyphPos(Codepoint codepoint);
+
     const FT_Size_Metrics getMetrics() const;
     float getSize() const;
 
@@ -42,8 +44,11 @@ private:
 
     std::filesystem::path m_Path;
     float m_Size;
+
     FT_Library m_Lib;
     FT_Face m_Font;
+    GLuint m_AtlasId = 0;
+
     std::unordered_map<Codepoint, GlyphGeometry> m_Geometry;
     std::vector<stbrp_rect> m_Rects;
 };

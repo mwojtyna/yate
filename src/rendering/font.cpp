@@ -1,7 +1,6 @@
 #include "font.hpp"
-#include "freetype/freetype.h"
 #include "opengl.hpp"
-#include <cassert>
+#include <freetype/freetype.h>
 #include <freetype/ftmodapi.h>
 #include <spdlog/spdlog.h>
 #include <stb_rect_pack.h>
@@ -24,6 +23,7 @@ Font::Font(std::filesystem::path path, float size)
 }
 
 Font::~Font() {
+    glCall(glDeleteTextures(1, &m_AtlasId));
     for (auto& g : m_Geometry) {
         std::free(g.second.bitmap);
     }
@@ -41,8 +41,10 @@ void Font::createAtlas() {
 
     stbrp_context context;
     stbrp_node nodes[numGlyphs];
-    m_Rects = std::vector<stbrp_rect>(numGlyphs);
 
+    // Due to stb_rp's api, we have to store the rects array separately
+    // and store a pointer to the corresponding rect in a GlyphGeometry instance
+    m_Rects = std::vector<stbrp_rect>(numGlyphs);
     for (Codepoint c = startCodepoint; c <= endCodepoint; c++) {
         FT_UInt glyphIndex = FT_Get_Char_Index(m_Font, c);
 
@@ -77,10 +79,9 @@ void Font::createAtlas() {
     }
     SPDLOG_DEBUG("Calculated glyph packing");
 
-    GLuint textureId = 0;
     glCall(glActiveTexture(GL_TEXTURE0));
-    glCall(glGenTextures(1, &textureId));
-    glCall(glBindTexture(GL_TEXTURE_2D, textureId));
+    glCall(glGenTextures(1, &m_AtlasId));
+    glCall(glBindTexture(GL_TEXTURE_2D, m_AtlasId));
     glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
     glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
@@ -98,22 +99,22 @@ void Font::createAtlas() {
 }
 
 GlyphPos Font::getGlyphPos(Codepoint codepoint) {
-    GlyphPos gi{};
+    GlyphPos gp{};
     GlyphGeometry& gg = m_Geometry[codepoint];
 
-    gi.al = gg.rect->x / ATLAS_SIZE;
-    gi.at = (gg.rect->y + gg.rect->h) / ATLAS_SIZE;
-    gi.ar = (gg.rect->x + gg.rect->w) / ATLAS_SIZE;
-    gi.ab = gg.rect->y / ATLAS_SIZE;
+    gp.al = gg.rect->x / ATLAS_SIZE;
+    gp.at = (gg.rect->y + gg.rect->h) / ATLAS_SIZE;
+    gp.ar = (gg.rect->x + gg.rect->w) / ATLAS_SIZE;
+    gp.ab = gg.rect->y / ATLAS_SIZE;
 
-    gi.pl = fracToPx(gg.metrics.horiBearingX);
-    gi.pt = -fracToPx(gg.metrics.height - gg.metrics.horiBearingY),
-    gi.pr = gi.pl + gg.rect->w;
-    gi.pb = gi.pt + gg.rect->h;
+    gp.pl = fracToPx(gg.metrics.horiBearingX);
+    gp.pt = -fracToPx(gg.metrics.height - gg.metrics.horiBearingY),
+    gp.pr = gp.pl + gg.rect->w;
+    gp.pb = gp.pt + gg.rect->h;
 
-    gi.advance = fracToPx(gg.metrics.horiAdvance);
+    gp.advance = fracToPx(gg.metrics.horiAdvance);
 
-    return gi;
+    return gp;
 }
 
 const FT_Size_Metrics Font::getMetrics() const {
