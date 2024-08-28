@@ -33,8 +33,8 @@ void Renderer::destroy() {
     SPDLOG_DEBUG("Shutdown renderer");
 }
 
-void Renderer::drawText(Codes& codes, Font& font, glm::mat4& transform,
-                        Program& program) {
+void Renderer::drawText(std::vector<Code>& codes, Font& font,
+                        glm::mat4& transform, Program& program) {
     glCall(glClearColor(s_Data->bgColor.r, s_Data->bgColor.g, s_Data->bgColor.b,
                         1.0f));
     glCall(glClear(GL_COLOR_BUFFER_BIT));
@@ -54,22 +54,20 @@ void Renderer::drawText(Codes& codes, Font& font, glm::mat4& transform,
     std::vector<Index> indices;
     glm::vec2 pen(0, -Font::fracToPx(font.getMetrics().ascender));
     for (size_t i = 0, j = 0; i < codes.size(); i++, j += 4) {
-        const GlyphPos g = font.getGlyphPos(codes[i]);
+        const GlyphPos g = font.getGlyphPos(codes[i], pen);
 
         vertices.push_back({{pen.x + g.pl, pen.y + g.pb, 0.0f},
                             {1.0f, 1.0f, 1.0f},
-                            {g.al, g.ab}}); // bottom left
+                            {g.al, g.ab}}); // left bottom
         vertices.push_back({{pen.x + g.pr, pen.y + g.pb, 0.0f},
                             {1.0f, 1.0f, 1.0f},
-                            {g.ar, g.ab}}); // bottom right
+                            {g.ar, g.ab}}); // right bottom
         vertices.push_back({{pen.x + g.pr, pen.y + g.pt, 0.0f},
                             {1.0f, 1.0f, 1.0f},
-                            {g.ar, g.at}}); // top right
+                            {g.ar, g.at}}); // right top
         vertices.push_back({{pen.x + g.pl, pen.y + g.pt, 0.0f},
                             {1.0f, 1.0f, 1.0f},
-                            {g.al, g.at}}); // top left
-
-        pen.x += g.advance;
+                            {g.al, g.at}}); // left top
 
         indices.push_back(j + 0);
         indices.push_back(j + 1);

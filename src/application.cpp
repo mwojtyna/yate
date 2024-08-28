@@ -10,6 +10,7 @@
 #include <glm/ext/vector_float3.hpp>
 #include <spdlog/cfg/env.h>
 #include <spdlog/spdlog.h>
+#include <unordered_set>
 
 void Application::start() {
     spdlog::cfg::load_env_levels();
@@ -36,7 +37,12 @@ void Application::start() {
     Renderer::setWireframe(false);
 
     Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 64);
-    font.createAtlas();
+    auto ascii = std::unordered_set<Codepoint>();
+    for (Codepoint c = 0x20; c <= 0x7e; c++) {
+        ascii.insert(c);
+    }
+    ascii.insert(Font::REPLACEMENT_CHAR); // replacement character �
+    font.updateAtlas(ascii);
 
     Program program(textVertexShader, textFragmentShader);
 
@@ -51,16 +57,27 @@ void Application::start() {
     };
     DebugUI::initialize(window);
 
-    Codes codes = {72,  101, 108, 108, 111, 32, 119,
-                   111, 103, 114, 108, 100, 33};
+    // TODO: Parse terminal codes
+    std::vector<Codepoint> terminalCodes = {
+        90,  97,  380, 243, 322, 263, 32,  103, 281, 347, 108, 261, 32,  106,
+        97,  378, 324, 33,  10,  84,  104, 101, 32,  113, 117, 105, 99,  107,
+        32,  98,  114, 111, 119, 110, 32,  102, 111, 120, 32,  106, 117, 109,
+        112, 115, 32,  111, 118, 101, 114, 32,  116, 104, 101, 32,  108, 97,
+        122, 121, 32,  100, 111, 103, 46,  10,  9,   113, 33,  64,  35,  36,
+        37,  94,  38,  42,  40,  41,  45,  95,  61,  43,  91,  123, 93,  125,
+        59,  58,  39,  34,  44,  60,  46,  62,  47,  63};
+
+    // TODO: If terminalCodes changed from last frame, update codepoints and add to atlas
+    auto codepoints = std::unordered_set<Codepoint>(terminalCodes.begin(),
+                                                    terminalCodes.end());
+    font.updateAtlas(codepoints);
+
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
-        // TODO: Parse terminal codes
-
         glm::mat4 transform = glm::scale(
             glm::translate(glm::mat4(1.0f), charsPos), glm::vec3(charsScale));
         Renderer::setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));
-        Renderer::drawText(codes, font, transform, program);
+        Renderer::drawText(terminalCodes, font, transform, program);
 
         debugData.frameTimeMs = (glfwGetTime() - prevTime) * 1000;
         prevTime = glfwGetTime();

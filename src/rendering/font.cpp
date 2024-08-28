@@ -1,9 +1,11 @@
 #include "font.hpp"
+#include "glm/ext/vector_float2.hpp"
 #include "opengl.hpp"
 #include <freetype/freetype.h>
 #include <freetype/ftmodapi.h>
 #include <spdlog/spdlog.h>
 #include <stb_rect_pack.h>
+#include <unordered_set>
 
 Font::Font(std::filesystem::path path, float size)
     : m_Path(path), m_Size(size) {
@@ -32,21 +34,27 @@ Font::~Font() {
     SPDLOG_DEBUG("Destroyed font '{}'", m_Path.c_str());
 }
 
-// TODO: Create atlas with ASCII characters, then dynamically add more glyphs as needed
-void Font::createAtlas() {
-    const Codepoint startCodepoint = 0x20, endCodepoint = 0x7e;
-    const size_t numGlyphs = endCodepoint - startCodepoint + 1;
-
+void Font::updateAtlas(std::unordered_set<Codepoint>& codepoints) {
     FT_Error error = 0;
 
-    stbrp_context context;
-    stbrp_node nodes[numGlyphs];
+    // Filter out already rendered glyphs
+    std::unordered_set<Codepoint> newCodepoints;
+    for (Codepoint c : codepoints) {
+        if (!m_CodepointToGeometry.contains(c)) {
+            newCodepoints.insert(c);
+        }
+    }
+    if (newCodepoints.empty()) {
+        return;
+    }
 
-    // We have pass an array of rects to stbrp_pack_rects later, so we can't just make a Codepoint->stbrp_rect map
-    stbrp_rect rects[numGlyphs];
-    size_t rectIndex = 0;
+    size_t numGlyphs = m_CodepointToGeometry.size() + newCodepoints.size();
+    size_t rectIndex = m_CodepointToGeometry.size();
+    // We have to pass an array of rects to stbrp_pack_rects later, so we can't just make a Codepoint->stbrp_rect map
     std::unordered_map<Codepoint, size_t> codepointToRectIndex;
-    for (Codepoint c = startCodepoint; c <= endCodepoint; c++) {
+    std::unordered_map<Codepoint, GlyphGeometry> codepointToGeometry;
+
+    for (Codepoint c : newCodepoints) {
         FT_UInt glyphIndex = FT_Get_Char_Index(m_Font, c);
 
         error = FT_Load_Glyph(m_Font, glyphIndex, FT_LOAD_DEFAULT);
@@ -56,7 +64,7 @@ void Font::createAtlas() {
 
         error = FT_Render_Glyph(m_Font->glyph, FT_RENDER_MODE_NORMAL);
 
-        rects[rectIndex] = stbrp_rect{
+        m_StbRects[rectIndex] = stbrp_rect{
             .w = static_cast<stbrp_coord>(m_Font->glyph->bitmap.width),
             .h = static_cast<stbrp_coord>(m_Font->glyph->bitmap.rows)};
         codepointToRectIndex[c] = rectIndex;
@@ -70,29 +78,37 @@ void Font::createAtlas() {
             .bitmap = (uint8_t*)std::malloc(bitmapSize),
         };
         std::memcpy(glyph.bitmap, m_Font->glyph->bitmap.buffer, bitmapSize);
-        m_CodepointToGeometry[c] = glyph;
+        codepointToGeometry[c] = glyph;
     }
 
-    stbrp_init_target(&context, ATLAS_SIZE, ATLAS_SIZE, nodes, numGlyphs);
-    const int success = stbrp_pack_rects(&context, rects, numGlyphs);
+    if (m_AtlasId == 0) {
+        stbrp_init_target(&m_StbContext, ATLAS_SIZE, ATLAS_SIZE, m_StbNodes,
+                          numGlyphs);
+    }
+    const int success = stbrp_pack_rects(&m_StbContext, m_StbRects, numGlyphs);
     if (!success) {
         FATAL("Failed to calculate glyph packing");
     }
-    SPDLOG_DEBUG("Calculated glyph packing");
+    SPDLOG_DEBUG("Calculated glyph packing, {} new glyphs",
+                 newCodepoints.size());
 
     if (m_AtlasId == 0) {
         glCall(glGenTextures(1, &m_AtlasId));
+        glCall(glBindTexture(GL_TEXTURE_2D, m_AtlasId));
+        glCall(
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+        glCall(
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+        glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                               GL_CLAMP_TO_EDGE));
+        glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                               GL_CLAMP_TO_EDGE));
+        glCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, ATLAS_SIZE, ATLAS_SIZE, 0,
+                            GL_RED, GL_UNSIGNED_BYTE, nullptr));
     }
-    glCall(glBindTexture(GL_TEXTURE_2D, m_AtlasId));
-    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-    glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-    glCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, ATLAS_SIZE, ATLAS_SIZE, 0,
-                        GL_RED, GL_UNSIGNED_BYTE, nullptr));
 
-    for (auto& [codepoint, glyph] : m_CodepointToGeometry) {
-        glyph.rect = rects[codepointToRectIndex[codepoint]];
+    for (auto& [codepoint, glyph] : codepointToGeometry) {
+        glyph.rect = m_StbRects[codepointToRectIndex[codepoint]];
         if (!glyph.rect.was_packed) {
             FATAL("One or more glyphs weren't packed. Probably an issue with "
                   "pointers");
@@ -101,26 +117,48 @@ void Font::createAtlas() {
         glCall(glTexSubImage2D(GL_TEXTURE_2D, 0, glyph.rect.x, glyph.rect.y,
                                glyph.rect.w, glyph.rect.h, GL_RED,
                                GL_UNSIGNED_BYTE, glyph.bitmap));
+
+        m_CodepointToGeometry[codepoint] = glyph;
     }
 
-    SPDLOG_DEBUG("Generated font atlas");
+    SPDLOG_DEBUG("Generated {}x{} font atlas", ATLAS_SIZE, ATLAS_SIZE);
 }
 
-GlyphPos Font::getGlyphPos(Codepoint codepoint) {
-    GlyphPos gp{};
-    GlyphGeometry& gg = m_CodepointToGeometry[codepoint];
+GlyphPos Font::getGlyphPos(Codepoint codepoint, glm::vec2& pen) {
+    bool found = m_CodepointToGeometry.contains(codepoint);
 
-    gp.al = gg.rect.x / ATLAS_SIZE;
-    gp.at = (gg.rect.y + gg.rect.h) / ATLAS_SIZE;
-    gp.ar = (gg.rect.x + gg.rect.w) / ATLAS_SIZE;
-    gp.ab = gg.rect.y / ATLAS_SIZE;
+    GlyphPos gp{};
+    GlyphGeometry& gg = found ? m_CodepointToGeometry[codepoint]
+                              : m_CodepointToGeometry[REPLACEMENT_CHAR];
+
+    gp.al = gg.rect.x / (float)ATLAS_SIZE;
+    gp.at = (gg.rect.y + gg.rect.h) / (float)ATLAS_SIZE;
+    gp.ar = (gg.rect.x + gg.rect.w) / (float)ATLAS_SIZE;
+    gp.ab = gg.rect.y / (float)ATLAS_SIZE;
 
     gp.pl = fracToPx(gg.metrics.horiBearingX);
     gp.pt = -fracToPx(gg.metrics.height - gg.metrics.horiBearingY),
     gp.pr = gp.pl + gg.rect.w;
     gp.pb = gp.pt + gg.rect.h;
 
-    gp.advance = fracToPx(gg.metrics.horiAdvance);
+    glm::vec2 advance(fracToPx(gg.metrics.horiAdvance), 0);
+    if (codepoint == '\n') {
+        pen.x = 0;
+        advance.x = 0;
+        advance.y = -fracToPx(m_Font->size->metrics.ascender);
+        gp.pl = 0;
+        gp.pt = 0;
+        gp.pr = 0;
+        gp.pb = 0;
+    } else if (codepoint == '\t') {
+        GlyphGeometry& space = m_CodepointToGeometry[' '];
+        advance.x = fracToPx(space.metrics.horiAdvance) * TAB_WIDTH;
+        gp.pl = 0;
+        gp.pt = 0;
+        gp.pr = 0;
+        gp.pb = 0;
+    }
+    pen += advance;
 
     return gp;
 }

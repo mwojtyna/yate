@@ -52,7 +52,6 @@ void Program::setUniformFloat(const GLchar* const name, const float value) {
     use();
     const GLint location = getUniformLocation(name);
     glCall(glUniform1f(location, value));
-    SPDLOG_TRACE("Set uniform '{}'", name);
 }
 
 void Program::setUniformMatrix4(const GLchar* const name,
@@ -60,5 +59,4 @@ void Program::setUniformMatrix4(const GLchar* const name,
     use();
     const GLint location = getUniformLocation(name);
     glCall(glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat)));
-    SPDLOG_TRACE("Set uniform '{}'", name);
 }
