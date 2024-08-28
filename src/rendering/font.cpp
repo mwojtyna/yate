@@ -145,7 +145,7 @@ GlyphPos Font::getGlyphPos(Codepoint codepoint, glm::vec2& pen) {
     if (codepoint == '\n') {
         pen.x = 0;
         advance.x = 0;
-        advance.y = -fracToPx(m_Font->size->metrics.ascender);
+        advance.y = -fracToPx(m_Font->size->metrics.height);
         gp.pl = 0;
         gp.pt = 0;
         gp.pr = 0;

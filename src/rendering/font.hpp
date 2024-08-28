@@ -42,7 +42,7 @@ public:
     constexpr static size_t TAB_WIDTH = 2;
 
 private:
-    const uint32_t ATLAS_SIZE = 2048;
+    const uint32_t ATLAS_SIZE = 1024;
 
     std::filesystem::path m_Path;
     float m_Size;
