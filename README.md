@@ -12,8 +12,17 @@ Yet Another Terminal Emulator
 
 ## Todo
 
+### priority
+
 - [x] OpenGL setup
-- [ ] Font rendering
+- [x] Font rendering
 - [ ] PTY initialization
 - [ ] Terminal codes parsing
 - [ ] Window resizing
+
+### later
+
+- [ ] Font resizing
+- [ ] Bold, italic, etc.
+- [ ] Emojis
+- [ ] Font fallback
