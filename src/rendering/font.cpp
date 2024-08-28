@@ -25,7 +25,6 @@ Font::Font(std::filesystem::path path, float size)
 }
 
 Font::~Font() {
-    glCall(glDeleteTextures(1, &m_AtlasId));
     for (auto& g : m_CodepointToGeometry) {
         std::free(g.second.bitmap);
     }
@@ -51,6 +50,7 @@ void Font::updateAtlas(std::unordered_set<Codepoint>& codepoints) {
     size_t numGlyphs = m_CodepointToGeometry.size() + newCodepoints.size();
     size_t rectIndex = m_CodepointToGeometry.size();
     // We have to pass an array of rects to stbrp_pack_rects later, so we can't just make a Codepoint->stbrp_rect map
+    stbrp_rect rects[Atlas::CAPACITY];
     std::unordered_map<Codepoint, size_t> codepointToRectIndex;
     std::unordered_map<Codepoint, GlyphGeometry> codepointToGeometry;
 
@@ -64,7 +64,7 @@ void Font::updateAtlas(std::unordered_set<Codepoint>& codepoints) {
 
         error = FT_Render_Glyph(m_Font->glyph, FT_RENDER_MODE_NORMAL);
 
-        m_StbRects[rectIndex] = stbrp_rect{
+        rects[rectIndex] = stbrp_rect{
             .w = static_cast<stbrp_coord>(m_Font->glyph->bitmap.width),
             .h = static_cast<stbrp_coord>(m_Font->glyph->bitmap.rows)};
         codepointToRectIndex[c] = rectIndex;
@@ -81,37 +81,19 @@ void Font::updateAtlas(std::unordered_set<Codepoint>& codepoints) {
         codepointToGeometry[c] = glyph;
     }
 
-    if (m_AtlasId == 0) {
-        stbrp_init_target(&m_StbContext, ATLAS_SIZE, ATLAS_SIZE, m_StbNodes,
-                          numGlyphs);
+    if (!m_Atlas.initialized()) {
+        m_Atlas.newTarget(1024, 1024, numGlyphs);
     }
-    const int success = stbrp_pack_rects(&m_StbContext, m_StbRects, numGlyphs);
-    if (!success) {
+    if (!m_Atlas.pack(rects, numGlyphs)) {
         FATAL("Failed to calculate glyph packing");
     }
     SPDLOG_DEBUG("Calculated glyph packing, {} new glyphs",
                  newCodepoints.size());
 
-    if (m_AtlasId == 0) {
-        glCall(glGenTextures(1, &m_AtlasId));
-        glCall(glBindTexture(GL_TEXTURE_2D, m_AtlasId));
-        glCall(
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-        glCall(
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-        glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-                               GL_CLAMP_TO_EDGE));
-        glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-                               GL_CLAMP_TO_EDGE));
-        glCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, ATLAS_SIZE, ATLAS_SIZE, 0,
-                            GL_RED, GL_UNSIGNED_BYTE, nullptr));
-    }
-
     for (auto& [codepoint, glyph] : codepointToGeometry) {
-        glyph.rect = m_StbRects[codepointToRectIndex[codepoint]];
+        glyph.rect = rects[codepointToRectIndex[codepoint]];
         if (!glyph.rect.was_packed) {
-            FATAL("One or more glyphs weren't packed. Probably an issue with "
-                  "pointers");
+            FATAL("One or more glyphs weren't packed");
         }
 
         glCall(glTexSubImage2D(GL_TEXTURE_2D, 0, glyph.rect.x, glyph.rect.y,

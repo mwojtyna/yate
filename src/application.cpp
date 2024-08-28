@@ -58,7 +58,7 @@ void Application::start() {
     DebugUI::initialize(window);
 
     // TODO: Parse terminal codes
-    std::vector<Codepoint> terminalCodes = {
+    std::vector<Code> terminalCodes = {
         62211, 32,  57520, 32,  61564, 32,    126, 47,    100, 101,   118, 101,
         108,   111, 112,   101, 114,   47,    121, 97,    116, 101,   47,  98,
         117,   105, 108,   100, 32,    57520, 32,  61715, 32,  61734, 32,  109,

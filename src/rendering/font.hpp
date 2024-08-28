@@ -1,11 +1,11 @@
 #pragma once
 
-#include "glm/ext/vector_float2.hpp"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include "opengl.hpp"
+#include "atlas.hpp"
 #include <filesystem>
+#include <glm/ext/vector_float2.hpp>
 #include <stb_rect_pack.h>
 #include <unordered_map>
 #include <unordered_set>
@@ -48,10 +48,6 @@ private:
     float m_Size;
     FT_Library m_Lib;
     FT_Face m_Font;
-    GLuint m_AtlasId = 0;
-    stbrp_context m_StbContext;
-    // Can't do it with a vector because stb keeps raw pointers to memory and when resizing a vector they become invalid
-    stbrp_node m_StbNodes[16384];
-    stbrp_rect m_StbRects[16384];
+    Atlas m_Atlas;
     std::unordered_map<Codepoint, GlyphGeometry> m_CodepointToGeometry;
 };
