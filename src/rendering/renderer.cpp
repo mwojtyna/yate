@@ -1,4 +1,5 @@
 #include "renderer.hpp"
+#include "../utils.hpp"
 #include "font.hpp"
 #include "index_buffer.hpp"
 #include "opengl.hpp"

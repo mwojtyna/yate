@@ -5,6 +5,8 @@
 #include "rendering/renderer.hpp"
 #include "shaders/text.frag.hpp"
 #include "shaders/text.vert.hpp"
+#include "terminal/terminal.hpp"
+#include "utils.hpp"
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float3.hpp>
@@ -30,7 +32,7 @@ void Application::start() {
     }
     glfwMakeContextCurrent(window);
 
-    // TODO: Initialize terminal
+    Terminal::open();
 
     Renderer::initialize();
     Renderer::setBgColor(glm::vec3(0.10f, 0.11f, 0.15f));
@@ -79,6 +81,14 @@ void Application::start() {
 
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
+        // auto bytes = Terminal::read();
+        // std::string chars;
+        // for (auto& b : bytes) {
+        //     chars += b;
+        // }
+        // SPDLOG_DEBUG("Read:\n{}", chars);
+        // Terminal::write();
+
         glm::mat4 transform = glm::scale(
             glm::translate(glm::mat4(1.0f), charsPos), glm::vec3(charsScale));
         Renderer::setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));
@@ -97,5 +107,6 @@ Application::~Application() {
     SPDLOG_INFO("Application exiting");
     DebugUI::destroy();
     Renderer::destroy();
+    Terminal::close();
     glfwTerminate();
 }

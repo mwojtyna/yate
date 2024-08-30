@@ -1,4 +1,5 @@
 #include "font.hpp"
+#include "../utils.hpp"
 #include "glm/ext/vector_float2.hpp"
 #include "opengl.hpp"
 #include <freetype/freetype.h>

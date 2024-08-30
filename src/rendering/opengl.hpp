@@ -15,9 +15,5 @@
     assert(checkError());
 #endif
 
-#define FATAL(...)                                                             \
-    SPDLOG_ERROR(__VA_ARGS__);                                                 \
-    std::exit(1);
-
 bool checkError();
 void clearError();

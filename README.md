@@ -16,7 +16,7 @@ Yet Another Terminal Emulator
 
 - [x] OpenGL setup
 - [x] Font rendering
-- [ ] PTY initialization
+- [x] PTY initialization
 - [ ] Terminal codes parsing
 - [ ] Window resizing
 

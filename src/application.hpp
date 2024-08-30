@@ -1,12 +1,12 @@
 #pragma once
 
-#include "rendering/opengl.hpp"
+#include <cstddef>
 
 class Application {
 public:
     ~Application();
     void start();
 
-    constexpr static GLsizei WIDTH = 800;
-    constexpr static GLsizei HEIGHT = 600;
+    constexpr static size_t WIDTH = 800;
+    constexpr static size_t HEIGHT = 600;
 };
