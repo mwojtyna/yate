@@ -40,8 +40,8 @@ void DebugUI::draw(DebugUI::DebugData& data) {
 
     {
         char title[64];
-        sprintf(title, "Debug (%f FPS, %f ms)###DebugWindow",
-                1000 / data.frameTimeMs, data.frameTimeMs);
+        snprintf(title, 64, "Debug (%f FPS, %f ms)###DebugWindow",
+                 1000 / data.frameTimeMs, data.frameTimeMs);
 
         ImGui::Begin(title);
 
