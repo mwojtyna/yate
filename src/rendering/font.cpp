@@ -22,6 +22,7 @@ Font::Font(std::filesystem::path path, float size)
         FATAL("Failed to load font '{}'", path.c_str());
     }
 
+    // TODO: Calculate dpi to hopefully fix wrong font size
     error = FT_Set_Char_Size(m_Font, 0, size * 64, 0, 0);
 }
 
@@ -75,7 +76,7 @@ void Font::updateAtlas(std::unordered_set<Codepoint>& codepoints) {
                             m_Font->glyph->bitmap.width;
         GlyphGeometry glyph = {
             .metrics = m_Font->glyph->metrics,
-            // Have to malloc, otherwise this pointer gets overwritten when loading next glyph
+            // Have to memcpy, because on the next iteration the bitmap buffer pointer is overwritten with the next glyph's bitmap
             .bitmap = (uint8_t*)std::malloc(bitmapSize),
         };
         std::memcpy(glyph.bitmap, m_Font->glyph->bitmap.buffer, bitmapSize);
@@ -83,7 +84,7 @@ void Font::updateAtlas(std::unordered_set<Codepoint>& codepoints) {
     }
 
     if (!m_Atlas.initialized()) {
-        m_Atlas.newTarget(1024, 1024, numGlyphs);
+        m_Atlas.newTarget(ATLAS_SIZE, ATLAS_SIZE, numGlyphs);
     }
     if (!m_Atlas.pack(rects, numGlyphs)) {
         FATAL("Failed to calculate glyph packing");

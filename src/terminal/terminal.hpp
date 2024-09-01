@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <unistd.h>
 #include <vector>
 
@@ -17,7 +18,7 @@ public:
 
     static void open();
     static void close();
-    static std::vector<char> read();
+    static std::vector<uint8_t> read();
     static void write();
 
 private:

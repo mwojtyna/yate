@@ -32,6 +32,7 @@ void Application::start() {
     }
     glfwMakeContextCurrent(window);
 
+    // TODO: Move terminal to separate thread
     Terminal::open();
 
     Renderer::initialize();
@@ -40,7 +41,7 @@ void Application::start() {
 
     Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 32);
     auto ascii = std::unordered_set<Codepoint>();
-    for (Codepoint c = 0x20; c <= 0x7e; c++) {
+    for (Codepoint c = ' '; c <= '~'; c++) {
         ascii.insert(c);
     }
     ascii.insert(Font::REPLACEMENT_CHAR); // replacement character �
@@ -81,12 +82,8 @@ void Application::start() {
 
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(window)) {
-        // auto bytes = Terminal::read();
-        // std::string chars;
-        // for (auto& b : bytes) {
-        //     chars += b;
-        // }
-        // SPDLOG_DEBUG("Read:\n{}", chars);
+        // std::vector<uint8_t> bytes = Terminal::read();
+        // hexdump(bytes.data(), bytes.size());
         // Terminal::write();
 
         glm::mat4 transform = glm::scale(

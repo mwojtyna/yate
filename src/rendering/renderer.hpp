@@ -18,7 +18,7 @@ struct RendererData {
     glm::mat4 viewMat = glm::mat4(1.0f);
     glm::vec3 bgColor;
     std::vector<Code> codes;
-    std::unique_ptr<Mesh> glyphMesh = nullptr;
+    std::unique_ptr<Mesh> glyphMesh;
 };
 
 class Renderer {

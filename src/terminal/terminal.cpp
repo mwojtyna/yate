@@ -101,8 +101,8 @@ void Terminal::close() {
     SPDLOG_DEBUG("Closed pty");
 }
 
-std::vector<char> Terminal::read() {
-    std::vector<char> buf(1024);
+std::vector<uint8_t> Terminal::read() {
+    std::vector<uint8_t> buf(1024);
 
     SPDLOG_DEBUG("Reading...");
     int bytesRead = ::read(s_Data.masterFd, buf.data(), 1024);
@@ -112,6 +112,7 @@ std::vector<char> Terminal::read() {
         SPDLOG_DEBUG("EOF");
     } else {
         SPDLOG_DEBUG("Read {} bytes", bytesRead);
+        buf.resize(bytesRead);
     }
 
     return buf;
