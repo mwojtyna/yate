@@ -1,11 +1,18 @@
-#include "terminal.hpp"
+#ifdef __APPLE__
+#include <crt_externs.h>
+#include <util.h>
+#define environ (*_NSGetEnviron())
+#else
+#include <pty.h>
+#endif
+
 #include "../utils.hpp"
+#include "terminal.hpp"
 #include <cerrno>
 #include <csignal>
 #include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
-#include <pty.h>
 #include <pwd.h>
 #include <spdlog/spdlog.h>
 #include <sys/ioctl.h>
@@ -42,7 +49,7 @@ void Terminal::open() {
             FATAL_CHILD("Failed piping stderr: {}", std::strerror(errno));
         }
 
-        char* home = getenv("HOME");
+        const char* home = getenv("HOME");
         struct passwd* user = getpwuid(getuid());
         if (home == nullptr || strcmp(home, "") == 0) {
             if (user == nullptr) {
