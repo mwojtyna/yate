@@ -101,26 +101,9 @@ void Terminal::close() {
     SPDLOG_DEBUG("Closed pty");
 }
 
-std::vector<uint8_t> Terminal::read() {
-    constexpr size_t BUF_LEN = 1024;
-    std::vector<uint8_t> buf(BUF_LEN);
-
-    int bytesRead = ::read(m_MasterFd, buf.data(), BUF_LEN);
-    if (bytesRead == -1) {
-        // Log error only if it failed when not closing the pty
-        if (!shouldClose()) {
-            SPDLOG_ERROR("Failed reading from pty");
-        }
-        buf.resize(0);
-    } else if (bytesRead == 0) {
-        SPDLOG_DEBUG("EOF");
-        buf.resize(0);
-    } else {
-        SPDLOG_DEBUG("Read {} bytes", bytesRead);
-        buf.resize(bytesRead);
-    }
-
-    return buf;
+int Terminal::read(uint8_t buf[], size_t len) {
+    int bytesRead = ::read(m_MasterFd, buf, len);
+    return bytesRead;
 }
 
 void Terminal::write(uint8_t buf[], size_t len) {

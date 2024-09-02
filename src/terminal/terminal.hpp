@@ -3,7 +3,6 @@
 #include <atomic>
 #include <cstdint>
 #include <unistd.h>
-#include <vector>
 
 struct TerminalData {};
 
@@ -12,7 +11,7 @@ public:
     void open();
     void close();
     bool shouldClose();
-    std::vector<uint8_t> read();
+    int read(uint8_t* buf, size_t len);
     void write(uint8_t buf[], size_t len);
 
 private:

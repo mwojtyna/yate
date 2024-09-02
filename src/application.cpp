@@ -37,10 +37,16 @@ void Application::start() {
     // TODO: Make it thread safe
     m_Terminal.open();
     m_TerminalThread = std::make_unique<std::thread>([this]() {
-        std::vector<uint8_t> bytes;
+        uint8_t buf[1024];
         while (!m_Terminal.shouldClose()) {
-            bytes = m_Terminal.read();
-            HEXDUMP(bytes.data(), bytes.size());
+            int bytesRead = m_Terminal.read(buf, 1024);
+            if (bytesRead >= 0) {
+                SPDLOG_DEBUG("Read from terminal:");
+                HEXDUMP(buf, bytesRead);
+            } else if (!m_Terminal.shouldClose()) {
+                // Log error only if it failed when not closing the pty
+                SPDLOG_ERROR("Failed reading from pty");
+            }
         }
         SPDLOG_DEBUG("Terminal thread finished");
     });

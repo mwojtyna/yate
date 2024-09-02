@@ -7,6 +7,7 @@
 void hexdump(void* ptr, size_t len) {
     uint8_t* buf = (uint8_t*)ptr;
     size_t i, j;
+    printf("len: %zu\n", len);
     for (i = 0; i < len; i += 16) {
         printf("%06zx: ", i);
 
