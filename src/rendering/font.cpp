@@ -24,6 +24,13 @@ Font::Font(std::filesystem::path path, float size)
 
     // TODO: Calculate dpi to hopefully fix wrong font size
     error = FT_Set_Char_Size(m_Font, 0, size * 64, 0, 0);
+
+    auto ascii = std::unordered_set<Codepoint>();
+    for (Codepoint c = ' '; c <= '~'; c++) {
+        ascii.insert(c);
+    }
+    ascii.insert(Font::REPLACEMENT_CHAR); // replacement character �
+    updateAtlas(ascii);
 }
 
 Font::~Font() {
@@ -84,7 +91,7 @@ void Font::updateAtlas(std::unordered_set<Codepoint>& codepoints) {
     }
 
     if (!m_Atlas.initialized()) {
-        m_Atlas.newTarget(ATLAS_SIZE, ATLAS_SIZE, numGlyphs);
+        m_Atlas.newTarget(atlasSize, atlasSize, numGlyphs);
     }
     if (!m_Atlas.pack(rects, numGlyphs)) {
         FATAL("Failed to calculate glyph packing");
@@ -105,7 +112,7 @@ void Font::updateAtlas(std::unordered_set<Codepoint>& codepoints) {
         m_CodepointToGeometry[codepoint] = glyph;
     }
 
-    SPDLOG_DEBUG("Generated {}x{} font atlas", ATLAS_SIZE, ATLAS_SIZE);
+    SPDLOG_DEBUG("Generated {}x{} font atlas", atlasSize, atlasSize);
 }
 
 GlyphPos Font::getGlyphPos(Codepoint codepoint, glm::vec2& pen) {
@@ -115,10 +122,10 @@ GlyphPos Font::getGlyphPos(Codepoint codepoint, glm::vec2& pen) {
     GlyphGeometry& gg = found ? m_CodepointToGeometry[codepoint]
                               : m_CodepointToGeometry[REPLACEMENT_CHAR];
 
-    gp.al = gg.rect.x / (float)ATLAS_SIZE;
-    gp.at = (gg.rect.y + gg.rect.h) / (float)ATLAS_SIZE;
-    gp.ar = (gg.rect.x + gg.rect.w) / (float)ATLAS_SIZE;
-    gp.ab = gg.rect.y / (float)ATLAS_SIZE;
+    gp.al = gg.rect.x / (float)atlasSize;
+    gp.at = (gg.rect.y + gg.rect.h) / (float)atlasSize;
+    gp.ar = (gg.rect.x + gg.rect.w) / (float)atlasSize;
+    gp.ab = gg.rect.y / (float)atlasSize;
 
     gp.pl = fracToPx(gg.metrics.horiBearingX);
     gp.pt = -fracToPx(gg.metrics.height - gg.metrics.horiBearingY),
@@ -147,7 +154,7 @@ GlyphPos Font::getGlyphPos(Codepoint codepoint, glm::vec2& pen) {
     return gp;
 }
 
-const FT_Size_Metrics Font::getMetrics() const {
+FT_Size_Metrics Font::getMetrics() const {
     return m_Font->size->metrics;
 }
 

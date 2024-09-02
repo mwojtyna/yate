@@ -34,7 +34,7 @@ public:
     void updateAtlas(std::unordered_set<Codepoint>& codepoints);
     GlyphPos getGlyphPos(Codepoint codepoint, glm::vec2& pen);
 
-    const FT_Size_Metrics getMetrics() const;
+    FT_Size_Metrics getMetrics() const;
     float getSize() const;
     static double fracToPx(double value);
 
@@ -42,13 +42,12 @@ public:
     constexpr static size_t TAB_WIDTH = 2;
 
 private:
-    // TODO: Dynamically choose atlas size
-    const uint32_t ATLAS_SIZE = 1024;
-
     std::filesystem::path m_Path;
     float m_Size;
     FT_Library m_Lib;
     FT_Face m_Font;
     Atlas m_Atlas;
+    // TODO: Dynamically choose atlas size
+    const uint32_t atlasSize = 1024;
     std::unordered_map<Codepoint, GlyphGeometry> m_CodepointToGeometry;
 };

@@ -1,16 +1,10 @@
 #include "utils.hpp"
-#include "spdlog/common.h"
-#include "spdlog/spdlog.h"
 #include <cctype>
 #include <cstdint>
 #include <cstdio>
 
 // https://stackoverflow.com/a/29865/9854703
 void hexdump(void* ptr, size_t len) {
-    if (spdlog::get_level() > SPDLOG_LEVEL_DEBUG) {
-        return;
-    }
-
     uint8_t* buf = (uint8_t*)ptr;
     size_t i, j;
     for (i = 0; i < len; i += 16) {
