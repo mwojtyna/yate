@@ -40,12 +40,12 @@ void Renderer::drawText(std::vector<Code>& codes, Font& font,
                         1.0f));
     glCall(glClear(GL_COLOR_BUFFER_BIT));
 
+    // TODO: Updateable text
     if (codes == s_Data->codes) {
         s_Data->glyphMesh->draw();
         s_Data->codes = codes;
         return;
     }
-
     if (s_Data->glyphMesh == nullptr) {
         s_Data->glyphMesh = std::make_unique<Mesh>(90 * 30 * 4, 90 * 30 * 6,
                                                    transform, program);

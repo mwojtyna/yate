@@ -6,6 +6,7 @@
 #include "shaders/text.frag.hpp"
 #include "shaders/text.vert.hpp"
 #include "terminal/terminal.hpp"
+#include "terminal/thread_safe_queue.hpp"
 #include "utils.hpp"
 #include <cassert>
 #include <glm/ext/matrix_float4x4.hpp>
@@ -18,8 +19,8 @@
 
 void Application::start() {
     spdlog::cfg::load_env_levels();
-    SPDLOG_INFO("GLFW version: {}", glfwGetVersionString());
 
+    SPDLOG_INFO("GLFW version: {}", glfwGetVersionString());
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -34,20 +35,26 @@ void Application::start() {
     }
     glfwMakeContextCurrent(window);
 
-    // TODO: Make it thread safe
+    ThreadSafeQueue<TerminalBuf> terminalQueue;
     m_Terminal.open();
-    m_TerminalThread = std::make_unique<std::thread>([this]() {
-        uint8_t buf[1024];
+    m_TerminalThread = std::make_unique<std::thread>([this, &terminalQueue]() {
         while (!m_Terminal.shouldClose()) {
-            int bytesRead = m_Terminal.read(buf, 1024);
-            if (bytesRead >= 0) {
-                SPDLOG_DEBUG("Read from terminal:");
-                HEXDUMP(buf, bytesRead);
-            } else if (!m_Terminal.shouldClose()) {
-                // Log error only if it failed when not closing the pty
-                SPDLOG_ERROR("Failed reading from pty");
+            try {
+                TerminalBuf buf = m_Terminal.read();
+                if (buf.size() == 0) {
+                    continue;
+                }
+
+                // TODO: Parse terminal codes
+                // TODO: If codes changed from last frame, update codepoints and add to atlas
+                terminalQueue.push(std::move(buf));
+            } catch (TerminalReadException e) {
+                if (!m_Terminal.shouldClose()) {
+                    SPDLOG_ERROR("Failed reading from terminal: {}", e.what());
+                }
             }
         }
+
         SPDLOG_DEBUG("Terminal thread finished");
     });
 
@@ -70,7 +77,6 @@ void Application::start() {
     };
     DebugUI::initialize(window);
 
-    // TODO: Parse terminal codes
     std::vector<Code> terminalCodes = {
         62211, 32,  57520, 32,  61564, 32,    126, 47,    100, 101,   118, 101,
         108,   111, 112,   101, 114,   47,    121, 97,    116, 101,   47,  98,
@@ -84,14 +90,19 @@ void Application::start() {
         10,    9,   113,   33,  64,    35,    36,  37,    94,  38,    42,  40,
         41,    45,  95,    61,  43,    91,    123, 93,    125, 59,    58,  39,
         34,    44,  60,    46,  62,    47,    63};
-
-    // TODO: If terminalCodes changed from last frame, update codepoints and add to atlas
     auto codepoints = std::unordered_set<Codepoint>(terminalCodes.begin(),
                                                     terminalCodes.end());
     font.updateAtlas(codepoints);
 
     SPDLOG_INFO("Application started");
+
+    TerminalBuf terminalBuf;
     while (!glfwWindowShouldClose(window)) {
+        if (terminalQueue.pop(terminalBuf)) {
+            SPDLOG_DEBUG("Read from terminal:");
+            HEXDUMP(terminalBuf.data(), terminalBuf.size());
+        }
+
         glm::mat4 transform = glm::scale(
             glm::translate(glm::mat4(1.0f), charsPos), glm::vec3(charsScale));
         Renderer::setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));

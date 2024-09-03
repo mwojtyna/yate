@@ -24,7 +24,6 @@
     kill(getppid(), SIGTERM);
 
 void Terminal::open() {
-    // Child process
     if (openpty(&m_MasterFd, &m_SlaveFd, nullptr, nullptr, nullptr)) {
         FATAL("Failed to open pty: {}", strerror(errno));
     }
@@ -38,6 +37,7 @@ void Terminal::open() {
 
     pid_t pid = fork();
     if (pid == 0) {
+        // Child process
         if (dup2(m_SlaveFd, STDIN_FILENO) == -1) {
             FATAL_CHILD("Failed piping stdin: {}", std::strerror(errno));
         }
@@ -101,9 +101,19 @@ void Terminal::close() {
     SPDLOG_DEBUG("Closed pty");
 }
 
-int Terminal::read(uint8_t buf[], size_t len) {
-    int bytesRead = ::read(m_MasterFd, buf, len);
-    return bytesRead;
+TerminalBuf Terminal::read() {
+    constexpr size_t BUF_SIZE = 65535;
+
+    TerminalBuf buf(BUF_SIZE);
+    int bytesRead = ::read(m_MasterFd, buf.data(), BUF_SIZE);
+
+    if (bytesRead >= 0) {
+        buf.resize(bytesRead);
+    } else {
+        throw TerminalReadException();
+    }
+
+    return buf;
 }
 
 void Terminal::write(uint8_t buf[], size_t len) {
