@@ -111,3 +111,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE freetype)
 target_compile_definitions(freetype PUBLIC FT_CONFIG_OPTION_ERROR_STRINGS)
 target_compile_options(freetype PRIVATE -w) # Disable warnings
 
+# stb
+target_include_directories(${PROJECT_NAME} PRIVATE ./vendor/stb/)
