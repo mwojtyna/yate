@@ -1,5 +1,6 @@
 #pragma once
 
+#include "spdlog/common.h"
 #include <cstdlib>
 
 #define FATAL(...)                                                             \
@@ -12,4 +13,4 @@
 #define HEXDUMP(ptr, len)
 #endif
 
-void hexdump(void* ptr, size_t len);
+void hexdump(void* ptr, size_t len, int minLogLevel = SPDLOG_LEVEL_DEBUG);
