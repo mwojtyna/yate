@@ -7,14 +7,14 @@
 #include <unistd.h>
 #include <vector>
 
-using TerminalBuf = std::vector<uint8_t>;
+using TerminalRaw = std::vector<uint8_t>;
 
 class Terminal {
 public:
-    void open();
+    void open(int windowWidth, int windowHeight);
     void close();
     bool shouldClose();
-    TerminalBuf read();
+    TerminalRaw read();
     void write(uint8_t buf[], size_t len);
 
 private:

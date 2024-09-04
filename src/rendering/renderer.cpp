@@ -34,18 +34,18 @@ void Renderer::destroy() {
     SPDLOG_DEBUG("Shutdown renderer");
 }
 
-void Renderer::drawText(std::vector<Code>& codes, Font& font,
+void Renderer::drawText(const ParsedChunk& chunk, Font& font,
                         glm::mat4& transform, Program& program) {
     glCall(glClearColor(s_Data->bgColor.r, s_Data->bgColor.g, s_Data->bgColor.b,
                         1.0f));
     glCall(glClear(GL_COLOR_BUFFER_BIT));
 
     // TODO: Updateable text
-    if (codes == s_Data->codes) {
-        s_Data->glyphMesh->draw();
-        s_Data->codes = codes;
-        return;
-    }
+    // if (codes == s_Data->codes) {
+    //     s_Data->glyphMesh->draw();
+    //     s_Data->codes = codes;
+    //     return;
+    // }
     if (s_Data->glyphMesh == nullptr) {
         s_Data->glyphMesh = std::make_unique<Mesh>(90 * 30 * 4, 90 * 30 * 6,
                                                    transform, program);
@@ -54,8 +54,8 @@ void Renderer::drawText(std::vector<Code>& codes, Font& font,
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
     glm::vec2 pen(0, -Font::fracToPx(font.getMetrics().ascender));
-    for (size_t i = 0, j = 0; i < codes.size(); i++, j += 4) {
-        const GlyphPos g = font.getGlyphPos(codes[i], pen);
+    for (size_t i = 0, j = 0; i < chunk.text.size(); i++, j += 4) {
+        const GlyphPos g = font.getGlyphPos(chunk.text[i], pen);
 
         vertices.push_back({{pen.x + g.pl, pen.y + g.pb, 0.0f},
                             {1.0f, 1.0f, 1.0f},
@@ -99,9 +99,9 @@ glm::mat4& Renderer::getViewMat() {
     return s_Data->viewMat;
 }
 
-void Renderer::setViewMat(glm::mat4& mat) {
+void Renderer::setViewMat(const glm::mat4& mat) {
     s_Data->viewMat = mat;
 }
-void Renderer::setViewMat(glm::mat4&& mat) {
+void Renderer::setViewMat(const glm::mat4&& mat) {
     s_Data->viewMat = mat;
 }

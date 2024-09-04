@@ -23,7 +23,8 @@
     SPDLOG_ERROR(__VA_ARGS__);                                                 \
     kill(getppid(), SIGTERM);
 
-void Terminal::open() {
+// TODO: Divide window into terminal rows and columns
+void Terminal::open(int windowWidth, int windowHeight) {
     if (openpty(&m_MasterFd, &m_SlaveFd, nullptr, nullptr, nullptr)) {
         FATAL("Failed to open pty: {}", strerror(errno));
     }
@@ -101,10 +102,10 @@ void Terminal::close() {
     SPDLOG_DEBUG("Closed pty");
 }
 
-TerminalBuf Terminal::read() {
+TerminalRaw Terminal::read() {
     constexpr size_t BUF_SIZE = 65535;
 
-    TerminalBuf buf(BUF_SIZE);
+    TerminalRaw buf(BUF_SIZE);
     int bytesRead = ::read(m_MasterFd, buf.data(), BUF_SIZE);
 
     if (bytesRead >= 0) {

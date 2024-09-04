@@ -5,6 +5,7 @@
 #include "rendering/renderer.hpp"
 #include "shaders/text.frag.hpp"
 #include "shaders/text.vert.hpp"
+#include "terminal/parser.hpp"
 #include "terminal/terminal.hpp"
 #include "terminal/thread_safe_queue.hpp"
 #include "utils.hpp"
@@ -35,26 +36,28 @@ void Application::start() {
     }
     glfwMakeContextCurrent(window);
 
-    ThreadSafeQueue<TerminalBuf> terminalQueue;
-    m_Terminal.open();
+    ThreadSafeQueue<std::vector<ParsedChunk>> terminalQueue;
+    m_Terminal.open(Application::WIDTH, Application::HEIGHT);
     m_TerminalThread = std::make_unique<std::thread>([this, &terminalQueue]() {
+        TerminalParser parser;
         while (!m_Terminal.shouldClose()) {
             try {
-                TerminalBuf buf = m_Terminal.read();
-                if (buf.size() == 0) {
+                TerminalRaw rawCodes = m_Terminal.read();
+                if (rawCodes.size() == 0) {
                     continue;
                 }
 
-                // TODO: Parse terminal codes
-                // TODO: If codes changed from last frame, update codepoints and add to atlas
-                terminalQueue.push(std::move(buf));
+                SPDLOG_DEBUG("Read from terminal:");
+                HEXDUMP(rawCodes.data(), rawCodes.size());
+
+                std::vector<ParsedChunk> parsed = parser.parse(rawCodes);
+                terminalQueue.push(std::move(parsed));
             } catch (TerminalReadException e) {
                 if (!m_Terminal.shouldClose()) {
                     SPDLOG_ERROR("Failed reading from terminal: {}", e.what());
                 }
             }
         }
-
         SPDLOG_DEBUG("Terminal thread finished");
     });
 
@@ -77,36 +80,28 @@ void Application::start() {
     };
     DebugUI::initialize(window);
 
-    std::vector<Code> terminalCodes = {
-        62211, 32,  57520, 32,  61564, 32,    126, 47,    100, 101,   118, 101,
-        108,   111, 112,   101, 114,   47,    121, 97,    116, 101,   47,  98,
-        117,   105, 108,   100, 32,    57520, 32,  61715, 32,  61734, 32,  109,
-        97,    105, 110,   32,  33,    49,    32,  57520, 10,  90,    97,  380,
-        243,   322, 263,   32,  103,   281,   347, 108,   261, 32,    106, 97,
-        378,   324, 33,    10,  84,    104,   101, 32,    113, 117,   105, 99,
-        107,   32,  98,    114, 111,   119,   110, 32,    102, 111,   120, 32,
-        106,   117, 109,   112, 115,   32,    111, 118,   101, 114,   32,  116,
-        104,   101, 32,    108, 97,    122,   121, 32,    100, 111,   103, 46,
-        10,    9,   113,   33,  64,    35,    36,  37,    94,  38,    42,  40,
-        41,    45,  95,    61,  43,    91,    123, 93,    125, 59,    58,  39,
-        34,    44,  60,    46,  62,    47,    63};
-    auto codepoints = std::unordered_set<Codepoint>(terminalCodes.begin(),
-                                                    terminalCodes.end());
-    font.updateAtlas(codepoints);
-
     SPDLOG_INFO("Application started");
 
-    TerminalBuf terminalBuf;
+    std::vector<ParsedChunk> chunks;
     while (!glfwWindowShouldClose(window)) {
-        if (terminalQueue.pop(terminalBuf)) {
-            SPDLOG_DEBUG("Read from terminal:");
-            HEXDUMP(terminalBuf.data(), terminalBuf.size());
+        // When new terminal data appears, update font atlas for new glyphs
+        if (terminalQueue.pop(chunks)) {
+            for (const ParsedChunk& chunk : chunks) {
+                std::unordered_set<Codepoint> codepoints(chunk.text.size());
+                for (const auto& c : chunk.text) {
+                    codepoints.insert(c);
+                }
+                font.updateAtlas(codepoints);
+            }
         }
 
         glm::mat4 transform = glm::scale(
             glm::translate(glm::mat4(1.0f), charsPos), glm::vec3(charsScale));
         Renderer::setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));
-        Renderer::drawText(terminalCodes, font, transform, program);
+
+        for (const ParsedChunk& chunk : chunks) {
+            Renderer::drawText(chunk, font, transform, program);
+        }
 
         debugData.frameTimeMs = (glfwGetTime() - prevTime) * 1000;
         prevTime = glfwGetTime();
