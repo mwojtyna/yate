@@ -1,7 +1,7 @@
 #pragma once
 
-#include "spdlog/common.h"
 #include <cstdlib>
+#include <spdlog/common.h>
 
 #define FATAL(...)                                                             \
     SPDLOG_ERROR(__VA_ARGS__);                                                 \

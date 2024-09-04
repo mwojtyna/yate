@@ -6,6 +6,7 @@
 #include "shaders/text.frag.hpp"
 #include "shaders/text.vert.hpp"
 #include "terminal/parser.hpp"
+#include "terminal/parser_setup.hpp"
 #include "terminal/terminal.hpp"
 #include "terminal/thread_safe_queue.hpp"
 #include "utils.hpp"
@@ -27,22 +28,22 @@ void Application::start() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(
-        Application::WIDTH, Application::HEIGHT, "yate", nullptr, nullptr);
-    if (window == nullptr) {
+    m_Window = glfwCreateWindow(Application::WIDTH, Application::HEIGHT, "yate",
+                                nullptr, nullptr);
+    if (m_Window == nullptr) {
         const char* error;
         glfwGetError(&error);
         FATAL("Failed to create window: {}", error);
     }
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(m_Window);
 
-    ThreadSafeQueue<std::vector<ParsedChunk>> terminalQueue;
+    ThreadSafeQueue<std::vector<CellChunk>> terminalQueue;
     m_Terminal.open(Application::WIDTH, Application::HEIGHT);
     m_TerminalThread = std::make_unique<std::thread>([this, &terminalQueue]() {
-        TerminalParser parser;
+        Parser parser = parser_setup();
         while (!m_Terminal.shouldClose()) {
             try {
-                TerminalRaw rawCodes = m_Terminal.read();
+                std::vector<uint8_t> rawCodes = m_Terminal.read();
                 if (rawCodes.size() == 0) {
                     continue;
                 }
@@ -50,7 +51,7 @@ void Application::start() {
                 SPDLOG_DEBUG("Read from terminal:");
                 HEXDUMP(rawCodes.data(), rawCodes.size());
 
-                std::vector<ParsedChunk> parsed = parser.parse(rawCodes);
+                std::vector<CellChunk> parsed = parser.parse(rawCodes);
                 terminalQueue.push(std::move(parsed));
             } catch (TerminalReadException e) {
                 if (!m_Terminal.shouldClose()) {
@@ -78,15 +79,15 @@ void Application::start() {
         .charsScale = &charsScale,
         .cameraPos = &cameraPos,
     };
-    DebugUI::initialize(window);
+    DebugUI::initialize(m_Window);
 
     SPDLOG_INFO("Application started");
 
-    std::vector<ParsedChunk> chunks;
-    while (!glfwWindowShouldClose(window)) {
+    std::vector<CellChunk> chunks;
+    while (!glfwWindowShouldClose(m_Window)) {
         // When new terminal data appears, update font atlas for new glyphs
         if (terminalQueue.pop(chunks)) {
-            for (const ParsedChunk& chunk : chunks) {
+            for (const CellChunk& chunk : chunks) {
                 std::unordered_set<Codepoint> codepoints(chunk.text.size());
                 for (const auto& c : chunk.text) {
                     codepoints.insert(c);
@@ -99,7 +100,8 @@ void Application::start() {
             glm::translate(glm::mat4(1.0f), charsPos), glm::vec3(charsScale));
         Renderer::setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));
 
-        for (const ParsedChunk& chunk : chunks) {
+        glCall(glClear(GL_COLOR_BUFFER_BIT));
+        for (const CellChunk& chunk : chunks) {
             Renderer::drawText(chunk, font, transform, program);
         }
 
@@ -107,7 +109,7 @@ void Application::start() {
         prevTime = glfwGetTime();
         DebugUI::draw(debugData);
 
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(m_Window);
         glfwPollEvents();
     }
 }

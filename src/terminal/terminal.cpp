@@ -102,10 +102,10 @@ void Terminal::close() {
     SPDLOG_DEBUG("Closed pty");
 }
 
-TerminalRaw Terminal::read() {
+std::vector<uint8_t> Terminal::read() {
     constexpr size_t BUF_SIZE = 65535;
 
-    TerminalRaw buf(BUF_SIZE);
+    std::vector<uint8_t> buf(BUF_SIZE);
     int bytesRead = ::read(m_MasterFd, buf.data(), BUF_SIZE);
 
     if (bytesRead >= 0) {

@@ -34,11 +34,10 @@ void Renderer::destroy() {
     SPDLOG_DEBUG("Shutdown renderer");
 }
 
-void Renderer::drawText(const ParsedChunk& chunk, Font& font,
+void Renderer::drawText(const CellChunk& chunk, Font& font,
                         glm::mat4& transform, Program& program) {
     glCall(glClearColor(s_Data->bgColor.r, s_Data->bgColor.g, s_Data->bgColor.b,
                         1.0f));
-    glCall(glClear(GL_COLOR_BUFFER_BIT));
 
     if (s_Data->glyphMesh == nullptr) {
         // TODO: Proper cell sizing

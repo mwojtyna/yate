@@ -1,8 +1,8 @@
 #include "utils.hpp"
-#include "spdlog/spdlog.h"
 #include <cctype>
 #include <cstdint>
 #include <cstdio>
+#include <spdlog/spdlog.h>
 
 // https://stackoverflow.com/a/29865/9854703
 void hexdump(void* ptr, size_t len, int minLogLevel) {
