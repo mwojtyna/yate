@@ -22,7 +22,7 @@ void VertexArray::addBuffer(const VertexBuffer& vb) const {
                                  (const void*)offsetof(Vertex, pos)));
     glCall(glEnableVertexAttribArray(0));
 
-    glCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+    glCall(glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                                  (const void*)offsetof(Vertex, color)));
     glCall(glEnableVertexAttribArray(1));
 

@@ -40,13 +40,8 @@ void Renderer::drawText(const ParsedChunk& chunk, Font& font,
                         1.0f));
     glCall(glClear(GL_COLOR_BUFFER_BIT));
 
-    // TODO: Updateable text
-    // if (codes == s_Data->codes) {
-    //     s_Data->glyphMesh->draw();
-    //     s_Data->codes = codes;
-    //     return;
-    // }
     if (s_Data->glyphMesh == nullptr) {
+        // TODO: Proper cell sizing
         s_Data->glyphMesh = std::make_unique<Mesh>(90 * 30 * 4, 90 * 30 * 6,
                                                    transform, program);
     }
@@ -58,16 +53,16 @@ void Renderer::drawText(const ParsedChunk& chunk, Font& font,
         const GlyphPos g = font.getGlyphPos(chunk.text[i], pen);
 
         vertices.push_back({{pen.x + g.pl, pen.y + g.pb, 0.0f},
-                            {1.0f, 1.0f, 1.0f},
+                            chunk.fgColor,
                             {g.al, g.ab}}); // left bottom
         vertices.push_back({{pen.x + g.pr, pen.y + g.pb, 0.0f},
-                            {1.0f, 1.0f, 1.0f},
+                            chunk.fgColor,
                             {g.ar, g.ab}}); // right bottom
         vertices.push_back({{pen.x + g.pr, pen.y + g.pt, 0.0f},
-                            {1.0f, 1.0f, 1.0f},
+                            chunk.fgColor,
                             {g.ar, g.at}}); // right top
         vertices.push_back({{pen.x + g.pl, pen.y + g.pt, 0.0f},
-                            {1.0f, 1.0f, 1.0f},
+                            chunk.fgColor,
                             {g.al, g.at}}); // left top
 
         indices.push_back(j + 0);
