@@ -3,12 +3,12 @@
 #include <spdlog/spdlog.h>
 
 void setWindowTitle(std::vector<std::string> data) {
-    SPDLOG_DEBUG("Set window title: {}", data[0]);
+    SPDLOG_DEBUG("Set window title: '{}'", data[0]);
 }
 
 Parser parser_setup() {
     OscParser osc;
-    osc.addHandlerString(0, &setWindowTitle);
+    osc.addStringHandler(0, &setWindowTitle);
 
     Parser parser(osc);
 

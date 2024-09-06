@@ -1,3 +1,4 @@
+#include "types.hpp"
 #ifdef __APPLE__
 #include <crt_externs.h>
 #include <util.h>
@@ -102,10 +103,10 @@ void Terminal::close() {
     SPDLOG_DEBUG("Closed pty");
 }
 
-std::vector<uint8_t> Terminal::read() {
+termbuf_t Terminal::read() {
     constexpr size_t BUF_SIZE = 65535;
 
-    std::vector<uint8_t> buf(BUF_SIZE);
+    termbuf_t buf(BUF_SIZE);
     int bytesRead = ::read(m_MasterFd, buf.data(), BUF_SIZE);
 
     if (bytesRead >= 0) {

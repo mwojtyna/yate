@@ -1,5 +1,6 @@
 #pragma once
 
+#include "types.hpp"
 #include <cstdint>
 #include <functional>
 #include <string>
@@ -13,21 +14,18 @@ class OscParser {
 
 public:
     /// OSC commands don't return any data
-    void parse(std::vector<uint8_t>::iterator& it,
-               std::vector<uint8_t>::iterator end);
+    void parse(iter_t& it, iter_t end);
 
-    void addHandlerString(ident_t ident,
+    void addStringHandler(ident_t ident,
                           handlerfn_t<std::vector<std::string>> handler);
-    void addHandlerByte(ident_t ident,
-                        handlerfn_t<std::vector<std::vector<uint8_t>>> handler);
+    void addBytesHandler(ident_t ident,
+                         handlerfn_t<std::vector<termbuf_t>> handler);
 
-    static std::vector<std::string>
-    parseArgs(std::vector<uint8_t>::iterator& it,
-              std::vector<uint8_t>::iterator end);
+    static std::vector<std::string> parseArgs(iter_t& it, iter_t end);
 
 private:
     std::unordered_map<ident_t, handlerfn_t<std::vector<std::string>>>
         m_StringHandlers;
-    std::unordered_map<ident_t, handlerfn_t<std::vector<std::vector<uint8_t>>>>
+    std::unordered_map<ident_t, handlerfn_t<std::vector<termbuf_t>>>
         m_ByteHandlers;
 };

@@ -1,18 +1,18 @@
 #pragma once
 
+#include "types.hpp"
 #include <atomic>
 #include <cstdint>
 #include <cstring>
 #include <exception>
 #include <unistd.h>
-#include <vector>
 
 class Terminal {
 public:
     void open(int windowWidth, int windowHeight);
     void close();
     bool shouldClose();
-    std::vector<uint8_t> read();
+    termbuf_t read();
     void write(uint8_t buf[], size_t len);
 
 private:

@@ -10,11 +10,10 @@
 
 Parser::Parser(OscParser& oscParser) : m_OscParser(oscParser){};
 
-std::vector<CellChunk> Parser::parse(std::vector<uint8_t>& data) {
+std::vector<CellChunk> Parser::parse(termbuf_t& data) {
     std::vector<CellChunk> chunks;
 
-    for (auto it = data.begin(); it <= data.end(); it++) {
-        // TODO: Allow c1 escape codes (0x9d for OSC, etc.)
+    for (auto it = data.begin(); it < data.end(); it++) {
         if (*it == ESC) {
             it++;
             switch (*it) {
@@ -37,8 +36,7 @@ std::vector<CellChunk> Parser::parse(std::vector<uint8_t>& data) {
 }
 
 // STATIC
-std::optional<uint32_t> Parser::parsePs(std::vector<uint8_t>::iterator& it,
-                                        std::vector<uint8_t>::iterator end) {
+std::optional<uint32_t> Parser::parsePs(iter_t& it, iter_t end) {
     std::string digits;
 
     skipSpaces(it, end);
@@ -56,8 +54,7 @@ std::optional<uint32_t> Parser::parsePs(std::vector<uint8_t>::iterator& it,
     return std::nullopt;
 }
 
-void Parser::skipSpaces(std::vector<uint8_t>::iterator& it,
-                        std::vector<uint8_t>::iterator end) {
+void Parser::skipSpaces(iter_t& it, iter_t end) {
     size_t spacesSkipped = 0;
     for (; it < end; it++) {
         if (*it != ' ') {

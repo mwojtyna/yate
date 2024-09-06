@@ -15,13 +15,10 @@ struct CellChunk {
 class Parser {
 public:
     Parser(OscParser& oscParser);
-    std::vector<CellChunk> parse(std::vector<uint8_t>& data);
+    std::vector<CellChunk> parse(termbuf_t& data);
 
-    static std::optional<uint32_t> parsePs(std::vector<uint8_t>::iterator& it,
-                                           std::vector<uint8_t>::iterator end);
-
-    static void skipSpaces(std::vector<uint8_t>::iterator& it,
-                           std::vector<uint8_t>::iterator end);
+    static std::optional<uint32_t> parsePs(iter_t& it, iter_t end);
+    static void skipSpaces(iter_t& it, iter_t end);
 
 private:
     OscParser m_OscParser;

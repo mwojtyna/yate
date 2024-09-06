@@ -1,22 +1,22 @@
 #include "osc_parser.hpp"
 #include "constants.hpp"
 #include "parser.hpp"
+#include "types.hpp"
 #include <spdlog/fmt/bin_to_hex.h>
 #include <spdlog/spdlog.h>
 #include <string>
 
-void OscParser::addHandlerString(
+void OscParser::addStringHandler(
     ident_t ident, handlerfn_t<std::vector<std::string>> handler) {
     m_StringHandlers[ident] = handler;
 }
 
-void OscParser::addHandlerByte(
-    ident_t ident, handlerfn_t<std::vector<std::vector<uint8_t>>> handler) {
+void OscParser::addBytesHandler(ident_t ident,
+                                handlerfn_t<std::vector<termbuf_t>> handler) {
     m_ByteHandlers[ident] = handler;
 }
 
-void OscParser::parse(std::vector<uint8_t>::iterator& it,
-                      std::vector<uint8_t>::iterator end) {
+void OscParser::parse(iter_t& it, iter_t end) {
     const std::optional<uint8_t> ident = Parser::parsePs(it, end);
     if (!ident.has_value()) {
         SPDLOG_ERROR("OSC:Ps - not a digit or separator:{}",
@@ -41,9 +41,7 @@ void OscParser::parse(std::vector<uint8_t>::iterator& it,
 }
 
 // STATIC
-std::vector<std::string>
-OscParser::parseArgs(std::vector<uint8_t>::iterator& it,
-                     std::vector<uint8_t>::iterator end) {
+std::vector<std::string> OscParser::parseArgs(iter_t& it, iter_t end) {
     std::vector<std::string> args;
     args.push_back("");
 
