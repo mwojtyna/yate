@@ -1,9 +1,9 @@
 #include "font.hpp"
 #include "../utils.hpp"
-#include "glm/ext/vector_float2.hpp"
 #include "opengl.hpp"
 #include <freetype/freetype.h>
 #include <freetype/ftmodapi.h>
+#include <glm/ext/vector_float2.hpp>
 #include <spdlog/spdlog.h>
 #include <stb_rect_pack.h>
 #include <unordered_set>

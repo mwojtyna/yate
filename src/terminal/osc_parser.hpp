@@ -10,7 +10,7 @@
 class OscParser {
     using ident_t = uint8_t;
     template <typename T>
-    using handlerfn_t = std::function<void(T)>;
+    using handlerfn_t = std::function<void(T&)>;
 
 public:
     /// OSC commands don't return any data

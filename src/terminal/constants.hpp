@@ -8,4 +8,5 @@ static constexpr uint8_t SEPARATOR = ';';
 static constexpr uint8_t BELL = 0x7;
 
 // C1
+static constexpr uint8_t OSC = 0x9b;
 static constexpr uint8_t ST = 0x9c;

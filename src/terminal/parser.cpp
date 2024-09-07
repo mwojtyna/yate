@@ -14,7 +14,9 @@ std::vector<CellChunk> Parser::parse(termbuf_t& data) {
     std::vector<CellChunk> chunks;
 
     for (auto it = data.begin(); it < data.end(); it++) {
-        if (*it == ESC) {
+        switch (*it) {
+        // 7-bit
+        case ESC: {
             it++;
             switch (*it) {
             case OSC_START: {
@@ -29,6 +31,15 @@ std::vector<CellChunk> Parser::parse(termbuf_t& data) {
                 return chunks;
             }
             }
+            break;
+        }
+
+        // 8-bit
+        case OSC: {
+            it++;
+            m_OscParser.parse(it, data.end());
+            break;
+        }
         }
     }
 

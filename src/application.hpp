@@ -9,14 +9,15 @@
 
 class Application {
 public:
-    ~Application();
     void start();
+    ~Application();
+    GLFWwindow* getWindow();
 
     constexpr static int WIDTH = 800;
     constexpr static int HEIGHT = 600;
 
 private:
+    GLFWwindow* m_Window;
     Terminal m_Terminal;
     std::unique_ptr<std::thread> m_TerminalThread;
-    GLFWwindow* m_Window;
 };

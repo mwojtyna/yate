@@ -30,6 +30,7 @@ void Application::start() {
 
     m_Window = glfwCreateWindow(Application::WIDTH, Application::HEIGHT, "yate",
                                 nullptr, nullptr);
+
     if (m_Window == nullptr) {
         const char* error;
         glfwGetError(&error);
@@ -40,7 +41,7 @@ void Application::start() {
     ThreadSafeQueue<std::vector<CellChunk>> terminalQueue;
     m_Terminal.open(Application::WIDTH, Application::HEIGHT);
     m_TerminalThread = std::make_unique<std::thread>([this, &terminalQueue]() {
-        Parser parser = parser_setup();
+        Parser parser = parser_setup(*this);
         while (!m_Terminal.shouldClose()) {
             try {
                 std::vector<uint8_t> rawCodes = m_Terminal.read();
@@ -122,4 +123,8 @@ Application::~Application() {
     assert(m_TerminalThread->joinable());
     m_TerminalThread->join();
     glfwTerminate();
+}
+
+GLFWwindow* Application::getWindow() {
+    return m_Window;
 }
