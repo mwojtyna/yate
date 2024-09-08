@@ -36,9 +36,6 @@ void Renderer::destroy() {
 
 void Renderer::drawText(const CellChunk& chunk, Font& font,
                         glm::mat4& transform, Program& program) {
-    glCall(glClearColor(s_Data->bgColor.r, s_Data->bgColor.g, s_Data->bgColor.b,
-                        1.0f));
-
     if (s_Data->glyphMesh == nullptr) {
         // TODO: Proper cell sizing
         s_Data->glyphMesh = std::make_unique<Mesh>(90 * 30 * 4, 90 * 30 * 6,
@@ -81,8 +78,8 @@ void Renderer::setWireframe(const bool enabled) {
     glCall(glPolygonMode(GL_FRONT_AND_BACK, enabled ? GL_LINE : GL_FILL));
 }
 
-void Renderer::setBgColor(const glm::vec3 color) {
-    s_Data->bgColor = color;
+void Renderer::setBgColor(const glm::vec3& color) {
+    glCall(glClearColor(color.r, color.g, color.b, 1.0f));
 }
 
 glm::mat4& Renderer::getProjectionMat() {
@@ -94,8 +91,5 @@ glm::mat4& Renderer::getViewMat() {
 }
 
 void Renderer::setViewMat(const glm::mat4& mat) {
-    s_Data->viewMat = mat;
-}
-void Renderer::setViewMat(const glm::mat4&& mat) {
     s_Data->viewMat = mat;
 }

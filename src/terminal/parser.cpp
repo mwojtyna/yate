@@ -12,7 +12,11 @@ Parser::Parser(OscParser& oscParser) : m_OscParser(oscParser){};
 
 std::vector<CellChunk> Parser::parse(termbuf_t& data) {
     std::vector<CellChunk> chunks;
+    size_t chunkIdx = 0;
+    chunks.push_back(
+        CellChunk{.bgColor = glm::vec4(0), .fgColor = glm::vec4(1)});
 
+    // TODO: Split into chunks when color is different
     for (auto it = data.begin(); it < data.end(); it++) {
         switch (*it) {
         // 7-bit
@@ -38,6 +42,11 @@ std::vector<CellChunk> Parser::parse(termbuf_t& data) {
         case OSC: {
             it++;
             m_OscParser.parse(it, data.end());
+            break;
+        }
+
+        default: {
+            chunks[chunkIdx].text.push_back(*it);
             break;
         }
         }
