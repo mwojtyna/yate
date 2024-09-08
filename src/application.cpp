@@ -87,7 +87,12 @@ void Application::start() {
     std::vector<CellChunk> chunks;
     while (!glfwWindowShouldClose(m_Window)) {
         // When new terminal data appears, update font atlas for new glyphs
-        if (terminalQueue.pop(chunks)) {
+        std::vector<CellChunk> tmp;
+        if (terminalQueue.pop(tmp)) {
+            for (const CellChunk& chunk : tmp) {
+                chunks.push_back(chunk);
+            }
+
             for (const CellChunk& chunk : chunks) {
                 std::unordered_set<Codepoint> codepoints(chunk.text.size());
                 for (const auto& c : chunk.text) {
@@ -102,9 +107,7 @@ void Application::start() {
         Renderer::setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));
 
         glCall(glClear(GL_COLOR_BUFFER_BIT));
-        for (const CellChunk& chunk : chunks) {
-            Renderer::drawText(chunk, font, transform, program);
-        }
+        Renderer::drawText(chunks, font, transform, program);
 
         debugData.frameTimeMs = (glfwGetTime() - prevTime) * 1000;
         prevTime = glfwGetTime();
@@ -119,6 +122,7 @@ Application::~Application() {
     SPDLOG_INFO("Application exiting");
     DebugUI::destroy();
     Renderer::destroy();
+    // FIX: Doesn't work on macos, because read() doesn't error for some reason
     m_Terminal.close();
     assert(m_TerminalThread->joinable());
     m_TerminalThread->join();

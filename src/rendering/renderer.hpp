@@ -27,8 +27,8 @@ public:
     static void initialize();
     static void destroy();
 
-    static void drawText(const CellChunk& chunk, Font& font,
-                         glm::mat4& transform, Program& program);
+    static void drawText(const std::vector<CellChunk>& chunks, Font& font,
+                         const glm::mat4& transform, Program& program);
     static void setWireframe(const bool enabled);
     static void setBgColor(const glm::vec3& color);
 

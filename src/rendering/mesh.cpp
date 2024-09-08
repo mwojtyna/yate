@@ -8,7 +8,7 @@
 #include <spdlog/spdlog.h>
 
 Mesh::Mesh(const GLsizei verticesCount, const GLsizei indicesCount,
-           glm::mat4& transform, Program& program)
+           const glm::mat4& transform, Program& program)
     : m_Transform(transform), m_Program(program) {
     m_Va = std::make_unique<VertexArray>();
     m_Ib = std::make_unique<IndexBuffer>(indicesCount);
