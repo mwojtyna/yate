@@ -14,6 +14,9 @@ Parser parser_setup(GLFWwindow* window) {
     osc.addStringHandler(0, [window](std::vector<std::string> data) {
         setWindowTitle(data[0].c_str(), window);
     });
+    osc.addStringHandler(2, [window](std::vector<std::string> data) {
+        setWindowTitle(data[0].c_str(), window);
+    });
 
     Parser parser(osc);
 
