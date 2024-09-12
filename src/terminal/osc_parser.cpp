@@ -19,8 +19,7 @@ void OscParser::addBytesHandler(ident_t ident,
 void OscParser::parse(iter_t& it, iter_t end) {
     const std::optional<uint8_t> ident = Parser::parsePs(it, end);
     if (!ident.has_value()) {
-        SPDLOG_ERROR("OSC:Ps - not a digit or separator:{}",
-                     spdlog::to_hex(it, end));
+        SPDLOG_ERROR("OSC:Ps - cannot be optional:{}", spdlog::to_hex(it, end));
         return;
     }
 

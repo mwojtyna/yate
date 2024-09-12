@@ -57,15 +57,17 @@ std::vector<CellChunk> Parser::parse(termbuf_t& data) {
 
 // STATIC
 std::optional<uint32_t> Parser::parsePs(iter_t& it, iter_t end) {
-    std::string digits;
+    std::string digits = "";
 
     skipSpaces(it, end);
     for (; it < end; it++) {
         if (!std::isdigit(*it)) {
             if (*it == SEPARATOR) {
-                return std::stoi(digits);
-            } else {
-                return std::nullopt;
+                if (digits != "") {
+                    return std::stoi(digits);
+                } else {
+                    return std::nullopt;
+                }
             }
         }
         digits += *it;
