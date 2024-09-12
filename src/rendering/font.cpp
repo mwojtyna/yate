@@ -92,7 +92,7 @@ void Font::updateAtlas(std::unordered_set<codepoint_t>& codepoints) {
     }
 
     if (!m_Atlas.initialized()) {
-        m_Atlas.newTarget(atlasSize, atlasSize, numGlyphs);
+        m_Atlas.newTarget(atlasSize, atlasSize, m_Font->num_glyphs);
     }
     if (!m_Atlas.pack(rects, numGlyphs)) {
         FATAL("Failed to calculate glyph packing");
