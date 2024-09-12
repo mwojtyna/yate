@@ -1,4 +1,3 @@
-#include "types.hpp"
 #ifdef __APPLE__
 #include <crt_externs.h>
 #include <util.h>
@@ -9,6 +8,7 @@
 
 #include "../utils.hpp"
 #include "terminal.hpp"
+#include "types.hpp"
 #include <atomic>
 #include <cerrno>
 #include <csignal>
@@ -24,29 +24,34 @@
     SPDLOG_ERROR(__VA_ARGS__);                                                 \
     kill(getppid(), SIGTERM);
 
+int Terminal::s_MasterFd;
+int Terminal::s_SlaveFd;
+pid_t Terminal::s_TermProcessPid;
+std::atomic<bool> Terminal::s_ShouldClose;
+
 // TODO: Divide window into terminal rows and columns
 void Terminal::open(int windowWidth, int windowHeight) {
-    if (openpty(&m_MasterFd, &m_SlaveFd, nullptr, nullptr, nullptr)) {
+    if (openpty(&s_MasterFd, &s_SlaveFd, nullptr, nullptr, nullptr)) {
         FATAL("Failed to open pty: {}", strerror(errno));
     }
 
-    if (fcntl(m_MasterFd, F_SETFD, FD_CLOEXEC) == -1) {
+    if (fcntl(s_MasterFd, F_SETFD, FD_CLOEXEC) == -1) {
         FATAL("Failed setting CLOEXEC for master pty");
     }
-    if (fcntl(m_SlaveFd, F_SETFD, FD_CLOEXEC) == -1) {
+    if (fcntl(s_SlaveFd, F_SETFD, FD_CLOEXEC) == -1) {
         FATAL("Failed setting CLOEXEC for slave pty");
     }
 
     pid_t pid = fork();
     if (pid == 0) {
         // Child process
-        if (dup2(m_SlaveFd, STDIN_FILENO) == -1) {
+        if (dup2(s_SlaveFd, STDIN_FILENO) == -1) {
             FATAL_CHILD("Failed piping stdin: {}", std::strerror(errno));
         }
-        if (dup2(m_SlaveFd, STDOUT_FILENO) == -1) {
+        if (dup2(s_SlaveFd, STDOUT_FILENO) == -1) {
             FATAL_CHILD("Failed piping stdout: {}", std::strerror(errno));
         }
-        if (dup2(m_SlaveFd, STDERR_FILENO) == -1) {
+        if (dup2(s_SlaveFd, STDERR_FILENO) == -1) {
             FATAL_CHILD("Failed piping stderr: {}", std::strerror(errno));
         }
 
@@ -69,7 +74,7 @@ void Terminal::open(int windowWidth, int windowHeight) {
             FATAL_CHILD("Failed creating session: {}", std::strerror(errno));
         }
 
-        if (ioctl(m_SlaveFd, TIOCSCTTY, 0) == -1) {
+        if (ioctl(s_SlaveFd, TIOCSCTTY, 0) == -1) {
             FATAL_CHILD("Failed setting controlling terminal: {}",
                         std::strerror(errno));
         }
@@ -87,7 +92,7 @@ void Terminal::open(int windowWidth, int windowHeight) {
         }
     } else if (pid != -1) {
         // Parent process
-        m_TermProcessPid = pid;
+        s_TermProcessPid = pid;
     } else {
         FATAL("Failed forking process: {}", strerror(errno));
     }
@@ -96,10 +101,10 @@ void Terminal::open(int windowWidth, int windowHeight) {
 }
 
 void Terminal::close() {
-    m_ShouldClose.store(true, std::memory_order_relaxed);
-    ::close(m_MasterFd);
-    ::close(m_SlaveFd);
-    kill(m_TermProcessPid, SIGKILL);
+    s_ShouldClose.store(true, std::memory_order_relaxed);
+    ::close(s_MasterFd);
+    ::close(s_SlaveFd);
+    kill(s_TermProcessPid, SIGKILL);
     SPDLOG_DEBUG("Closed pty");
 }
 
@@ -107,7 +112,7 @@ termbuf_t Terminal::read() {
     constexpr size_t BUF_SIZE = 65535;
 
     termbuf_t buf(BUF_SIZE);
-    int bytesRead = ::read(m_MasterFd, buf.data(), BUF_SIZE);
+    int bytesRead = ::read(s_MasterFd, buf.data(), BUF_SIZE);
 
     if (bytesRead >= 0) {
         buf.resize(bytesRead);
@@ -118,10 +123,10 @@ termbuf_t Terminal::read() {
     return buf;
 }
 
-void Terminal::write(uint8_t buf[], size_t len) {
-    ::write(m_MasterFd, buf, len);
+void Terminal::write(codepoint_t codepoint) {
+    ::write(s_MasterFd, &codepoint, 1);
 }
 
 bool Terminal::shouldClose() {
-    return m_ShouldClose.load(std::memory_order_relaxed);
+    return s_ShouldClose.load(std::memory_order_relaxed);
 }

@@ -25,12 +25,13 @@ Font::Font(std::filesystem::path path, float size)
     // TODO: Calculate dpi to hopefully fix wrong font size
     error = FT_Set_Char_Size(m_Font, 0, size * 64, 0, 0);
 
-    auto ascii = std::unordered_set<codepoint_t>();
+    auto initial = std::unordered_set<codepoint_t>();
+    // Insert ASCII characters
     for (codepoint_t c = ' '; c <= '~'; c++) {
-        ascii.insert(c);
+        initial.insert(c);
     }
-    ascii.insert(Font::REPLACEMENT_CHAR); // replacement character �
-    updateAtlas(ascii);
+    initial.insert(Font::REPLACEMENT_CHAR); // replacement character �
+    updateAtlas(initial);
 }
 
 Font::~Font() {

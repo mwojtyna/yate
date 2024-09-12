@@ -1,4 +1,4 @@
-#include "../application.hpp"
 #include "parser.hpp"
+#include <GLFW/glfw3.h>
 
-Parser parser_setup(Application& app);
+Parser parser_setup(GLFWwindow* window);

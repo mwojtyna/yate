@@ -3,7 +3,6 @@
 // For GLFWwindow
 #include "rendering/opengl.hpp"
 
-#include "terminal/terminal.hpp"
 #include <memory>
 #include <thread>
 
@@ -18,6 +17,5 @@ public:
 
 private:
     GLFWwindow* m_Window;
-    Terminal m_Terminal;
     std::unique_ptr<std::thread> m_TerminalThread;
 };

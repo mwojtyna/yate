@@ -11,6 +11,7 @@
 #include "terminal/thread_safe_queue.hpp"
 #include "utils.hpp"
 #include <cassert>
+#include <cstdint>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float3.hpp>
@@ -39,12 +40,12 @@ void Application::start() {
     glfwMakeContextCurrent(m_Window);
 
     ThreadSafeQueue<std::vector<CellChunk>> terminalQueue;
-    m_Terminal.open(Application::WIDTH, Application::HEIGHT);
+    Terminal::open(Application::WIDTH, Application::HEIGHT);
     m_TerminalThread = std::make_unique<std::thread>([this, &terminalQueue]() {
-        Parser parser = parser_setup(*this);
-        while (!m_Terminal.shouldClose()) {
+        Parser parser = parser_setup(m_Window);
+        while (!Terminal::shouldClose()) {
             try {
-                std::vector<uint8_t> rawCodes = m_Terminal.read();
+                std::vector<uint8_t> rawCodes = Terminal::read();
                 if (rawCodes.size() == 0) {
                     continue;
                 }
@@ -55,7 +56,7 @@ void Application::start() {
                 std::vector<CellChunk> parsed = parser.parse(rawCodes);
                 terminalQueue.push(std::move(parsed));
             } catch (TerminalReadException e) {
-                if (!m_Terminal.shouldClose()) {
+                if (!Terminal::shouldClose()) {
                     SPDLOG_ERROR("Failed reading from terminal: {}", e.what());
                 }
             }
@@ -63,11 +64,24 @@ void Application::start() {
         SPDLOG_DEBUG("Terminal thread finished");
     });
 
+    glfwSetCharCallback(m_Window, [](GLFWwindow* window, uint32_t codepoint) {
+        Terminal::write(codepoint);
+    });
+    glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scanCode,
+                                    int action, int mods) {
+        switch (key) {
+        case GLFW_KEY_BACKSPACE:
+        case GLFW_KEY_ENTER: {
+            Terminal::write(key);
+        }
+        }
+    });
+
     Renderer::initialize();
     Renderer::setBgColor(glm::vec3(0.10f, 0.11f, 0.15f));
     Renderer::setWireframe(false);
 
-    Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 32);
+    Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 16);
 
     Program program(textVertexShader, textFragmentShader);
 
@@ -90,15 +104,12 @@ void Application::start() {
         std::vector<CellChunk> tmp;
         if (terminalQueue.pop(tmp)) {
             for (const CellChunk& chunk : tmp) {
-                chunks.push_back(chunk);
-            }
-
-            for (const CellChunk& chunk : chunks) {
                 std::unordered_set<codepoint_t> codepoints(chunk.text.size());
                 for (const auto& c : chunk.text) {
                     codepoints.insert(c);
                 }
                 font.updateAtlas(codepoints);
+                chunks.push_back(chunk);
             }
         }
 
@@ -123,7 +134,7 @@ Application::~Application() {
     DebugUI::destroy();
     Renderer::destroy();
     // FIX: Doesn't work on macos, because read() doesn't error for some reason
-    m_Terminal.close();
+    Terminal::close();
     assert(m_TerminalThread->joinable());
     m_TerminalThread->join();
     glfwTerminate();
