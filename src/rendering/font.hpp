@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-using Codepoint = FT_ULong;
+using codepoint_t = FT_ULong;
 
 struct GlyphGeometry {
     FT_Glyph_Metrics metrics;
@@ -31,14 +31,14 @@ public:
     Font(std::filesystem::path path, float size);
     ~Font();
 
-    void updateAtlas(std::unordered_set<Codepoint>& codepoints);
-    GlyphPos getGlyphPos(Codepoint codepoint, glm::vec2& pen);
+    void updateAtlas(std::unordered_set<codepoint_t>& codepoints);
+    GlyphPos getGlyphPos(codepoint_t codepoint, glm::vec2& pen);
 
     FT_Size_Metrics getMetrics() const;
     float getSize() const;
     static double fracToPx(double value);
 
-    constexpr static Codepoint REPLACEMENT_CHAR = 0xfffd;
+    constexpr static codepoint_t REPLACEMENT_CHAR = 0xfffd;
     constexpr static size_t TAB_WIDTH = 2;
 
 private:
@@ -49,5 +49,5 @@ private:
     Atlas m_Atlas;
     // TODO: Dynamically choose atlas size
     const uint32_t atlasSize = 1024;
-    std::unordered_map<Codepoint, GlyphGeometry> m_CodepointToGeometry;
+    std::unordered_map<codepoint_t, GlyphGeometry> m_CodepointToGeometry;
 };

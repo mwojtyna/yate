@@ -25,8 +25,8 @@ Font::Font(std::filesystem::path path, float size)
     // TODO: Calculate dpi to hopefully fix wrong font size
     error = FT_Set_Char_Size(m_Font, 0, size * 64, 0, 0);
 
-    auto ascii = std::unordered_set<Codepoint>();
-    for (Codepoint c = ' '; c <= '~'; c++) {
+    auto ascii = std::unordered_set<codepoint_t>();
+    for (codepoint_t c = ' '; c <= '~'; c++) {
         ascii.insert(c);
     }
     ascii.insert(Font::REPLACEMENT_CHAR); // replacement character �
@@ -42,12 +42,12 @@ Font::~Font() {
     SPDLOG_DEBUG("Destroyed font '{}'", m_Path.c_str());
 }
 
-void Font::updateAtlas(std::unordered_set<Codepoint>& codepoints) {
+void Font::updateAtlas(std::unordered_set<codepoint_t>& codepoints) {
     FT_Error error = 0;
 
     // Filter out already rendered glyphs
-    std::unordered_set<Codepoint> newCodepoints;
-    for (Codepoint c : codepoints) {
+    std::unordered_set<codepoint_t> newCodepoints;
+    for (codepoint_t c : codepoints) {
         if (!m_CodepointToGeometry.contains(c)) {
             newCodepoints.insert(c);
         }
@@ -60,10 +60,10 @@ void Font::updateAtlas(std::unordered_set<Codepoint>& codepoints) {
     size_t rectIndex = m_CodepointToGeometry.size();
     // We have to pass an array of rects to stbrp_pack_rects later, so we can't just make a Codepoint->stbrp_rect map
     stbrp_rect rects[Atlas::CAPACITY];
-    std::unordered_map<Codepoint, size_t> codepointToRectIndex;
-    std::unordered_map<Codepoint, GlyphGeometry> codepointToGeometry;
+    std::unordered_map<codepoint_t, size_t> codepointToRectIndex;
+    std::unordered_map<codepoint_t, GlyphGeometry> codepointToGeometry;
 
-    for (Codepoint c : newCodepoints) {
+    for (codepoint_t c : newCodepoints) {
         FT_UInt glyphIndex = FT_Get_Char_Index(m_Font, c);
 
         error = FT_Load_Glyph(m_Font, glyphIndex, FT_LOAD_DEFAULT);
@@ -115,7 +115,7 @@ void Font::updateAtlas(std::unordered_set<Codepoint>& codepoints) {
     SPDLOG_DEBUG("Generated {}x{} font atlas", atlasSize, atlasSize);
 }
 
-GlyphPos Font::getGlyphPos(Codepoint codepoint, glm::vec2& pen) {
+GlyphPos Font::getGlyphPos(codepoint_t codepoint, glm::vec2& pen) {
     bool found = m_CodepointToGeometry.contains(codepoint);
 
     GlyphPos gp{};

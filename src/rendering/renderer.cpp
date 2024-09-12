@@ -43,7 +43,7 @@ void Renderer::drawText(const std::vector<CellChunk>& chunks, Font& font,
     }
 
     std::vector<Vertex> vertices;
-    std::vector<Index> indices;
+    std::vector<index_t> indices;
     glm::vec2 pen(0, -Font::fracToPx(font.getMetrics().ascender));
     size_t j = 0;
     for (const CellChunk& chunk : chunks) {

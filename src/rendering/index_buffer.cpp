@@ -5,8 +5,8 @@
 IndexBuffer::IndexBuffer(GLsizei count) : m_Count(count) {
     glCall(glGenBuffers(1, &m_Id));
     bind();
-    glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(Index), nullptr,
-                        GL_DYNAMIC_DRAW));
+    glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(index_t),
+                        nullptr, GL_DYNAMIC_DRAW));
 }
 
 IndexBuffer::~IndexBuffer() {
@@ -21,10 +21,10 @@ void IndexBuffer::unbind() const {
     glCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
 
-void IndexBuffer::update(std::vector<Index>& indices) {
+void IndexBuffer::update(std::vector<index_t>& indices) {
     bind();
     glCall(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0,
-                           indices.size() * sizeof(Index), indices.data()));
+                           indices.size() * sizeof(index_t), indices.data()));
 }
 
 GLsizei IndexBuffer::getCount() const {

@@ -3,7 +3,7 @@
 #include "opengl.hpp"
 #include <vector>
 
-using Index = GLuint;
+using index_t = GLuint;
 
 class IndexBuffer {
 public:
@@ -13,7 +13,7 @@ public:
 
     void bind() const;
     void unbind() const;
-    void update(std::vector<Index>& indices);
+    void update(std::vector<index_t>& indices);
 
     GLsizei getCount() const;
 

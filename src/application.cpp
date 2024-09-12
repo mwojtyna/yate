@@ -94,7 +94,7 @@ void Application::start() {
             }
 
             for (const CellChunk& chunk : chunks) {
-                std::unordered_set<Codepoint> codepoints(chunk.text.size());
+                std::unordered_set<codepoint_t> codepoints(chunk.text.size());
                 for (const auto& c : chunk.text) {
                     codepoints.insert(c);
                 }

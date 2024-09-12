@@ -9,7 +9,7 @@
 struct CellChunk {
     glm::vec4 bgColor;
     glm::vec4 fgColor;
-    std::vector<Codepoint> text;
+    std::vector<codepoint_t> text;
 };
 
 class Parser {
