@@ -65,14 +65,18 @@ void Application::start() {
     });
 
     glfwSetCharCallback(m_Window, [](GLFWwindow* window, uint32_t codepoint) {
+        // TODO: Translate to utf-8 uint8_t representation
         Terminal::write(codepoint);
     });
     glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scanCode,
                                     int action, int mods) {
         switch (key) {
-        case GLFW_KEY_BACKSPACE:
+        case GLFW_KEY_BACKSPACE: {
+            Terminal::write(0x08);
+        }
         case GLFW_KEY_ENTER: {
-            Terminal::write(key);
+            Terminal::write(0x0a);
+            break;
         }
         }
     });
