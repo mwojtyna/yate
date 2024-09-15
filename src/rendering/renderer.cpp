@@ -34,8 +34,10 @@ void Renderer::destroy() {
     SPDLOG_DEBUG("Shutdown renderer");
 }
 
-void Renderer::drawText(const std::vector<CellChunk>& chunks, Font& font,
+void Renderer::drawText(const std::vector<Cell>& cells, Font& font,
                         const glm::mat4& transform, Program& program) {
+    glCall(glClear(GL_COLOR_BUFFER_BIT));
+
     if (s_Data->glyphMesh == nullptr) {
         // TODO: Proper cell sizing
         s_Data->glyphMesh = std::make_unique<Mesh>(90 * 30 * 4, 90 * 30 * 6,
@@ -45,32 +47,31 @@ void Renderer::drawText(const std::vector<CellChunk>& chunks, Font& font,
     std::vector<Vertex> vertices;
     std::vector<index_t> indices;
     glm::vec2 pen(0, -Font::fracToPx(font.getMetrics().ascender));
-    size_t j = 0;
-    for (const CellChunk& chunk : chunks) {
-        for (size_t i = 0; i < chunk.text.size(); i++, j += 4) {
-            const GlyphPos g = font.getGlyphPos(chunk.text[i], pen);
+    size_t curIndex = 0;
+    for (const Cell& cell : cells) {
+        const GlyphPos g = font.getGlyphPos(cell.character, pen);
 
-            vertices.push_back({{pen.x + g.pl, pen.y + g.pb, 0.0f},
-                                chunk.fgColor,
-                                {g.al, g.ab}}); // left bottom
-            vertices.push_back({{pen.x + g.pr, pen.y + g.pb, 0.0f},
-                                chunk.fgColor,
-                                {g.ar, g.ab}}); // right bottom
-            vertices.push_back({{pen.x + g.pr, pen.y + g.pt, 0.0f},
-                                chunk.fgColor,
-                                {g.ar, g.at}}); // right top
-            vertices.push_back({{pen.x + g.pl, pen.y + g.pt, 0.0f},
-                                chunk.fgColor,
-                                {g.al, g.at}}); // left top
+        vertices.push_back({{pen.x + g.pl, pen.y + g.pb, 0.0f},
+                            cell.fgColor,
+                            {g.al, g.ab}}); // left bottom
+        vertices.push_back({{pen.x + g.pr, pen.y + g.pb, 0.0f},
+                            cell.fgColor,
+                            {g.ar, g.ab}}); // right bottom
+        vertices.push_back({{pen.x + g.pr, pen.y + g.pt, 0.0f},
+                            cell.fgColor,
+                            {g.ar, g.at}}); // right top
+        vertices.push_back({{pen.x + g.pl, pen.y + g.pt, 0.0f},
+                            cell.fgColor,
+                            {g.al, g.at}}); // left top
 
-            indices.push_back(j + 0);
-            indices.push_back(j + 1);
-            indices.push_back(j + 3);
+        indices.push_back(curIndex + 0);
+        indices.push_back(curIndex + 1);
+        indices.push_back(curIndex + 3);
 
-            indices.push_back(j + 1);
-            indices.push_back(j + 2);
-            indices.push_back(j + 3);
-        }
+        indices.push_back(curIndex + 1);
+        indices.push_back(curIndex + 2);
+        indices.push_back(curIndex + 3);
+        curIndex += 4;
     }
 
     s_Data->glyphMesh->update(vertices, indices);

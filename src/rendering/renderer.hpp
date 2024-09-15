@@ -14,7 +14,7 @@ struct RendererData {
     glm::mat4 projectionMat = glm::ortho(0.0f, (float)Application::WIDTH,
                                          -(float)Application::HEIGHT, 0.0f);
     glm::mat4 viewMat = glm::mat4(1.0f);
-    std::vector<CellChunk> codes;
+    std::vector<Cell> codes;
     std::unique_ptr<Mesh> glyphMesh;
 };
 
@@ -27,7 +27,7 @@ public:
     static void initialize();
     static void destroy();
 
-    static void drawText(const std::vector<CellChunk>& chunks, Font& font,
+    static void drawText(const std::vector<Cell>& cells, Font& font,
                          const glm::mat4& transform, Program& program);
     static void setWireframe(const bool enabled);
     static void setBgColor(const glm::vec3& color);

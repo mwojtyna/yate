@@ -11,9 +11,9 @@ void OscParser::addStringHandler(
     m_StringHandlers[ident] = handler;
 }
 
-void OscParser::addBytesHandler(ident_t ident,
-                                handlerfn_t<std::vector<termbuf_t>> handler) {
-    m_ByteHandlers[ident] = handler;
+void OscParser::addNumberHandler(ident_t ident,
+                                 handlerfn_t<std::vector<uint32_t>> handler) {
+    m_NumberHandlers[ident] = handler;
 }
 
 void OscParser::parse(iter_t& it, iter_t end) {
@@ -23,7 +23,7 @@ void OscParser::parse(iter_t& it, iter_t end) {
         return;
     }
 
-    if (*it != SEPARATOR) {
+    if (*it != ARG_SEPARATOR) {
         SPDLOG_ERROR("OSC - expected separator:{}", spdlog::to_hex(it, end));
         return;
     }
@@ -41,15 +41,14 @@ void OscParser::parse(iter_t& it, iter_t end) {
 
 // STATIC
 std::vector<std::string> OscParser::parseArgs(iter_t& it, iter_t end) {
-    std::vector<std::string> args;
-    args.push_back("");
+    std::vector<std::string> args{""};
 
     size_t argIdx = 0;
     for (; it < end; it++) {
         if (*it == BELL || *it == ST) {
             break;
         }
-        if (*it == SEPARATOR) {
+        if (*it == ARG_SEPARATOR) {
             argIdx++;
             args.push_back("");
             continue;

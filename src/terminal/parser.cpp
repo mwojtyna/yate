@@ -1,28 +1,31 @@
 #include "parser.hpp"
 #include "../utils.hpp"
 #include "constants.hpp"
+#include "csi_parser.hpp"
 #include "osc_parser.hpp"
 #include <cctype>
-#include <optional>
 #include <spdlog/fmt/bin_to_hex.h>
 #include <spdlog/spdlog.h>
-#include <string>
 
-Parser::Parser(OscParser& oscParser) : m_OscParser(oscParser){};
+Parser::Parser(CsiParser& csiParser, OscParser& oscParser)
+    : m_CsiParser(csiParser), m_OscParser(oscParser){};
 
-std::vector<CellChunk> Parser::parse(termbuf_t& data) {
-    std::vector<CellChunk> chunks;
-    size_t chunkIdx = 0;
-    chunks.push_back(
-        CellChunk{.bgColor = glm::vec4(0), .fgColor = glm::vec4(1)});
+std::vector<Cell> Parser::parse(termbuf_t& data) {
+    glm::vec4 bgColor(0);
+    glm::vec4 fgColor(1);
+    std::vector<Cell> cells;
 
-    // TODO: Split into chunks when color is different
     for (auto it = data.begin(); it < data.end(); it++) {
         switch (*it) {
         // 7-bit
         case ESC: {
             it++;
             switch (*it) {
+            case CSI_START: {
+                it++;
+                m_CsiParser.parse(it, data.end());
+                break;
+            }
             case OSC_START: {
                 it++;
                 m_OscParser.parse(it, data.end());
@@ -32,7 +35,7 @@ std::vector<CellChunk> Parser::parse(termbuf_t& data) {
                 SPDLOG_WARN("Unsupported escape sequence 'ESC {}' in buf:",
                             (char)*it);
                 hexdump(data.data(), data.size(), SPDLOG_LEVEL_WARN);
-                return chunks;
+                return cells;
             }
             }
             break;
@@ -46,13 +49,14 @@ std::vector<CellChunk> Parser::parse(termbuf_t& data) {
         }
 
         default: {
-            chunks[chunkIdx].text.push_back(*it);
+            cells.push_back(
+                Cell{.bgColor = bgColor, .fgColor = fgColor, .character = *it});
             break;
         }
         }
     }
 
-    return chunks;
+    return cells;
 }
 
 // STATIC
@@ -62,12 +66,10 @@ std::optional<uint32_t> Parser::parsePs(iter_t& it, iter_t end) {
     skipSpaces(it, end);
     for (; it < end; it++) {
         if (!std::isdigit(*it)) {
-            if (*it == SEPARATOR) {
-                if (digits != "") {
-                    return std::stoi(digits);
-                } else {
-                    return std::nullopt;
-                }
+            if (digits != "") {
+                return std::stoi(digits);
+            } else {
+                return std::nullopt;
             }
         }
         digits += *it;

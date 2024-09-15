@@ -1,11 +1,12 @@
 #include <cstdint>
 
-// Characters
-static constexpr uint8_t ESC = 0x1b;
+static constexpr uint8_t ARG_SEPARATOR = ';';
 static constexpr uint8_t CSI_START = '[';
 static constexpr uint8_t OSC_START = ']';
-static constexpr uint8_t SEPARATOR = ';';
+
+// C0
 static constexpr uint8_t BELL = 0x7;
+static constexpr uint8_t ESC = 0x1b;
 
 // C1
 static constexpr uint8_t OSC = 0x9b;

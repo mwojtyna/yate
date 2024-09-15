@@ -18,14 +18,14 @@ public:
 
     void addStringHandler(ident_t ident,
                           handlerfn_t<std::vector<std::string>> handler);
-    void addBytesHandler(ident_t ident,
-                         handlerfn_t<std::vector<termbuf_t>> handler);
+    void addNumberHandler(ident_t ident,
+                          handlerfn_t<std::vector<uint32_t>> handler);
 
     static std::vector<std::string> parseArgs(iter_t& it, iter_t end);
 
 private:
     std::unordered_map<ident_t, handlerfn_t<std::vector<std::string>>>
         m_StringHandlers;
-    std::unordered_map<ident_t, handlerfn_t<std::vector<termbuf_t>>>
-        m_ByteHandlers;
+    std::unordered_map<ident_t, handlerfn_t<std::vector<uint32_t>>>
+        m_NumberHandlers;
 };

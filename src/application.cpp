@@ -39,7 +39,7 @@ void Application::start() {
     }
     glfwMakeContextCurrent(m_Window);
 
-    ThreadSafeQueue<std::vector<CellChunk>> terminalQueue;
+    ThreadSafeQueue<std::vector<Cell>> terminalQueue;
     Terminal::open(Application::WIDTH, Application::HEIGHT);
     m_TerminalThread = std::make_unique<std::thread>([this, &terminalQueue]() {
         Parser parser = parser_setup(m_Window);
@@ -53,7 +53,7 @@ void Application::start() {
                 SPDLOG_DEBUG("Read from terminal:");
                 HEXDUMP(rawCodes.data(), rawCodes.size());
 
-                std::vector<CellChunk> parsed = parser.parse(rawCodes);
+                std::vector<Cell> parsed = parser.parse(rawCodes);
                 terminalQueue.push(std::move(parsed));
             } catch (TerminalReadException e) {
                 if (!Terminal::shouldClose()) {
@@ -70,6 +70,10 @@ void Application::start() {
     });
     glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scanCode,
                                     int action, int mods) {
+        if (action != GLFW_PRESS) {
+            return;
+        }
+
         switch (key) {
         case GLFW_KEY_BACKSPACE: {
             Terminal::write(0x08);
@@ -102,27 +106,24 @@ void Application::start() {
 
     SPDLOG_INFO("Application started");
 
-    std::vector<CellChunk> chunks;
+    std::vector<Cell> cells;
     while (!glfwWindowShouldClose(m_Window)) {
         // When new terminal data appears, update font atlas for new glyphs
-        std::vector<CellChunk> tmp;
+        std::vector<Cell> tmp;
         if (terminalQueue.pop(tmp)) {
-            for (const CellChunk& chunk : tmp) {
-                std::unordered_set<codepoint_t> codepoints(chunk.text.size());
-                for (const auto& c : chunk.text) {
-                    codepoints.insert(c);
-                }
-                font.updateAtlas(codepoints);
-                chunks.push_back(chunk);
+            std::unordered_set<codepoint_t> chars(tmp.size());
+            for (const Cell& cell : tmp) {
+                chars.insert(cell.character);
+                cells.push_back(cell);
             }
+            font.updateAtlas(chars);
         }
 
         glm::mat4 transform = glm::scale(
             glm::translate(glm::mat4(1.0f), charsPos), glm::vec3(charsScale));
         Renderer::setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));
 
-        glCall(glClear(GL_COLOR_BUFFER_BIT));
-        Renderer::drawText(chunks, font, transform, program);
+        Renderer::drawText(cells, font, transform, program);
 
         debugData.frameTimeMs = (glfwGetTime() - prevTime) * 1000;
         prevTime = glfwGetTime();
