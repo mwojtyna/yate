@@ -17,7 +17,7 @@ public:
     static void open(int windowWidth, int windowHeight);
     static void close();
     static bool shouldClose();
-    static termbuf_t read();
+    static std::vector<uint8_t> read();
     static void write(codepoint_t codepoint);
 
 private:

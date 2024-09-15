@@ -10,7 +10,7 @@
 Parser::Parser(CsiParser& csiParser, OscParser& oscParser)
     : m_CsiParser(csiParser), m_OscParser(oscParser){};
 
-std::vector<Cell> Parser::parse(termbuf_t& data) {
+std::vector<Cell> Parser::parse(std::vector<uint8_t>& data) {
     glm::vec4 bgColor(0);
     glm::vec4 fgColor(1);
     std::vector<Cell> cells;

@@ -108,10 +108,10 @@ void Terminal::close() {
     SPDLOG_DEBUG("Closed pty");
 }
 
-termbuf_t Terminal::read() {
+std::vector<uint8_t> Terminal::read() {
     constexpr size_t BUF_SIZE = 65535;
 
-    termbuf_t buf(BUF_SIZE);
+    std::vector<uint8_t> buf(BUF_SIZE);
     int bytesRead = ::read(s_MasterFd, buf.data(), BUF_SIZE);
 
     if (bytesRead >= 0) {
@@ -125,7 +125,8 @@ termbuf_t Terminal::read() {
 
 void Terminal::write(codepoint_t codepoint) {
     ::write(s_MasterFd, &codepoint, 1);
-    SPDLOG_DEBUG("Written 0x{:x} to terminal", codepoint);
+    SPDLOG_TRACE("Written '{}' (0x{:x}) to terminal", (char)codepoint,
+                 codepoint);
 }
 
 bool Terminal::shouldClose() {
