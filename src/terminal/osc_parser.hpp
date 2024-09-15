@@ -9,23 +9,16 @@
 
 class OscParser {
     using ident_t = uint8_t;
-    template <typename T>
-    using handlerfn_t = std::function<void(T&)>;
+    using handlerfn_t = std::function<void(std::vector<std::string>&&)>;
 
 public:
     /// OSC commands don't return any data
     void parse(iter_t& it, iter_t end);
 
-    void addStringHandler(ident_t ident,
-                          handlerfn_t<std::vector<std::string>> handler);
-    void addNumberHandler(ident_t ident,
-                          handlerfn_t<std::vector<uint32_t>> handler);
+    void addHandler(ident_t ident, handlerfn_t handler);
 
     static std::vector<std::string> parseArgs(iter_t& it, iter_t end);
 
 private:
-    std::unordered_map<ident_t, handlerfn_t<std::vector<std::string>>>
-        m_StringHandlers;
-    std::unordered_map<ident_t, handlerfn_t<std::vector<uint32_t>>>
-        m_NumberHandlers;
+    std::unordered_map<ident_t, handlerfn_t> m_Handlers;
 };

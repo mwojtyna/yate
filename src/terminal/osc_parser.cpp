@@ -6,22 +6,18 @@
 #include <spdlog/spdlog.h>
 #include <string>
 
-void OscParser::addStringHandler(
-    ident_t ident, handlerfn_t<std::vector<std::string>> handler) {
-    m_StringHandlers[ident] = handler;
-}
-
-void OscParser::addNumberHandler(ident_t ident,
-                                 handlerfn_t<std::vector<uint32_t>> handler) {
-    m_NumberHandlers[ident] = handler;
+void OscParser::addHandler(ident_t ident, handlerfn_t handler) {
+    m_Handlers[ident] = handler;
 }
 
 void OscParser::parse(iter_t& it, iter_t end) {
     const std::optional<uint8_t> ident = Parser::parsePs(it, end);
     if (!ident.has_value()) {
-        SPDLOG_ERROR("OSC:Ps - cannot be optional:{}", spdlog::to_hex(it, end));
+        SPDLOG_ERROR("OSC:ident - cannot be optional:{}",
+                     spdlog::to_hex(it, end));
         return;
     }
+    SPDLOG_TRACE("OSC:ident = {}", ident.value());
 
     if (*it != ARG_SEPARATOR) {
         SPDLOG_ERROR("OSC - expected separator:{}", spdlog::to_hex(it, end));
@@ -30,12 +26,11 @@ void OscParser::parse(iter_t& it, iter_t end) {
     it++;
 
     uint8_t identv = ident.value();
-    switch (identv) {
-    case 0: {
-        std::vector<std::string> args = parseArgs(it, end);
-        m_StringHandlers[identv](args);
-        break;
-    }
+    std::vector<std::string> args = parseArgs(it, end);
+    if (m_Handlers.contains(identv)) {
+        m_Handlers[identv](std::move(args));
+    } else {
+        SPDLOG_WARN("Unsupported OSC sequence with ident={}", identv);
     }
 }
 

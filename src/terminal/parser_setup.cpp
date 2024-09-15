@@ -14,10 +14,10 @@ Parser parser_setup(GLFWwindow* window) {
     CsiParser csi;
 
     OscParser osc;
-    osc.addStringHandler(0, [window](std::vector<std::string> data) {
+    osc.addHandler(0, [window](std::vector<std::string> data) {
         setWindowTitle(data[0].c_str(), window);
     });
-    osc.addStringHandler(2, [window](std::vector<std::string> data) {
+    osc.addHandler(2, [window](std::vector<std::string> data) {
         setWindowTitle(data[0].c_str(), window);
     });
 
