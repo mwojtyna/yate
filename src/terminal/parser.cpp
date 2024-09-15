@@ -16,6 +16,10 @@ std::vector<Cell> Parser::parse(termbuf_t& data) {
     std::vector<Cell> cells;
 
     for (auto it = data.begin(); it < data.end(); it++) {
+        if (*it == '\r') {
+            continue;
+        }
+
         switch (*it) {
         // 7-bit
         case ESC: {

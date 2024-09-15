@@ -125,6 +125,7 @@ termbuf_t Terminal::read() {
 
 void Terminal::write(codepoint_t codepoint) {
     ::write(s_MasterFd, &codepoint, 1);
+    SPDLOG_DEBUG("Written 0x{:x} to terminal", codepoint);
 }
 
 bool Terminal::shouldClose() {

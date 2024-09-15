@@ -37,7 +37,6 @@ void CsiParser::parse(iter_t& it, iter_t end) {
 
     char final = *it;
     SPDLOG_TRACE("CSI:final = {}", final);
-    it++;
 
     CsiIdent ident = CsiIdent{
         .prefix = prefix,
