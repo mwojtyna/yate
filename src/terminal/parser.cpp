@@ -22,15 +22,15 @@ std::vector<Cell> Parser::parse(termbuf_t& data) {
 
         switch (*it) {
         // 7-bit
-        case ESC: {
+        case c0::ESC: {
             it++;
             switch (*it) {
-            case CSI_START: {
+            case c0::CSI: {
                 it++;
                 m_CsiParser.parse(it, data.end());
                 break;
             }
-            case OSC_START: {
+            case c0::OSC: {
                 it++;
                 m_OscParser.parse(it, data.end());
                 break;
@@ -46,7 +46,7 @@ std::vector<Cell> Parser::parse(termbuf_t& data) {
         }
 
         // 8-bit
-        case OSC: {
+        case c1::OSC: {
             it++;
             m_OscParser.parse(it, data.end());
             break;

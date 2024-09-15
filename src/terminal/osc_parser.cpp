@@ -6,10 +6,6 @@
 #include <spdlog/spdlog.h>
 #include <string>
 
-void OscParser::addHandler(ident_t ident, handlerfn_t handler) {
-    m_Handlers[ident] = handler;
-}
-
 void OscParser::parse(iter_t& it, iter_t end) {
     const std::optional<uint8_t> ident = Parser::parsePs(it, end);
     if (!ident.has_value()) {
@@ -34,13 +30,17 @@ void OscParser::parse(iter_t& it, iter_t end) {
     }
 }
 
+void OscParser::addHandler(ident_t ident, handlerfn_t handler) {
+    m_Handlers[ident] = handler;
+}
+
 // STATIC
 std::vector<std::string> OscParser::parseArgs(iter_t& it, iter_t end) {
     std::vector<std::string> args{""};
 
     size_t argIdx = 0;
     for (; it < end; it++) {
-        if (*it == BELL || *it == ST) {
+        if (*it == c0::BELL || *it == c1::ST) {
             break;
         }
         if (*it == ARG_SEPARATOR) {

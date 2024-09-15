@@ -55,7 +55,7 @@ Credit to https://xtermjs.org/docs/api/vtfeatures/
 | NEL      | Next Line                   | \x85     | Move the cursor to the beginning of the next row.  | &cross; |
 | HTS      | Horizontal Tabulation Set   | \x88     | Places a tab stop at the current cursor position.  | &cross; |
 | DCS      | Device Control String       | \x90     | Start of a DCS sequence.                           | &cross; |
-| CSI      | Control Sequence Introducer | \x9B     | Start of a CSI sequence.                           | &cross; |
+| CSI      | Control Sequence Introducer | \x9B     | Start of a CSI sequence.                           | &check; |
 | ST       | String Terminator           | \x9C     | Terminator used for string type sequences.         | &cross; |
 | OSC      | Operating System Command    | \x9D     | Start of an OSC sequence.                          | &check; |
 | PM       | Privacy Message             | \x9E     | Start of a privacy message.                        | &cross; |
