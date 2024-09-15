@@ -22,10 +22,10 @@ void CsiParser::parse(iter_t& it, iter_t end) {
         prefix.emplace(*it);
         it++;
     }
-    SPDLOG_DEBUG("CSI:prefix = {}", optionalToString(prefix));
+    SPDLOG_TRACE("CSI:prefix = {}", optionalToString(prefix));
 
     std::optional<uint32_t> ps = Parser::parsePs(it, end);
-    SPDLOG_DEBUG("CSI:Ps = {}", optionalToString(ps));
+    SPDLOG_TRACE("CSI:Ps = {}", optionalToString(ps));
 
     std::optional<char> intermediate = std::nullopt;
     // If is a symbol
@@ -33,10 +33,10 @@ void CsiParser::parse(iter_t& it, iter_t end) {
         intermediate.emplace(*it);
         it++;
     }
-    SPDLOG_DEBUG("CSI:intermediate = {}", optionalToString(intermediate));
+    SPDLOG_TRACE("CSI:intermediate = {}", optionalToString(intermediate));
 
     char final = *it;
-    SPDLOG_DEBUG("CSI:final = {}", final);
+    SPDLOG_TRACE("CSI:final = {}", final);
     it++;
 
     CsiIdent ident = CsiIdent{

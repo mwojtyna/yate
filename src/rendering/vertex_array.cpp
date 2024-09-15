@@ -36,10 +36,8 @@ void VertexArray::addBuffer(const VertexBuffer& vb) const {
 
 void VertexArray::bind() const {
     glCall(glBindVertexArray(m_Id));
-    SPDLOG_TRACE("Bound vertex array with id={}", m_Id);
 }
 
 void VertexArray::unbind() const {
     glCall(glBindVertexArray(0));
-    SPDLOG_TRACE("Unbound vertex array with id={}", m_Id);
 }

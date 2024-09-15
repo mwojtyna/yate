@@ -17,12 +17,10 @@ VertexBuffer::~VertexBuffer() {
 
 void VertexBuffer::bind() const {
     glCall(glBindBuffer(GL_ARRAY_BUFFER, m_Id));
-    SPDLOG_TRACE("Bound vertex buffer with id={}", m_Id);
 }
 
 void VertexBuffer::unbind() const {
     glCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    SPDLOG_TRACE("Unbound vertex buffer with id={}", m_Id);
 }
 
 void VertexBuffer::update(std::vector<Vertex>& vertices) {
