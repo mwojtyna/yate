@@ -5,6 +5,14 @@
 #include <glm/ext/vector_float4.hpp>
 #include <vector>
 
+struct ParserState {
+    glm::vec4 bgColor = glm::vec4(0);
+    glm::vec4 fgColor = glm::vec4(1);
+    bool lineStart = true;
+    bool lineEnd = false;
+    uint32_t offset = 0;
+};
+
 class Parser {
 public:
     Parser(CsiParser& csiParser, OscParser& oscParser);
@@ -14,6 +22,7 @@ public:
     static void skipSpaces(iter_t& it, iter_t end);
 
 private:
+    ParserState m_State;
     CsiParser m_CsiParser;
     OscParser m_OscParser;
 };

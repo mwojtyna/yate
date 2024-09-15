@@ -11,12 +11,14 @@ Parser::Parser(CsiParser& csiParser, OscParser& oscParser)
     : m_CsiParser(csiParser), m_OscParser(oscParser){};
 
 std::vector<Cell> Parser::parse(std::vector<uint8_t>& data) {
-    glm::vec4 bgColor(0);
-    glm::vec4 fgColor(1);
     std::vector<Cell> cells;
 
     for (auto it = data.begin(); it < data.end(); it++) {
-        if (*it == '\r') {
+        if (*it == c0::LF || *it == c0::VT || *it == c0::FF) {
+            m_State.lineEnd = true;
+        }
+        if (*it == c0::CR) {
+            // TODO: Return cursor to line beginning
             continue;
         }
 
@@ -58,8 +60,21 @@ std::vector<Cell> Parser::parse(std::vector<uint8_t>& data) {
         }
 
         default: {
-            cells.push_back(
-                Cell{.bgColor = bgColor, .fgColor = fgColor, .character = *it});
+            cells.push_back(Cell{
+                .bgColor = m_State.bgColor,
+                .fgColor = m_State.fgColor,
+                .character = *it,
+                .lineStart = m_State.lineStart,
+                .lineEnd = m_State.lineEnd,
+                .offset = m_State.offset,
+            });
+            m_State.offset++;
+
+            if (m_State.lineEnd) {
+                m_State.offset = 0;
+            }
+            m_State.lineStart = m_State.lineEnd;
+            m_State.lineEnd = false;
             break;
         }
         }

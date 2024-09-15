@@ -56,6 +56,7 @@ static constexpr uint8_t APC = 0x9e;
 } // namespace c1
 
 namespace csiidents {
+/// Erase In Line
 static CsiIdent EL = CsiIdent{
     .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'K'};
 } // namespace csiidents

@@ -116,11 +116,11 @@ void Font::updateAtlas(std::unordered_set<codepoint_t>& codepoints) {
     SPDLOG_DEBUG("Generated {}x{} font atlas", atlasSize, atlasSize);
 }
 
-GlyphPos Font::getGlyphPos(codepoint_t codepoint, glm::vec2& pen) {
-    bool found = m_CodepointToGeometry.contains(codepoint);
+GlyphPos Font::getGlyphPos(const Cell& cell, glm::vec2& pen) {
+    bool found = m_CodepointToGeometry.contains(cell.character);
 
     GlyphPos gp{};
-    GlyphGeometry& gg = found ? m_CodepointToGeometry[codepoint]
+    GlyphGeometry& gg = found ? m_CodepointToGeometry[cell.character]
                               : m_CodepointToGeometry[REPLACEMENT_CHAR];
 
     gp.al = gg.rect.x / (float)atlasSize;
@@ -134,7 +134,7 @@ GlyphPos Font::getGlyphPos(codepoint_t codepoint, glm::vec2& pen) {
     gp.pb = gp.pt + gg.rect.h;
 
     glm::vec2 advance(fracToPx(gg.metrics.horiAdvance), 0);
-    if (codepoint == '\n') {
+    if (cell.lineEnd) {
         pen.x = 0;
         advance.x = 0;
         advance.y = -fracToPx(m_Font->size->metrics.height);
@@ -142,9 +142,11 @@ GlyphPos Font::getGlyphPos(codepoint_t codepoint, glm::vec2& pen) {
         gp.pt = 0;
         gp.pr = 0;
         gp.pb = 0;
-    } else if (codepoint == '\t') {
+    } else if (cell.character == '\t') {
         GlyphGeometry& space = m_CodepointToGeometry[' '];
-        advance.x = fracToPx(space.metrics.horiAdvance) * TAB_WIDTH;
+        // Align to next tab stop
+        advance.x = fracToPx(space.metrics.horiAdvance) *
+                    (TAB_WIDTH - (cell.offset % TAB_WIDTH));
         gp.pl = 0;
         gp.pt = 0;
         gp.pr = 0;

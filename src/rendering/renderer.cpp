@@ -49,7 +49,7 @@ void Renderer::drawText(const std::vector<Cell>& cells, Font& font,
     glm::vec2 pen(0, -Font::fracToPx(font.getMetrics().ascender));
     size_t curIndex = 0;
     for (const Cell& cell : cells) {
-        const GlyphPos g = font.getGlyphPos(cell.character, pen);
+        const GlyphPos g = font.getGlyphPos(cell, pen);
 
         vertices.push_back({{pen.x + g.pl, pen.y + g.pb, 0.0f},
                             cell.fgColor,
