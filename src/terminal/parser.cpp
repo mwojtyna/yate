@@ -46,6 +46,11 @@ std::vector<Cell> Parser::parse(termbuf_t& data) {
         }
 
         // 8-bit
+        case c1::CSI: {
+            it++;
+            m_CsiParser.parse(it, data.end());
+            break;
+        }
         case c1::OSC: {
             it++;
             m_OscParser.parse(it, data.end());
