@@ -143,7 +143,7 @@ GlyphPos Font::getGlyphPos(const Cell& cell, glm::vec2& pen) {
         gp.pr = 0;
         gp.pb = 0;
     } else if (cell.character == '\t') {
-        GlyphGeometry& space = m_CodepointToGeometry[' '];
+        const GlyphGeometry& space = m_CodepointToGeometry[' '];
         // Align to next tab stop
         advance.x = fracToPx(space.metrics.horiAdvance) *
                     (TAB_WIDTH - (cell.offset % TAB_WIDTH));

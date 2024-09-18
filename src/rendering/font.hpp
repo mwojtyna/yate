@@ -26,7 +26,7 @@ public:
     static double fracToPx(double value);
 
     constexpr static codepoint_t REPLACEMENT_CHAR = 0xfffd;
-    constexpr static size_t TAB_WIDTH = 8;
+    constexpr static uint8_t TAB_WIDTH = 8;
 
 private:
     std::filesystem::path m_Path;

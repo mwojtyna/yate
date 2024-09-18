@@ -68,7 +68,11 @@ std::vector<Cell> Parser::parse(std::vector<uint8_t>& data) {
                 .lineEnd = m_State.lineEnd,
                 .offset = m_State.offset,
             });
-            m_State.offset++;
+            if (*it == c0::HT) {
+                m_State.offset = 0;
+            } else {
+                m_State.offset++;
+            }
 
             if (m_State.lineEnd) {
                 m_State.offset = 0;

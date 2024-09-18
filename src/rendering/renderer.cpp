@@ -40,8 +40,9 @@ void Renderer::drawText(const std::vector<Cell>& cells, Font& font,
 
     if (s_Data->glyphMesh == nullptr) {
         // TODO: Proper cell sizing
-        s_Data->glyphMesh = std::make_unique<Mesh>(90 * 30 * 4, 90 * 30 * 6,
-                                                   transform, program);
+        s_Data->glyphMesh = std::make_unique<Mesh>(
+            Application::WIDTH * Application::HEIGHT * 4,
+            Application::WIDTH * Application::HEIGHT * 6, transform, program);
     }
 
     std::vector<Vertex> vertices;
