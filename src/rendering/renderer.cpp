@@ -47,7 +47,7 @@ void Renderer::drawText(const std::vector<Cell>& cells, Font& font,
 
     std::vector<Vertex> vertices;
     std::vector<index_t> indices;
-    glm::vec2 pen(0, -Font::fracToPx(font.getMetrics().ascender));
+    glm::vec2 pen(0);
     size_t curIndex = 0;
     for (const Cell& cell : cells) {
         const GlyphPos g = font.getGlyphPos(cell, pen);

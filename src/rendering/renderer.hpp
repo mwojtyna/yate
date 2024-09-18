@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../application.hpp"
-#include "../terminal/parser.hpp"
 #include "font.hpp"
 #include "mesh.hpp"
 #include "program.hpp"

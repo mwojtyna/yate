@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../rendering/font.hpp"
-#include "types.hpp"
+#include "../rendering/types.hpp"
 #include <atomic>
 #include <cstring>
 #include <exception>
 #include <unistd.h>
+#include <vector>
 
 class Terminal {
 public:

@@ -8,7 +8,6 @@
 
 #include "../utils.hpp"
 #include "terminal.hpp"
-#include "types.hpp"
 #include <atomic>
 #include <cerrno>
 #include <csignal>

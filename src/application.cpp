@@ -93,7 +93,11 @@ void Application::start() {
 
     Program program(textVertexShader, textFragmentShader);
 
-    glm::vec3 charsPos(0.0f), cameraPos(0.0f);
+    glm::vec3 charsPos(
+        glm::round(-Font::fracToPx(font.getMetrics().max_advance) +
+                   Font::fracToPx(font.getMetrics().max_advance) * 0.25),
+        glm::round(-Font::fracToPx(font.getMetrics().height)), 0);
+    glm::vec3 cameraPos(0);
     float charsScale = 1.0f;
     double prevTime = glfwGetTime();
     auto debugData = DebugUI::DebugData{
