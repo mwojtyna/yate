@@ -78,7 +78,7 @@ void Terminal::open(int windowWidth, int windowHeight) {
                         std::strerror(errno));
         }
 
-        const char* argv[] = {"-bash", nullptr};
+        const char* argv[] = {"bash", nullptr};
         std::vector<const char*> envs;
         for (size_t i = 0; environ[i] != nullptr; i++) {
             envs.push_back(environ[i]);
