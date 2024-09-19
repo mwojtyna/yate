@@ -1,4 +1,5 @@
 #include "renderer.hpp"
+#include "../terminal/codes.hpp"
 #include "../utils.hpp"
 #include "font.hpp"
 #include "index_buffer.hpp"
@@ -57,7 +58,7 @@ void Renderer::drawText(const std::vector<Cell>& cells, Font& font,
     for (const Cell& cell : cells) {
         const GlyphPos g = font.getGlyphPos(cell, pen);
 
-        if (!cell.lineEnd) {
+        if (!cell.lineEnd && cell.character != c0::HT) {
             // Background
             vertices.push_back(
                 {.pos = {pen.x, pen.y + bgSize.y + yOffsetBg, 0.0f},

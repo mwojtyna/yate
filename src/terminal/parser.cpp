@@ -1,6 +1,6 @@
 #include "parser.hpp"
 #include "../utils.hpp"
-#include "constants.hpp"
+#include "codes.hpp"
 #include "csi_parser.hpp"
 #include "osc_parser.hpp"
 #include <cctype>

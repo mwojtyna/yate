@@ -1,6 +1,6 @@
 #include "font.hpp"
+#include "../terminal/codes.hpp"
 #include "../utils.hpp"
-#include "glm/common.hpp"
 #include "opengl.hpp"
 #include <freetype/freetype.h>
 #include <freetype/ftmodapi.h>
@@ -143,8 +143,7 @@ GlyphPos Font::getGlyphPos(const Cell& cell, glm::vec2& pen) {
         gp.pt = 0;
         gp.pr = 0;
         gp.pb = 0;
-    } else if (cell.character == '\t') {
-        // FIX: Cell background color not applied between tab stops
+    } else if (cell.character == c0::HT) {
         const GlyphGeometry& space = m_CodepointToGeometry[' '];
         // Align to next tab stop
         advance.x = fracToPx(space.metrics.horiAdvance) *
