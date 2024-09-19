@@ -30,6 +30,10 @@ void VertexArray::addBuffer(const VertexBuffer& vb) const {
                                  (const void*)offsetof(Vertex, uv)));
     glCall(glEnableVertexAttribArray(2));
 
+    glCall(glVertexAttribIPointer(3, 1, GL_UNSIGNED_BYTE, sizeof(Vertex),
+                                  (const void*)offsetof(Vertex, bg)));
+    glCall(glEnableVertexAttribArray(3));
+
     SPDLOG_TRACE("Added vertex buffer with id={} to vertex array with id={}",
                  vb.getId(), m_Id);
 }

@@ -11,6 +11,7 @@ public:
         glm::vec3* charsPos;
         float* charsScale;
         glm::vec3* cameraPos;
+        bool* wireframe;
     };
 
     static void initialize(GLFWwindow* window);

@@ -54,6 +54,9 @@ void DebugUI::draw(DebugUI::DebugData& data) {
         ImGui::SliderFloat2("position###camPos", &data.cameraPos->x,
                             -Application::WIDTH, Application::WIDTH);
 
+        ImGui::Separator();
+        ImGui::Checkbox("wireframe", data.wireframe);
+
         ImGui::End();
     }
 

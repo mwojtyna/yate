@@ -47,28 +47,70 @@ void Renderer::drawText(const std::vector<Cell>& cells, Font& font,
 
     std::vector<Vertex> vertices;
     std::vector<index_t> indices;
-    glm::vec2 pen(0);
     size_t curIndex = 0;
+    glm::vec2 pen(0);
+
+    const double yOffsetBg = font.getMetrics().descender;
+    const glm::vec2 bgSize(font.getMetrics().max_advance,
+                           font.getMetrics().height);
+
     for (const Cell& cell : cells) {
         const GlyphPos g = font.getGlyphPos(cell, pen);
 
-        vertices.push_back({{pen.x + g.pl, pen.y + g.pb, 0.0f},
-                            cell.fgColor,
-                            {g.al, g.ab}}); // left bottom
-        vertices.push_back({{pen.x + g.pr, pen.y + g.pb, 0.0f},
-                            cell.fgColor,
-                            {g.ar, g.ab}}); // right bottom
-        vertices.push_back({{pen.x + g.pr, pen.y + g.pt, 0.0f},
-                            cell.fgColor,
-                            {g.ar, g.at}}); // right top
-        vertices.push_back({{pen.x + g.pl, pen.y + g.pt, 0.0f},
-                            cell.fgColor,
-                            {g.al, g.at}}); // left top
+        if (!cell.lineEnd) {
+            // Background
+            vertices.push_back(
+                {.pos = {pen.x, pen.y + bgSize.y + yOffsetBg, 0.0f},
+                 .color = cell.bgColor,
+                 .bg = true}); // left bottom
+            vertices.push_back(
+                {.pos = {pen.x + bgSize.x, pen.y + bgSize.y + yOffsetBg, 0.0f},
+                 .color = cell.bgColor,
+                 .bg = true}); // right bottom
+            vertices.push_back(
+                {.pos = {pen.x + bgSize.x, pen.y + yOffsetBg, 0.0f},
+                 .color = cell.bgColor,
+                 .bg = true}); // right top
+            vertices.push_back({.pos = {pen.x, pen.y + yOffsetBg, 0.0f},
+                                .color = cell.bgColor,
+                                .bg = true}); // left top
+        }
 
+        // Foreground
+        vertices.push_back({.pos = {pen.x + g.pl, pen.y + g.pb, 0.0f},
+                            .color = cell.fgColor,
+                            .uv = {g.al, g.ab},
+                            .bg = false}); // left bottom
+        vertices.push_back({.pos = {pen.x + g.pr, pen.y + g.pb, 0.0f},
+                            .color = cell.fgColor,
+                            .uv = {g.ar, g.ab},
+                            .bg = false}); // right bottom
+        vertices.push_back({.pos = {pen.x + g.pr, pen.y + g.pt, 0.0f},
+                            .color = cell.fgColor,
+                            .uv = {g.ar, g.at},
+                            .bg = false}); // right top
+        vertices.push_back({.pos = {pen.x + g.pl, pen.y + g.pt, 0.0f},
+                            .color = cell.fgColor,
+                            .uv = {g.al, g.at},
+                            .bg = false}); // left top
+
+        // Background first triangle
         indices.push_back(curIndex + 0);
         indices.push_back(curIndex + 1);
         indices.push_back(curIndex + 3);
 
+        // Background second triangle
+        indices.push_back(curIndex + 1);
+        indices.push_back(curIndex + 2);
+        indices.push_back(curIndex + 3);
+        curIndex += 4;
+
+        // Foreground first triangle
+        indices.push_back(curIndex + 0);
+        indices.push_back(curIndex + 1);
+        indices.push_back(curIndex + 3);
+
+        // Foreground second triangle
         indices.push_back(curIndex + 1);
         indices.push_back(curIndex + 2);
         indices.push_back(curIndex + 3);

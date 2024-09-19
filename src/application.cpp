@@ -87,25 +87,23 @@ void Application::start() {
 
     Renderer::initialize();
     Renderer::setBgColor(glm::vec3(0.10f, 0.11f, 0.15f));
-    Renderer::setWireframe(false);
 
     Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 16);
 
     Program program(textVertexShader, textFragmentShader);
 
-    glm::vec3 charsPos(
-        glm::round(-Font::fracToPx(font.getMetrics().max_advance) +
-                   Font::fracToPx(font.getMetrics().max_advance) * 0.25),
-        glm::round(-Font::fracToPx(font.getMetrics().height)), 0);
-    glm::vec3 cameraPos(0);
+    glm::vec3 charsPos(glm::round(-font.getMetrics().max_advance +
+                                  font.getMetrics().max_advance * 0.25),
+                       glm::round(-font.getMetrics().height), 0);
     float charsScale = 1.0f;
+    glm::vec3 cameraPos(0);
+    bool wireframe = false;
     double prevTime = glfwGetTime();
-    auto debugData = DebugUI::DebugData{
-        .frameTimeMs = 0,
-        .charsPos = &charsPos,
-        .charsScale = &charsScale,
-        .cameraPos = &cameraPos,
-    };
+    auto debugData = DebugUI::DebugData{.frameTimeMs = 0,
+                                        .charsPos = &charsPos,
+                                        .charsScale = &charsScale,
+                                        .cameraPos = &cameraPos,
+                                        .wireframe = &wireframe};
     DebugUI::initialize(m_Window);
 
     SPDLOG_INFO("Application started");
@@ -122,6 +120,8 @@ void Application::start() {
             }
             font.updateAtlas(chars);
         }
+
+        Renderer::setWireframe(*debugData.wireframe);
 
         glm::mat4 transform = glm::scale(
             glm::translate(glm::mat4(1.0f), charsPos), glm::vec3(charsScale));
