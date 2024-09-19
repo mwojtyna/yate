@@ -10,7 +10,7 @@ struct ParserState {
     glm::vec4 fgColor = glm::vec4(1);
     bool lineStart = true;
     bool lineEnd = false;
-    uint32_t offset = 0;
+    size_t offset = 0;
 };
 
 class Parser {

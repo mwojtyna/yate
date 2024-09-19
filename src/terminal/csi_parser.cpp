@@ -57,3 +57,7 @@ void CsiParser::parse(iter_t& it, iter_t end) {
                     optionalToString(intermediate), final);
     }
 }
+
+void CsiParser::addHandler(CsiIdent& ident, handlerfn_t handler) {
+    m_Handlers[ident] = handler;
+}

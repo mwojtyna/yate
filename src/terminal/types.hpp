@@ -14,5 +14,5 @@ struct Cell {
     bool lineStart = false;
     bool lineEnd = false;
     /// Offset since start of line
-    uint32_t offset = 0;
+    size_t offset = 0;
 };
