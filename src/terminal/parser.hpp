@@ -23,6 +23,6 @@ public:
 
 private:
     ParserState m_State;
-    CsiParser m_CsiParser;
-    OscParser m_OscParser;
+    CsiParser& m_CsiParser;
+    OscParser& m_OscParser;
 };

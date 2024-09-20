@@ -2,9 +2,13 @@
 
 Yet Another Terminal Emulator
 
-## Build
+## Build and run
 
-`cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j`
+`cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j && build/yate`
+
+## Test
+
+`cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug && cmake --build build -j && build/yate-test`
 
 ## Configuration
 

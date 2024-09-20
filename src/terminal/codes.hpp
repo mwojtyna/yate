@@ -9,7 +9,7 @@ namespace c0 {
 /// Null
 static constexpr uint8_t NUL = '\0';
 /// Bell
-static constexpr uint8_t BELL = '\a';
+static constexpr uint8_t BEL = '\a';
 /// Backspace
 static constexpr uint8_t BS = '\b';
 /// Horizontal Tabulation

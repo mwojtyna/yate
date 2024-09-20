@@ -51,7 +51,7 @@ void Renderer::drawText(const std::vector<Cell>& cells, Font& font,
     size_t curIndex = 0;
     glm::vec2 pen(0);
 
-    const double yOffsetBg = font.getMetrics().descender;
+    const double bgOffsetY = font.getMetrics().descender;
     const glm::vec2 bgSize(font.getMetrics().max_advance,
                            font.getMetrics().height);
 
@@ -61,18 +61,18 @@ void Renderer::drawText(const std::vector<Cell>& cells, Font& font,
         if (!cell.lineEnd && cell.character != c0::HT) {
             // Background
             vertices.push_back(
-                {.pos = {pen.x, pen.y + bgSize.y + yOffsetBg, 0.0f},
+                {.pos = {pen.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
                  .color = cell.bgColor,
                  .bg = true}); // left bottom
             vertices.push_back(
-                {.pos = {pen.x + bgSize.x, pen.y + bgSize.y + yOffsetBg, 0.0f},
+                {.pos = {pen.x + bgSize.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
                  .color = cell.bgColor,
                  .bg = true}); // right bottom
             vertices.push_back(
-                {.pos = {pen.x + bgSize.x, pen.y + yOffsetBg, 0.0f},
+                {.pos = {pen.x + bgSize.x, pen.y + bgOffsetY, 0.0f},
                  .color = cell.bgColor,
                  .bg = true}); // right top
-            vertices.push_back({.pos = {pen.x, pen.y + yOffsetBg, 0.0f},
+            vertices.push_back({.pos = {pen.x, pen.y + bgOffsetY, 0.0f},
                                 .color = cell.bgColor,
                                 .bg = true}); // left top
         }

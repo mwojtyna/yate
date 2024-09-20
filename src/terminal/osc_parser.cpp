@@ -40,7 +40,7 @@ std::vector<std::string> OscParser::parseArgs(iter_t& it, iter_t end) {
 
     size_t argIdx = 0;
     for (; it < end; it++) {
-        if (*it == c0::BELL || *it == c1::ST) {
+        if (*it == c0::BEL || *it == c1::ST) {
             break;
         }
         if (*it == ARG_SEPARATOR) {
