@@ -55,7 +55,7 @@ Parser parser_setup(GLFWwindow* window) {
         setWindowTitle(data[0].c_str(), window);
     });
 
-    Parser parser(csi, osc);
+    Parser parser(std::move(csi), std::move(osc));
 
     return parser;
 }

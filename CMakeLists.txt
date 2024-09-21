@@ -134,10 +134,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	target_compile_options(Catch2 PRIVATE -w) # Disable warnings
 endif()
 
-# link all libraries
-set(LIBS glfw OpenGL::GL glad spdlog glm imgui freetype)
 set(INCLUDE_DIRS ./vendor/stb/)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBS})
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw OpenGL::GL glad spdlog glm imgui freetype)
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

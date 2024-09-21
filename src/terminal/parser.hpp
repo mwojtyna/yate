@@ -15,7 +15,7 @@ struct ParserState {
 
 class Parser {
 public:
-    Parser(CsiParser& csiParser, OscParser& oscParser);
+    Parser(CsiParser&& csiParser, OscParser&& oscParser);
     std::vector<Cell> parse(std::vector<uint8_t>& data);
 
     static std::optional<uint32_t> parsePs(iter_t& it, iter_t end);
@@ -23,6 +23,6 @@ public:
 
 private:
     ParserState m_State;
-    CsiParser& m_CsiParser;
-    OscParser& m_OscParser;
+    CsiParser m_CsiParser;
+    OscParser m_OscParser;
 };

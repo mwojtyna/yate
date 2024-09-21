@@ -7,7 +7,7 @@
 #include <spdlog/fmt/bin_to_hex.h>
 #include <spdlog/spdlog.h>
 
-Parser::Parser(CsiParser& csiParser, OscParser& oscParser)
+Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser)
     : m_CsiParser(csiParser), m_OscParser(oscParser){};
 
 std::vector<Cell> Parser::parse(std::vector<uint8_t>& data) {
