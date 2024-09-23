@@ -52,7 +52,7 @@ static constexpr uint8_t OSC = 0x9d;
 /// Privacy Message
 static constexpr uint8_t PM = 0x9e;
 /// Application Program Command
-static constexpr uint8_t APC = 0x9e;
+static constexpr uint8_t APC = 0x9f;
 } // namespace c1
 
 namespace csiidents {
