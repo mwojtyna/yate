@@ -42,7 +42,7 @@ Credit to https://xtermjs.org/docs/api/vtfeatures/
 | NUL      | Null                  | \0, \x00 | NUL is ignored.                                   | &cross; |
 | BEL      | Bell                  | \a, \x07 | Ring the bell                                     | &cross; |
 | BS       | Backspace             | \b, \x08 | Move the cursor one position to the left          | &cross; |
-| HT       | Horizontal Tabulation | \t, \x09 | Move the cursor to the next character tab stop.   | &cross; |
+| HT       | Horizontal Tabulation | \t, \x09 | Move the cursor to the next character tab stop.   | &check; |
 | LF       | Line Feed             | \n, \x0A | Move the cursor one row down, scrolling if needed | &check; |
 | VT       | Vertical Tabulation   | \v, \x0B | Treated as LF.                                    | &cross; |
 | FF       | Form Feed             | \f, \x0C | Treated as LF.                                    | &cross; |
