@@ -77,6 +77,7 @@ void Application::start() {
         switch (key) {
         case GLFW_KEY_BACKSPACE: {
             Terminal::write(0x08);
+            break;
         }
         case GLFW_KEY_ENTER: {
             Terminal::write(0x0a);
