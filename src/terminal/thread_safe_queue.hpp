@@ -6,14 +6,18 @@
 template <typename T>
 class ThreadSafeQueue {
 public:
+    void push(T& value) {
+        std::unique_lock lock(m_Mutex);
+        m_Queue.push(value);
+    }
     void push(T&& value) {
-        std::scoped_lock<std::mutex> lock(m_Mutex);
+        std::unique_lock lock(m_Mutex);
         m_Queue.push(value);
     }
 
     /// Returns true if popped, false if queue was empty
     bool pop(T& out) {
-        std::scoped_lock<std::mutex> lock(m_Mutex);
+        std::unique_lock lock(m_Mutex);
         if (m_Queue.empty()) {
             return false;
         }
@@ -24,7 +28,7 @@ public:
     }
 
     size_t size() const {
-        std::scoped_lock<std::mutex> lock(m_Mutex);
+        std::unique_lock lock(m_Mutex);
         return m_Queue.size();
     }
 
