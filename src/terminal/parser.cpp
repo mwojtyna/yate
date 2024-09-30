@@ -8,7 +8,7 @@
 #include <spdlog/spdlog.h>
 
 Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser)
-    : m_CsiParser(csiParser), m_OscParser(oscParser){};
+    : m_CsiParser(csiParser), m_OscParser(oscParser) {};
 
 std::vector<Cell> Parser::parse(std::vector<uint8_t>& data) {
     std::vector<Cell> cells;
@@ -90,8 +90,6 @@ std::vector<Cell> Parser::parse(std::vector<uint8_t>& data) {
 // STATIC
 std::optional<uint32_t> Parser::parsePs(iter_t& it, iter_t end) {
     std::string digits = "";
-
-    skipSpaces(it, end);
     for (; it < end; it++) {
         if (!std::isdigit(*it)) {
             if (digits != "") {
@@ -104,13 +102,4 @@ std::optional<uint32_t> Parser::parsePs(iter_t& it, iter_t end) {
     }
 
     return std::nullopt;
-}
-
-void Parser::skipSpaces(iter_t& it, iter_t end) {
-    size_t spacesSkipped = 0;
-    for (; it < end; it++) {
-        if (*it != ' ') {
-            return;
-        }
-    }
 }

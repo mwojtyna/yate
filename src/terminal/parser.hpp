@@ -19,7 +19,6 @@ public:
     std::vector<Cell> parse(std::vector<uint8_t>& data);
 
     static std::optional<uint32_t> parsePs(iter_t& it, iter_t end);
-    static void skipSpaces(iter_t& it, iter_t end);
 
 private:
     ParserState m_State;

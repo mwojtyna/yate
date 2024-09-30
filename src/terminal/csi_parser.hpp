@@ -30,7 +30,7 @@ class CsiParser {
 
 public:
     void parse(iter_t& it, iter_t end);
-    void addHandler(CsiIdent& ident, handlerfn_t handler);
+    void addHandler(const CsiIdent& ident, handlerfn_t handler);
 
 private:
     std::unordered_map<CsiIdent, handlerfn_t> m_Handlers;

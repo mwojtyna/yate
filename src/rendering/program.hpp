@@ -16,10 +16,10 @@ public:
     void setUniformMatrix4(const GLchar* const name, const glm::mat4& mat);
 
 private:
+    GLuint loadShader(const std::string contents, const GLuint type);
+    GLint getUniformLocation(const GLchar* const name);
+
     GLuint m_Id = 0;
     /// name -> location
     std::unordered_map<const GLchar*, GLint> m_UniformLocations;
-
-    GLuint loadShader(const std::string contents, const GLuint type);
-    GLint getUniformLocation(const GLchar* const name);
 };

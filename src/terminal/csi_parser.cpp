@@ -19,7 +19,7 @@ bool CsiIdent::operator==(const CsiIdent& rhs) const {
 void CsiParser::parse(iter_t& it, iter_t end) {
     std::optional<char> prefix = std::nullopt;
     if (!std::isdigit(*it) && !std::isalpha(*it)) {
-        prefix.emplace(*it);
+        prefix = *it;
         it++;
     }
     SPDLOG_TRACE("CSI:prefix = {}", optionalToString(prefix));
@@ -28,9 +28,8 @@ void CsiParser::parse(iter_t& it, iter_t end) {
     SPDLOG_TRACE("CSI:Ps = {}", optionalToString(ps));
 
     std::optional<char> intermediate = std::nullopt;
-    // If is a symbol
     if (!std::isdigit(*it) && !std::isalpha(*it)) {
-        intermediate.emplace(*it);
+        intermediate = *it;
         it++;
     }
     SPDLOG_TRACE("CSI:intermediate = {}", optionalToString(intermediate));
@@ -58,6 +57,6 @@ void CsiParser::parse(iter_t& it, iter_t end) {
     }
 }
 
-void CsiParser::addHandler(CsiIdent& ident, handlerfn_t handler) {
+void CsiParser::addHandler(const CsiIdent& ident, handlerfn_t handler) {
     m_Handlers[ident] = handler;
 }
