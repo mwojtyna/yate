@@ -81,24 +81,6 @@ void Application::start() {
                     }
                 });
 
-                // Terminal::getBuf([](const TerminalBuf& termBuf) {
-                //     const auto& rows = termBuf.getRows();
-                //     for (size_t i = 0; auto& row : rows) {
-                //         std::string msg = "row ";
-                //         msg += std::to_string(i) + ": ";
-                //
-                //         for (auto& cell : row) {
-                //             if (cell.character == '\n') {
-                //                 msg += "\\n";
-                //             } else {
-                //                 msg += (char)cell.character;
-                //             }
-                //         }
-                //         SPDLOG_ERROR(msg.c_str());
-                //
-                //         i++;
-                //     }
-                // });
             } catch (TerminalReadException e) {
                 if (!Terminal::shouldClose()) {
                     SPDLOG_ERROR("Failed reading from terminal: {}", e.what());
@@ -170,6 +152,23 @@ void Application::start() {
             font.updateAtlas(chars);
         }
         Terminal::getBuf([&](const TerminalBuf& termBuf) {
+            // const auto& rows = termBuf.getRows();
+            // for (size_t i = 0; auto& row : rows) {
+            //     std::string msg = "row ";
+            //     msg += std::to_string(i) + ": ";
+            //
+            //     for (auto& cell : row) {
+            //         if (cell.character == '\n') {
+            //             msg += "\\n";
+            //         } else {
+            //             msg += (char)cell.character;
+            //         }
+            //     }
+            //     SPDLOG_ERROR(msg.c_str());
+            //
+            //     i++;
+            // }
+            //
             Renderer::drawText(termBuf.getRows(), font, transform, program);
         });
 

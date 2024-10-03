@@ -75,6 +75,17 @@ void Renderer::drawText(const std::vector<std::vector<Cell>>& cells, Font& font,
                 vertices.push_back({.pos = {pen.x, pen.y + bgOffsetY, 0.0f},
                                     .color = cell.bgColor,
                                     .bg = true}); // left top
+
+                // Background first triangle
+                indices.push_back(curIndex + 0);
+                indices.push_back(curIndex + 1);
+                indices.push_back(curIndex + 3);
+
+                // Background second triangle
+                indices.push_back(curIndex + 1);
+                indices.push_back(curIndex + 2);
+                indices.push_back(curIndex + 3);
+                curIndex += 4;
             }
 
             // Foreground
@@ -94,17 +105,6 @@ void Renderer::drawText(const std::vector<std::vector<Cell>>& cells, Font& font,
                                 .color = cell.fgColor,
                                 .uv = {g.al, g.at},
                                 .bg = false}); // left top
-
-            // Background first triangle
-            indices.push_back(curIndex + 0);
-            indices.push_back(curIndex + 1);
-            indices.push_back(curIndex + 3);
-
-            // Background second triangle
-            indices.push_back(curIndex + 1);
-            indices.push_back(curIndex + 2);
-            indices.push_back(curIndex + 3);
-            curIndex += 4;
 
             // Foreground first triangle
             indices.push_back(curIndex + 0);
