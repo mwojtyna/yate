@@ -35,9 +35,8 @@ void Renderer::destroy() {
     SPDLOG_DEBUG("Shutdown renderer");
 }
 
-void Renderer::drawText(const std::vector<Cell>& cells, Font& font,
+void Renderer::drawText(const std::vector<std::vector<Cell>>& cells, Font& font,
                         const glm::mat4& transform, Program& program) {
-    glCall(glClear(GL_COLOR_BUFFER_BIT));
 
     if (s_Data->glyphMesh == nullptr) {
         // TODO: Proper cell sizing
@@ -55,67 +54,69 @@ void Renderer::drawText(const std::vector<Cell>& cells, Font& font,
     const glm::vec2 bgSize(font.getMetrics().max_advance,
                            font.getMetrics().height);
 
-    for (const Cell& cell : cells) {
-        const GlyphPos g = font.getGlyphPos(cell, pen);
+    for (const auto& row : cells) {
+        for (const Cell& cell : row) {
+            const GlyphPos g = font.getGlyphPos(cell, pen);
 
-        if (!cell.lineEnd && cell.character != c0::HT) {
-            // Background
-            vertices.push_back(
-                {.pos = {pen.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
-                 .color = cell.bgColor,
-                 .bg = true}); // left bottom
-            vertices.push_back(
-                {.pos = {pen.x + bgSize.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
-                 .color = cell.bgColor,
-                 .bg = true}); // right bottom
-            vertices.push_back(
-                {.pos = {pen.x + bgSize.x, pen.y + bgOffsetY, 0.0f},
-                 .color = cell.bgColor,
-                 .bg = true}); // right top
-            vertices.push_back({.pos = {pen.x, pen.y + bgOffsetY, 0.0f},
-                                .color = cell.bgColor,
-                                .bg = true}); // left top
+            if (!cell.lineEnd && cell.character != c0::HT) {
+                // Background
+                vertices.push_back(
+                    {.pos = {pen.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
+                     .color = cell.bgColor,
+                     .bg = true}); // left bottom
+                vertices.push_back({.pos = {pen.x + bgSize.x,
+                                            pen.y + bgSize.y + bgOffsetY, 0.0f},
+                                    .color = cell.bgColor,
+                                    .bg = true}); // right bottom
+                vertices.push_back(
+                    {.pos = {pen.x + bgSize.x, pen.y + bgOffsetY, 0.0f},
+                     .color = cell.bgColor,
+                     .bg = true}); // right top
+                vertices.push_back({.pos = {pen.x, pen.y + bgOffsetY, 0.0f},
+                                    .color = cell.bgColor,
+                                    .bg = true}); // left top
+            }
+
+            // Foreground
+            vertices.push_back({.pos = {pen.x + g.pl, pen.y + g.pb, 0.0f},
+                                .color = cell.fgColor,
+                                .uv = {g.al, g.ab},
+                                .bg = false}); // left bottom
+            vertices.push_back({.pos = {pen.x + g.pr, pen.y + g.pb, 0.0f},
+                                .color = cell.fgColor,
+                                .uv = {g.ar, g.ab},
+                                .bg = false}); // right bottom
+            vertices.push_back({.pos = {pen.x + g.pr, pen.y + g.pt, 0.0f},
+                                .color = cell.fgColor,
+                                .uv = {g.ar, g.at},
+                                .bg = false}); // right top
+            vertices.push_back({.pos = {pen.x + g.pl, pen.y + g.pt, 0.0f},
+                                .color = cell.fgColor,
+                                .uv = {g.al, g.at},
+                                .bg = false}); // left top
+
+            // Background first triangle
+            indices.push_back(curIndex + 0);
+            indices.push_back(curIndex + 1);
+            indices.push_back(curIndex + 3);
+
+            // Background second triangle
+            indices.push_back(curIndex + 1);
+            indices.push_back(curIndex + 2);
+            indices.push_back(curIndex + 3);
+            curIndex += 4;
+
+            // Foreground first triangle
+            indices.push_back(curIndex + 0);
+            indices.push_back(curIndex + 1);
+            indices.push_back(curIndex + 3);
+
+            // Foreground second triangle
+            indices.push_back(curIndex + 1);
+            indices.push_back(curIndex + 2);
+            indices.push_back(curIndex + 3);
+            curIndex += 4;
         }
-
-        // Foreground
-        vertices.push_back({.pos = {pen.x + g.pl, pen.y + g.pb, 0.0f},
-                            .color = cell.fgColor,
-                            .uv = {g.al, g.ab},
-                            .bg = false}); // left bottom
-        vertices.push_back({.pos = {pen.x + g.pr, pen.y + g.pb, 0.0f},
-                            .color = cell.fgColor,
-                            .uv = {g.ar, g.ab},
-                            .bg = false}); // right bottom
-        vertices.push_back({.pos = {pen.x + g.pr, pen.y + g.pt, 0.0f},
-                            .color = cell.fgColor,
-                            .uv = {g.ar, g.at},
-                            .bg = false}); // right top
-        vertices.push_back({.pos = {pen.x + g.pl, pen.y + g.pt, 0.0f},
-                            .color = cell.fgColor,
-                            .uv = {g.al, g.at},
-                            .bg = false}); // left top
-
-        // Background first triangle
-        indices.push_back(curIndex + 0);
-        indices.push_back(curIndex + 1);
-        indices.push_back(curIndex + 3);
-
-        // Background second triangle
-        indices.push_back(curIndex + 1);
-        indices.push_back(curIndex + 2);
-        indices.push_back(curIndex + 3);
-        curIndex += 4;
-
-        // Foreground first triangle
-        indices.push_back(curIndex + 0);
-        indices.push_back(curIndex + 1);
-        indices.push_back(curIndex + 3);
-
-        // Foreground second triangle
-        indices.push_back(curIndex + 1);
-        indices.push_back(curIndex + 2);
-        indices.push_back(curIndex + 3);
-        curIndex += 4;
     }
 
     s_Data->glyphMesh->update(vertices, indices);
@@ -128,6 +129,10 @@ void Renderer::setWireframe(const bool enabled) {
 
 void Renderer::setBgColor(const glm::vec3& color) {
     glCall(glClearColor(color.r, color.g, color.b, 1.0f));
+}
+
+void Renderer::clear() {
+    glCall(glClear(GL_COLOR_BUFFER_BIT));
 }
 
 glm::mat4& Renderer::getProjectionMat() {

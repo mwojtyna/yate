@@ -17,12 +17,22 @@ std::vector<Cell> Parser::parse(std::vector<uint8_t>& data) {
         if (*it == c0::LF || *it == c0::VT || *it == c0::FF) {
             m_State.lineEnd = true;
         }
-        if (*it == c0::CR) {
-            // TODO: Return cursor to line beginning
-            continue;
-        }
 
         switch (*it) {
+        // Others to ignore...
+        case c0::BS: {
+            break;
+        }
+
+        case c0::CR: {
+            // TODO: Return cursor to line beginning
+            break;
+        }
+        case c0::BEL: {
+            // TODO: Sound bell
+            break;
+        }
+
         // 7-bit
         case c0::ESC: {
             it++;

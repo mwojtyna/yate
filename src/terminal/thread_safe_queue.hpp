@@ -6,11 +6,11 @@
 template <typename T>
 class ThreadSafeQueue {
 public:
-    void push(T& value) {
+    void push(const T& value) {
         std::unique_lock lock(m_Mutex);
         m_Queue.push(value);
     }
-    void push(T&& value) {
+    void push(const T&& value) {
         std::unique_lock lock(m_Mutex);
         m_Queue.push(value);
     }

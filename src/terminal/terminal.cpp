@@ -27,6 +27,8 @@ int Terminal::s_MasterFd;
 int Terminal::s_SlaveFd;
 pid_t Terminal::s_TermProcessPid;
 std::atomic<bool> Terminal::s_ShouldClose;
+TerminalBuf Terminal::s_Buf;
+std::shared_mutex Terminal::s_BufMutex;
 
 // TODO: Divide window into terminal rows and columns
 void Terminal::open(int windowWidth, int windowHeight) {
@@ -130,4 +132,14 @@ void Terminal::write(codepoint_t codepoint) {
 
 bool Terminal::shouldClose() {
     return s_ShouldClose.load(std::memory_order_relaxed);
+}
+
+void Terminal::getBuf(std::function<void(const TerminalBuf&)> cb) {
+    std::shared_lock lock(s_BufMutex);
+    cb(s_Buf);
+}
+
+void Terminal::getBufMut(std::function<void(TerminalBuf&)> cb) {
+    std::unique_lock lock(s_BufMutex);
+    cb(s_Buf);
 }

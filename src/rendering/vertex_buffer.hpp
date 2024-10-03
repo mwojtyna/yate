@@ -16,7 +16,7 @@ struct Vertex {
 class VertexBuffer {
 public:
     VertexBuffer() = delete;
-    VertexBuffer(const GLsizei count);
+    VertexBuffer(const GLsizei maxCount);
     ~VertexBuffer();
 
     void bind() const;

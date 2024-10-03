@@ -2,11 +2,11 @@
 #include "opengl.hpp"
 #include <spdlog/spdlog.h>
 
-VertexBuffer::VertexBuffer(const GLsizei count) {
+VertexBuffer::VertexBuffer(const GLsizei maxCount) {
     glCall(glGenBuffers(1, &m_Id));
     SPDLOG_TRACE("Generated vertex buffer with id={}", m_Id);
     bind();
-    glCall(glBufferData(GL_ARRAY_BUFFER, count * sizeof(Vertex), nullptr,
+    glCall(glBufferData(GL_ARRAY_BUFFER, maxCount * sizeof(Vertex), nullptr,
                         GL_DYNAMIC_DRAW));
 }
 

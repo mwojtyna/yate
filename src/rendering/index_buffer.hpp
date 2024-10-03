@@ -8,7 +8,7 @@ using index_t = GLuint;
 class IndexBuffer {
 public:
     IndexBuffer() = delete;
-    IndexBuffer(GLsizei count);
+    IndexBuffer(const GLsizei maxCount);
     ~IndexBuffer();
 
     void bind() const;

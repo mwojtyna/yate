@@ -3,7 +3,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include "../terminal/types.hpp"
+#include "../terminal/terminal_buffer.hpp"
 #include "atlas.hpp"
 #include "types.hpp"
 #include <filesystem>

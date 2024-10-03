@@ -2,10 +2,10 @@
 #include "opengl.hpp"
 #include <spdlog/spdlog.h>
 
-IndexBuffer::IndexBuffer(GLsizei count) : m_Count(count) {
+IndexBuffer::IndexBuffer(const GLsizei maxCount) {
     glCall(glGenBuffers(1, &m_Id));
     bind();
-    glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(index_t),
+    glCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, maxCount * sizeof(index_t),
                         nullptr, GL_DYNAMIC_DRAW));
 }
 
@@ -23,6 +23,7 @@ void IndexBuffer::unbind() const {
 
 void IndexBuffer::update(std::vector<index_t>& indices) {
     bind();
+    m_Count = indices.size();
     glCall(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0,
                            indices.size() * sizeof(index_t), indices.data()));
 }

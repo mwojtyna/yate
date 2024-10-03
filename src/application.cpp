@@ -5,6 +5,7 @@
 #include "rendering/renderer.hpp"
 #include "shaders/text.frag.hpp"
 #include "shaders/text.vert.hpp"
+#include "terminal/codes.hpp"
 #include "terminal/parser.hpp"
 #include "terminal/parser_setup.hpp"
 #include "terminal/terminal.hpp"
@@ -18,6 +19,7 @@
 #include <memory>
 #include <spdlog/cfg/env.h>
 #include <spdlog/spdlog.h>
+#include <string>
 #include <unordered_set>
 
 void Application::start() {
@@ -39,22 +41,64 @@ void Application::start() {
     }
     glfwMakeContextCurrent(m_Window);
 
-    ThreadSafeQueue<std::vector<Cell>> terminalQueue;
+    ThreadSafeQueue<std::vector<Cell>> atlasQueue;
     Terminal::open(Application::WIDTH, Application::HEIGHT);
-    m_TerminalThread = std::make_unique<std::thread>([this, &terminalQueue]() {
+    m_TerminalThread = std::make_unique<std::thread>([this, &atlasQueue]() {
         Parser parser = parser_setup(m_Window);
         while (!Terminal::shouldClose()) {
             try {
                 std::vector<uint8_t> rawCodes = Terminal::read();
-                if (rawCodes.size() == 0) {
-                    continue;
-                }
-
                 SPDLOG_DEBUG("Read from terminal:");
                 HEXDUMP(rawCodes.data(), rawCodes.size());
 
                 std::vector<Cell> parsed = parser.parse(rawCodes);
-                terminalQueue.push(std::move(parsed));
+                if (parsed.empty()) {
+                    continue;
+                }
+
+                atlasQueue.push(parsed); // TODO: Don't copy
+
+                std::vector<std::vector<Cell>> rows;
+                rows.emplace_back();
+                for (const Cell& cell : parsed) {
+                    bool lineEnd = cell.lineEnd;
+                    rows[rows.size() - 1].push_back(std::move(cell));
+                    if (lineEnd) {
+                        rows.emplace_back();
+                    }
+                }
+                Terminal::getBufMut([&](TerminalBuf& termBuf) {
+                    for (size_t i = 0; i < rows.size(); i++) {
+                        if (!termBuf.getRows().empty() && i == 0) {
+                            auto& termBufRow =
+                                termBuf.getRow(termBuf.getRows().size() - 1);
+                            for (const Cell& cell : rows[i]) {
+                                termBufRow.push_back(std::move(cell));
+                            }
+                        } else {
+                            termBuf.pushRow(std::move(rows[i]));
+                        }
+                    }
+                });
+
+                // Terminal::getBuf([](const TerminalBuf& termBuf) {
+                //     const auto& rows = termBuf.getRows();
+                //     for (size_t i = 0; auto& row : rows) {
+                //         std::string msg = "row ";
+                //         msg += std::to_string(i) + ": ";
+                //
+                //         for (auto& cell : row) {
+                //             if (cell.character == '\n') {
+                //                 msg += "\\n";
+                //             } else {
+                //                 msg += (char)cell.character;
+                //             }
+                //         }
+                //         SPDLOG_ERROR(msg.c_str());
+                //
+                //         i++;
+                //     }
+                // });
             } catch (TerminalReadException e) {
                 if (!Terminal::shouldClose()) {
                     SPDLOG_ERROR("Failed reading from terminal: {}", e.what());
@@ -76,11 +120,11 @@ void Application::start() {
 
         switch (key) {
         case GLFW_KEY_BACKSPACE: {
-            Terminal::write(0x08);
+            Terminal::write(c0::BS);
             break;
         }
         case GLFW_KEY_ENTER: {
-            Terminal::write(0x0a);
+            Terminal::write(c0::LF);
             break;
         }
         }
@@ -109,26 +153,25 @@ void Application::start() {
 
     SPDLOG_INFO("Application started");
 
-    std::vector<Cell> cells;
     while (!glfwWindowShouldClose(m_Window)) {
-        // When new terminal data appears, update font atlas for new glyphs
-        std::vector<Cell> tmp;
-        if (terminalQueue.pop(tmp)) {
-            std::unordered_set<codepoint_t> chars(tmp.size());
-            for (const Cell& cell : tmp) {
-                chars.insert(cell.character);
-                cells.push_back(cell);
-            }
-            font.updateAtlas(chars);
-        }
-
+        Renderer::clear();
         Renderer::setWireframe(*debugData.wireframe);
 
         glm::mat4 transform = glm::scale(
             glm::translate(glm::mat4(1.0f), charsPos), glm::vec3(charsScale));
         Renderer::setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));
 
-        Renderer::drawText(cells, font, transform, program);
+        // When new terminal data appears, update font atlas for new glyphs
+        if (std::vector<Cell> tmp; atlasQueue.pop(tmp)) {
+            std::unordered_set<codepoint_t> chars(tmp.size());
+            for (const Cell& cell : tmp) {
+                chars.insert(cell.character);
+            }
+            font.updateAtlas(chars);
+        }
+        Terminal::getBuf([&](const TerminalBuf& termBuf) {
+            Renderer::drawText(termBuf.getRows(), font, transform, program);
+        });
 
         debugData.frameTimeMs = (glfwGetTime() - prevTime) * 1000;
         prevTime = glfwGetTime();
