@@ -23,36 +23,34 @@
     SPDLOG_ERROR(__VA_ARGS__);                                                 \
     kill(getppid(), SIGTERM);
 
-int Terminal::s_MasterFd;
-int Terminal::s_SlaveFd;
-pid_t Terminal::s_TermProcessPid;
-std::atomic<bool> Terminal::s_ShouldClose;
-TerminalBuf Terminal::s_Buf;
-std::shared_mutex Terminal::s_BufMutex;
+Terminal::TerminalData* Terminal::s_Data;
 
 // TODO: Divide window into terminal rows and columns
 void Terminal::open(int windowWidth, int windowHeight) {
-    if (openpty(&s_MasterFd, &s_SlaveFd, nullptr, nullptr, nullptr)) {
+    s_Data = new TerminalData();
+
+    if (openpty(&s_Data->masterFd, &s_Data->slaveFd, nullptr, nullptr,
+                nullptr)) {
         FATAL("Failed to open pty: {}", strerror(errno));
     }
 
-    if (fcntl(s_MasterFd, F_SETFD, FD_CLOEXEC) == -1) {
+    if (fcntl(s_Data->masterFd, F_SETFD, FD_CLOEXEC) == -1) {
         FATAL("Failed setting CLOEXEC for master pty");
     }
-    if (fcntl(s_SlaveFd, F_SETFD, FD_CLOEXEC) == -1) {
+    if (fcntl(s_Data->slaveFd, F_SETFD, FD_CLOEXEC) == -1) {
         FATAL("Failed setting CLOEXEC for slave pty");
     }
 
     pid_t pid = fork();
     if (pid == 0) {
         // Child process
-        if (dup2(s_SlaveFd, STDIN_FILENO) == -1) {
+        if (dup2(s_Data->slaveFd, STDIN_FILENO) == -1) {
             FATAL_CHILD("Failed piping stdin: {}", std::strerror(errno));
         }
-        if (dup2(s_SlaveFd, STDOUT_FILENO) == -1) {
+        if (dup2(s_Data->slaveFd, STDOUT_FILENO) == -1) {
             FATAL_CHILD("Failed piping stdout: {}", std::strerror(errno));
         }
-        if (dup2(s_SlaveFd, STDERR_FILENO) == -1) {
+        if (dup2(s_Data->slaveFd, STDERR_FILENO) == -1) {
             FATAL_CHILD("Failed piping stderr: {}", std::strerror(errno));
         }
 
@@ -75,7 +73,7 @@ void Terminal::open(int windowWidth, int windowHeight) {
             FATAL_CHILD("Failed creating session: {}", std::strerror(errno));
         }
 
-        if (ioctl(s_SlaveFd, TIOCSCTTY, 0) == -1) {
+        if (ioctl(s_Data->slaveFd, TIOCSCTTY, 0) == -1) {
             FATAL_CHILD("Failed setting controlling terminal: {}",
                         std::strerror(errno));
         }
@@ -93,7 +91,7 @@ void Terminal::open(int windowWidth, int windowHeight) {
         }
     } else if (pid != -1) {
         // Parent process
-        s_TermProcessPid = pid;
+        s_Data->termProcessPid = pid;
     } else {
         FATAL("Failed forking process: {}", strerror(errno));
     }
@@ -102,10 +100,12 @@ void Terminal::open(int windowWidth, int windowHeight) {
 }
 
 void Terminal::close() {
-    s_ShouldClose.store(true, std::memory_order_relaxed);
-    ::close(s_MasterFd);
-    ::close(s_SlaveFd);
-    kill(s_TermProcessPid, SIGKILL);
+    s_Data->shouldClose.store(true, std::memory_order_relaxed);
+    ::close(s_Data->masterFd);
+    ::close(s_Data->slaveFd);
+    kill(s_Data->termProcessPid, SIGKILL);
+
+    delete s_Data;
     SPDLOG_DEBUG("Closed pty");
 }
 
@@ -113,7 +113,7 @@ std::vector<uint8_t> Terminal::read() {
     constexpr size_t BUF_SIZE = 65535;
 
     std::vector<uint8_t> buf(BUF_SIZE);
-    int bytesRead = ::read(s_MasterFd, buf.data(), BUF_SIZE);
+    int bytesRead = ::read(s_Data->masterFd, buf.data(), BUF_SIZE);
 
     if (bytesRead >= 0) {
         buf.resize(bytesRead);
@@ -125,21 +125,21 @@ std::vector<uint8_t> Terminal::read() {
 }
 
 void Terminal::write(codepoint_t codepoint) {
-    ::write(s_MasterFd, &codepoint, 1);
+    ::write(s_Data->masterFd, &codepoint, 1);
     SPDLOG_TRACE("Written '{}' (0x{:x}) to terminal", (char)codepoint,
                  codepoint);
 }
 
 bool Terminal::shouldClose() {
-    return s_ShouldClose.load(std::memory_order_relaxed);
+    return s_Data->shouldClose.load(std::memory_order_relaxed);
 }
 
 void Terminal::getBuf(std::function<void(const TerminalBuf&)> cb) {
-    std::shared_lock lock(s_BufMutex);
-    cb(s_Buf);
+    std::shared_lock lock(s_Data->bufMutex);
+    cb(s_Data->buf);
 }
 
 void Terminal::getBufMut(std::function<void(TerminalBuf&)> cb) {
-    std::unique_lock lock(s_BufMutex);
-    cb(s_Buf);
+    std::unique_lock lock(s_Data->bufMutex);
+    cb(s_Data->buf);
 }

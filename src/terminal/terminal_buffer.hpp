@@ -15,6 +15,7 @@ struct Cell {
     size_t offset = 0;
 };
 
+// TODO: Ring buffer
 class TerminalBuf {
 public:
     TerminalBuf() = default;

@@ -168,7 +168,7 @@ void Application::start() {
             //
             //     i++;
             // }
-            //
+
             Renderer::drawText(termBuf.getRows(), font, transform, program);
         });
 

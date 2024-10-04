@@ -12,6 +12,17 @@
 
 class Terminal {
 public:
+    struct TerminalData {
+        // These are set on open() and not changed later, so they don't need to be atomic
+        int masterFd;
+        int slaveFd;
+        pid_t termProcessPid;
+
+        std::atomic<bool> shouldClose;
+        TerminalBuf buf;
+        std::shared_mutex bufMutex;
+    };
+
     Terminal() = delete;
     Terminal(Terminal& terminal) = delete;
     Terminal(Terminal&& terminal) = delete;
@@ -27,14 +38,7 @@ public:
     static void getBufMut(std::function<void(TerminalBuf&)> cb);
 
 private:
-    // These are set on open() and not changed later, so they don't need to be atomic
-    static int s_MasterFd;
-    static int s_SlaveFd;
-    static pid_t s_TermProcessPid;
-
-    static std::atomic<bool> s_ShouldClose;
-    static TerminalBuf s_Buf;
-    static std::shared_mutex s_BufMutex;
+    static TerminalData* s_Data;
 };
 
 class TerminalReadException : std::exception {

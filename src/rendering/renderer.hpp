@@ -9,14 +9,6 @@
 #include <glm/ext/vector_float3.hpp>
 #include <memory>
 
-struct RendererData {
-    glm::mat4 projectionMat = glm::ortho(0.0f, (float)Application::WIDTH,
-                                         -(float)Application::HEIGHT, 0.0f);
-    glm::mat4 viewMat = glm::mat4(1.0f);
-    std::vector<Cell> codes;
-    std::unique_ptr<Mesh> glyphMesh;
-};
-
 class Renderer {
 public:
     Renderer() = delete;
@@ -38,5 +30,13 @@ public:
     static void setViewMat(const glm::mat4& mat);
 
 private:
+    struct RendererData {
+        glm::mat4 projectionMat = glm::ortho(0.0f, (float)Application::WIDTH,
+                                             -(float)Application::HEIGHT, 0.0f);
+        glm::mat4 viewMat = glm::mat4(1.0f);
+        std::vector<Cell> codes;
+        std::unique_ptr<Mesh> glyphMesh;
+    };
+
     static RendererData* s_Data;
 };

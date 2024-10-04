@@ -13,7 +13,7 @@
 #include <spdlog/spdlog.h>
 #include <vector>
 
-RendererData* Renderer::s_Data;
+Renderer::RendererData* Renderer::s_Data;
 
 void Renderer::initialize() {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
