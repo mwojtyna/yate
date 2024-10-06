@@ -9,7 +9,7 @@
 class Parser {
 public:
     Parser(CsiParser&& csiParser, OscParser&& oscParser);
-    std::vector<Cell> parse(std::vector<uint8_t>& data);
+    std::vector<std::vector<Cell>> parse(std::vector<uint8_t>& data);
 
     static std::optional<uint32_t> parsePs(iter_t& it, iter_t end);
 

@@ -10,8 +10,9 @@
 Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser)
     : m_CsiParser(csiParser), m_OscParser(oscParser) {};
 
-std::vector<Cell> Parser::parse(std::vector<uint8_t>& data) {
-    std::vector<Cell> cells;
+std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
+    std::vector<std::vector<Cell>> rows;
+    rows.emplace_back();
 
     for (auto it = data.begin(); it < data.end(); it++) {
         if (*it == c0::LF || *it == c0::VT || *it == c0::FF) {
@@ -51,7 +52,7 @@ std::vector<Cell> Parser::parse(std::vector<uint8_t>& data) {
                 SPDLOG_WARN("Unsupported escape sequence 'ESC {}' in buf:",
                             (char)*it);
                 hexdump(data.data(), data.size(), SPDLOG_LEVEL_WARN);
-                return cells;
+                return rows;
             }
             }
             break;
@@ -70,7 +71,7 @@ std::vector<Cell> Parser::parse(std::vector<uint8_t>& data) {
         }
 
         default: {
-            cells.push_back(Cell{
+            rows[rows.size() - 1].push_back(Cell{
                 .bgColor = m_State.bgColor,
                 .fgColor = m_State.fgColor,
                 .character = *it,
@@ -86,6 +87,7 @@ std::vector<Cell> Parser::parse(std::vector<uint8_t>& data) {
 
             if (m_State.lineEnd) {
                 m_State.offset = 0;
+                rows.emplace_back();
             }
             m_State.lineStart = m_State.lineEnd;
             m_State.lineEnd = false;
@@ -94,7 +96,7 @@ std::vector<Cell> Parser::parse(std::vector<uint8_t>& data) {
         }
     }
 
-    return cells;
+    return rows;
 }
 
 // STATIC

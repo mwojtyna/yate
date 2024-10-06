@@ -51,32 +51,25 @@ void Application::start() {
                 SPDLOG_DEBUG("Read from terminal:");
                 HEXDUMP(rawCodes.data(), rawCodes.size());
 
-                std::vector<Cell> parsed = parser.parse(rawCodes);
+                std::vector<std::vector<Cell>> parsed = parser.parse(rawCodes);
                 if (parsed.empty()) {
                     continue;
                 }
 
-                atlasQueue.push(parsed); // TODO: Don't copy
-
-                std::vector<std::vector<Cell>> rows;
-                rows.emplace_back();
-                for (const Cell& cell : parsed) {
-                    bool lineEnd = cell.lineEnd;
-                    rows[rows.size() - 1].push_back(std::move(cell));
-                    if (lineEnd) {
-                        rows.emplace_back();
-                    }
+                for (const auto& row : parsed) {
+                    atlasQueue.push(row); // TODO: Don't copy
                 }
+
                 Terminal::getBufMut([&](TerminalBuf& termBuf) {
-                    for (size_t i = 0; i < rows.size(); i++) {
+                    for (size_t i = 0; i < parsed.size(); i++) {
                         if (!termBuf.getRows().empty() && i == 0) {
-                            auto& termBufRow =
+                            std::vector<Cell>& termBufRow =
                                 termBuf.getRow(termBuf.getRows().size() - 1);
-                            for (const Cell& cell : rows[i]) {
+                            for (const Cell& cell : parsed[i]) {
                                 termBufRow.push_back(std::move(cell));
                             }
                         } else {
-                            termBuf.pushRow(std::move(rows[i]));
+                            termBuf.pushRow(std::move(parsed[i]));
                         }
                     }
                 });
