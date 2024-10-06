@@ -61,12 +61,14 @@ void Application::start() {
                 }
 
                 Terminal::getBufMut([&](TerminalBuf& termBuf) {
+                    const auto& rows = termBuf.getRows();
                     for (size_t i = 0; i < parsed.size(); i++) {
-                        if (!termBuf.getRows().empty() && i == 0) {
-                            std::vector<Cell>& termBufRow =
+                        if (!rows.empty() && i == 0) {
+                            auto& row =
                                 termBuf.getRow(termBuf.getRows().size() - 1);
+
                             for (const Cell& cell : parsed[i]) {
-                                termBufRow.push_back(std::move(cell));
+                                row.push_back(std::move(cell));
                             }
                         } else {
                             termBuf.pushRow(std::move(parsed[i]));

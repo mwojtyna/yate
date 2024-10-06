@@ -3,7 +3,8 @@
 #include "codes.hpp"
 #include "csi_parser.hpp"
 #include "osc_parser.hpp"
-#include <cctype>
+#include "terminal.hpp"
+#include <glm/ext/vector_float2.hpp>
 #include <spdlog/fmt/bin_to_hex.h>
 #include <spdlog/spdlog.h>
 
@@ -13,6 +14,7 @@ Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser)
 std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
     std::vector<std::vector<Cell>> rows;
     rows.emplace_back();
+    glm::vec2 newCursor = Terminal::getCursor();
 
     for (auto it = data.begin(); it < data.end(); it++) {
         if (*it == c0::LF || *it == c0::VT || *it == c0::FF) {
@@ -22,6 +24,7 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
         switch (*it) {
         // Others to ignore...
         case c0::BS: {
+            newCursor.x--;
             break;
         }
 
@@ -79,14 +82,19 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
                 .lineEnd = m_State.lineEnd,
                 .offset = m_State.offset,
             });
+
             if (*it == c0::HT) {
                 m_State.offset = 0;
+                newCursor.x += 8;
             } else {
                 m_State.offset++;
+                newCursor.x++;
             }
 
             if (m_State.lineEnd) {
                 m_State.offset = 0;
+                newCursor.x = 0;
+                newCursor.y++;
                 rows.emplace_back();
             }
             m_State.lineStart = m_State.lineEnd;
@@ -95,6 +103,8 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
         }
         }
     }
+
+    Terminal::setCursor(newCursor);
 
     return rows;
 }

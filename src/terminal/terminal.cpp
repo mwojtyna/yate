@@ -1,3 +1,4 @@
+#include <shared_mutex>
 #ifdef __APPLE__
 #include <crt_externs.h>
 #include <util.h>
@@ -142,4 +143,19 @@ void Terminal::getBuf(std::function<void(const TerminalBuf&)> cb) {
 void Terminal::getBufMut(std::function<void(TerminalBuf&)> cb) {
     std::unique_lock lock(s_Data->bufMutex);
     cb(s_Data->buf);
+}
+
+void Terminal::getCursor(std::function<void(const glm::vec2&)> cb) {
+    std::shared_lock lock(s_Data->cursorMutex);
+    cb(s_Data->cursor);
+}
+
+glm::vec2 Terminal::getCursor() {
+    std::shared_lock lock(s_Data->cursorMutex);
+    return s_Data->cursor;
+}
+
+void Terminal::setCursor(glm::vec2 value) {
+    std::unique_lock lock(s_Data->cursorMutex);
+    s_Data->cursor = value;
 }

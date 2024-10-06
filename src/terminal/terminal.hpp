@@ -6,6 +6,7 @@
 #include <cstring>
 #include <exception>
 #include <functional>
+#include <glm/ext/vector_float2.hpp>
 #include <shared_mutex>
 #include <unistd.h>
 #include <vector>
@@ -21,6 +22,8 @@ public:
         std::atomic<bool> shouldClose;
         TerminalBuf buf;
         std::shared_mutex bufMutex;
+        glm::vec2 cursor;
+        std::shared_mutex cursorMutex;
     };
 
     Terminal() = delete;
@@ -36,6 +39,10 @@ public:
 
     static void getBuf(std::function<void(const TerminalBuf&)> cb);
     static void getBufMut(std::function<void(TerminalBuf&)> cb);
+
+    static void getCursor(std::function<void(const glm::vec2&)> cb);
+    static glm::vec2 getCursor();
+    static void setCursor(glm::vec2 value);
 
 private:
     static TerminalData* s_Data;

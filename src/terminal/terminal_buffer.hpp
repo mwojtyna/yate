@@ -10,7 +10,6 @@ struct Cell {
     codepoint_t character;
     bool lineStart = false;
     bool lineEnd = false;
-    bool isCursor = false;
     /// Offset since start of line
     size_t offset = 0;
 };

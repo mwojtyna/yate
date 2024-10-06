@@ -1,5 +1,6 @@
 #include "renderer.hpp"
 #include "../terminal/codes.hpp"
+#include "../terminal/terminal.hpp"
 #include "../utils.hpp"
 #include "font.hpp"
 #include "index_buffer.hpp"
@@ -49,31 +50,39 @@ void Renderer::drawText(const std::vector<std::vector<Cell>>& cells, Font& font,
     std::vector<index_t> indices;
     size_t curIndex = 0;
     glm::vec2 pen(0);
+    glm::vec2 cursor = Terminal::getCursor();
 
     const double bgOffsetY = font.getMetrics().descender;
     const glm::vec2 bgSize(font.getMetrics().max_advance,
                            font.getMetrics().height);
 
-    for (const auto& row : cells) {
-        for (const Cell& cell : row) {
-            const GlyphPos g = font.getGlyphPos(cell, pen);
+    for (size_t y = 0; y < cells.size(); y++) {
+        const auto& row = cells[y];
 
-            if (!cell.lineEnd && cell.character != c0::HT) {
+        for (size_t x = 0; x < row.size(); x++) {
+            const auto& cell = row[x];
+            const GlyphPos g = font.getGlyphPos(cell, pen);
+            const bool isCursor = y == cursor.y && x == cursor.x;
+
+            if (!cell.lineEnd && cell.character != c0::HT || isCursor) {
+                const glm::vec4 bgColor =
+                    isCursor ? glm::vec4(1) : cell.bgColor;
+
                 // Background
                 vertices.push_back(
                     {.pos = {pen.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
-                     .color = cell.bgColor,
+                     .color = bgColor,
                      .bg = true}); // left bottom
                 vertices.push_back({.pos = {pen.x + bgSize.x,
                                             pen.y + bgSize.y + bgOffsetY, 0.0f},
-                                    .color = cell.bgColor,
+                                    .color = bgColor,
                                     .bg = true}); // right bottom
                 vertices.push_back(
                     {.pos = {pen.x + bgSize.x, pen.y + bgOffsetY, 0.0f},
-                     .color = cell.bgColor,
+                     .color = bgColor,
                      .bg = true}); // right top
                 vertices.push_back({.pos = {pen.x, pen.y + bgOffsetY, 0.0f},
-                                    .color = cell.bgColor,
+                                    .color = bgColor,
                                     .bg = true}); // left top
 
                 // Background first triangle
@@ -89,20 +98,23 @@ void Renderer::drawText(const std::vector<std::vector<Cell>>& cells, Font& font,
             }
 
             // Foreground
+            const glm::vec4 fgColor =
+                isCursor ? glm::vec4(0, 0, 0, 1) : cell.fgColor;
+
             vertices.push_back({.pos = {pen.x + g.pl, pen.y + g.pb, 0.0f},
-                                .color = cell.fgColor,
+                                .color = fgColor,
                                 .uv = {g.al, g.ab},
                                 .bg = false}); // left bottom
             vertices.push_back({.pos = {pen.x + g.pr, pen.y + g.pb, 0.0f},
-                                .color = cell.fgColor,
+                                .color = fgColor,
                                 .uv = {g.ar, g.ab},
                                 .bg = false}); // right bottom
             vertices.push_back({.pos = {pen.x + g.pr, pen.y + g.pt, 0.0f},
-                                .color = cell.fgColor,
+                                .color = fgColor,
                                 .uv = {g.ar, g.at},
                                 .bg = false}); // right top
             vertices.push_back({.pos = {pen.x + g.pl, pen.y + g.pt, 0.0f},
-                                .color = cell.fgColor,
+                                .color = fgColor,
                                 .uv = {g.al, g.at},
                                 .bg = false}); // left top
 
@@ -112,6 +124,40 @@ void Renderer::drawText(const std::vector<std::vector<Cell>>& cells, Font& font,
             indices.push_back(curIndex + 3);
 
             // Foreground second triangle
+            indices.push_back(curIndex + 1);
+            indices.push_back(curIndex + 2);
+            indices.push_back(curIndex + 3);
+            curIndex += 4;
+        }
+
+        // Cursor
+        if (cursor.y == y && cursor.x >= row.size()) {
+            const Cell cursorCell = {.bgColor = glm::vec4(1)};
+            font.getGlyphPos(cursorCell, pen);
+
+            // Background
+            vertices.push_back(
+                {.pos = {pen.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
+                 .color = cursorCell.bgColor,
+                 .bg = true}); // left bottom
+            vertices.push_back(
+                {.pos = {pen.x + bgSize.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
+                 .color = cursorCell.bgColor,
+                 .bg = true}); // right bottom
+            vertices.push_back(
+                {.pos = {pen.x + bgSize.x, pen.y + bgOffsetY, 0.0f},
+                 .color = cursorCell.bgColor,
+                 .bg = true}); // right top
+            vertices.push_back({.pos = {pen.x, pen.y + bgOffsetY, 0.0f},
+                                .color = cursorCell.bgColor,
+                                .bg = true}); // left top
+
+            // Background first triangle
+            indices.push_back(curIndex + 0);
+            indices.push_back(curIndex + 1);
+            indices.push_back(curIndex + 3);
+
+            // Background second triangle
             indices.push_back(curIndex + 1);
             indices.push_back(curIndex + 2);
             indices.push_back(curIndex + 3);
