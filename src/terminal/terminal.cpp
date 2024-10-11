@@ -1,4 +1,3 @@
-#include <shared_mutex>
 #ifdef __APPLE__
 #include <crt_externs.h>
 #include <util.h>
@@ -125,10 +124,11 @@ std::vector<uint8_t> Terminal::read() {
     return buf;
 }
 
-void Terminal::write(codepoint_t codepoint) {
-    ::write(s_Data->masterFd, &codepoint, 1);
-    SPDLOG_TRACE("Written '{}' (0x{:x}) to terminal", (char)codepoint,
-                 codepoint);
+void Terminal::write(std::vector<codepoint_t>&& codepoints) {
+    ::write(s_Data->masterFd, codepoints.data(), codepoints.size());
+    SPDLOG_TRACE("Written to terminal:");
+    hexdump<codepoint_t>(codepoints.data(), codepoints.size(),
+                         SPDLOG_LEVEL_TRACE);
 }
 
 bool Terminal::shouldClose() {
@@ -153,6 +153,11 @@ void Terminal::getCursor(std::function<void(const glm::vec2&)> cb) {
 glm::vec2 Terminal::getCursor() {
     std::shared_lock lock(s_Data->cursorMutex);
     return s_Data->cursor;
+}
+
+void Terminal::getCursorMut(std::function<void(glm::vec2&)> cb) {
+    std::unique_lock lock(s_Data->cursorMutex);
+    cb(s_Data->cursor);
 }
 
 void Terminal::setCursor(glm::vec2 value) {

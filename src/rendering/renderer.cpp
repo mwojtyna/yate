@@ -130,8 +130,8 @@ void Renderer::drawText(const std::vector<std::vector<Cell>>& cells, Font& font,
             curIndex += 4;
         }
 
-        // Cursor
-        if (cursor.y == y && cursor.x >= row.size()) {
+        // Draw additional quad when cursor is at the end of the row
+        if (cursor.y == y && cursor.x == row.size()) {
             const Cell cursorCell = {.bgColor = glm::vec4(1)};
             font.getGlyphPos(cursorCell, pen);
 

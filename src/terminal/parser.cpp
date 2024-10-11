@@ -29,7 +29,7 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
         }
 
         case c0::CR: {
-            // TODO: Return cursor to line beginning
+            newCursor.x = 0;
             break;
         }
         case c0::BEL: {
@@ -82,13 +82,12 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
                 .lineEnd = m_State.lineEnd,
                 .offset = m_State.offset,
             });
+            newCursor.x++;
 
             if (*it == c0::HT) {
                 m_State.offset = 0;
-                newCursor.x += 8;
             } else {
                 m_State.offset++;
-                newCursor.x++;
             }
 
             if (m_State.lineEnd) {

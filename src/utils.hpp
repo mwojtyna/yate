@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <cstdlib>
 #include <spdlog/common.h>
 #include <spdlog/spdlog.h>
@@ -15,7 +16,36 @@
 #define HEXDUMP(ptr, len)
 #endif
 
-void hexdump(void* ptr, size_t len, int minLogLevel = SPDLOG_LEVEL_DEBUG);
+// https://stackoverflow.com/a/29865/9854703
+template <typename T = uint8_t>
+void hexdump(T* ptr, size_t len, int minLogLevel = SPDLOG_LEVEL_DEBUG) {
+    if (spdlog::get_level() > minLogLevel) {
+        return;
+    }
+
+    T* buf = (T*)ptr;
+    size_t i, j;
+    printf("len: %zu\n", len);
+    for (i = 0; i < len; i += 16) {
+        printf("%06zx: ", i);
+
+        for (j = 0; j < 16; j++) {
+            if (i + j < len) {
+                printf("%02x ", buf[i + j]);
+            } else {
+                printf("   ");
+            }
+        }
+        printf(" ");
+
+        for (j = 0; j < 16; j++) {
+            if (i + j < len) {
+                printf("%c", isprint(buf[i + j]) ? buf[i + j] : '.');
+            }
+        }
+        printf("\n");
+    }
+}
 
 // https://stackoverflow.com/a/19195373/9854703
 template <class T>

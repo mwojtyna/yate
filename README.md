@@ -46,7 +46,7 @@ Credit to https://xtermjs.org/docs/api/vtfeatures/
 | LF       | Line Feed             | \n, \x0A | Move the cursor one row down, scrolling if needed | &check; |
 | VT       | Vertical Tabulation   | \v, \x0B | Treated as LF.                                    | &cross; |
 | FF       | Form Feed             | \f, \x0C | Treated as LF.                                    | &cross; |
-| CR       | Carriage Return       | \r, \x0D | Move the cursor to the beginning of the row.      | &cross; |
+| CR       | Carriage Return       | \r, \x0D | Move the cursor to the beginning of the row.      | &check; |
 | SO       | Shift Out             | \x0E     | Switch to an alternative character set.           | &cross; |
 | SI       | Shift In              | \x0F     | Return to regular character set after Shift Out.  | &cross; |
 | ESC      | Escape                | \e, \x1B | Start of a sequence. Cancels any other sequence.  | &check; |

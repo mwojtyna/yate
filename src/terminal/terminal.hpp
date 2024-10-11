@@ -8,7 +8,6 @@
 #include <functional>
 #include <glm/ext/vector_float2.hpp>
 #include <shared_mutex>
-#include <unistd.h>
 #include <vector>
 
 class Terminal {
@@ -35,13 +34,14 @@ public:
     static void close();
     static bool shouldClose();
     static std::vector<uint8_t> read();
-    static void write(codepoint_t codepoint);
+    static void write(std::vector<codepoint_t>&& codepoints);
 
     static void getBuf(std::function<void(const TerminalBuf&)> cb);
     static void getBufMut(std::function<void(TerminalBuf&)> cb);
 
     static void getCursor(std::function<void(const glm::vec2&)> cb);
     static glm::vec2 getCursor();
+    static void getCursorMut(std::function<void(glm::vec2&)> cb);
     static void setCursor(glm::vec2 value);
 
 private:

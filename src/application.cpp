@@ -1,4 +1,5 @@
 #include "application.hpp"
+#include "GLFW/glfw3.h"
 #include "debug_ui.hpp"
 #include "rendering/font.hpp"
 #include "rendering/program.hpp"
@@ -87,7 +88,7 @@ void Application::start() {
 
     glfwSetCharCallback(m_Window, [](GLFWwindow* window, uint32_t codepoint) {
         // TODO: Translate to utf-8 uint8_t representation
-        Terminal::write(codepoint);
+        Terminal::write({codepoint});
     });
     glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scanCode,
                                     int action, int mods) {
@@ -97,11 +98,13 @@ void Application::start() {
 
         switch (key) {
         case GLFW_KEY_BACKSPACE: {
-            Terminal::write(c0::BS);
+            Terminal::write({c0::BS});
             break;
         }
         case GLFW_KEY_ENTER: {
-            Terminal::write(c0::LF);
+            Terminal::write({c0::LF});
+            break;
+        }
             break;
         }
         }

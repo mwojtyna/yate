@@ -13,7 +13,9 @@
 /// Erase from the cursor through the end of the row.
 static void eraseToEnd() {
     Terminal::getBufMut([](TerminalBuf& termBuf) {
-        termBuf.getRow(termBuf.getRows().size() - 1).pop_back();
+        glm::vec2 cursor = Terminal::getCursor();
+        std::vector<Cell>& row = termBuf.getRow(cursor.y);
+        row.erase(row.begin() + cursor.x - 1, row.end());
     });
 }
 /// Erase from the beginning of the line through the cursor.
