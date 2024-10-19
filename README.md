@@ -74,8 +74,8 @@ Credit to https://xtermjs.org/docs/api/vtfeatures/
 | CUU      | Cursor Up                             | CSI Ps A      | Move cursor Ps times up (default=1)                                                | &cross; |
 | SR       | Scroll Right                          | CSI Ps SP A   | Scroll viewport Ps times to the right                                              | &cross; |
 | CUD      | Cursor Down                           | CSI Ps B      | Move cursor Ps times down (default=1)                                              | &cross; |
-| CUF      | Cursor Forward                        | CSI Ps C      | Move cursor Ps times forward (default=1).                                          | &cross; |
-| CUB      | Cursor Backward                       | CSI Ps D      | Move cursor Ps times backward (default=1).                                         | &cross; |
+| CUF      | Cursor Forward                        | CSI Ps C      | Move cursor Ps times forward (default=1).                                          | &check; |
+| CUB      | Cursor Backward                       | CSI Ps D      | Move cursor Ps times backward (default=1).                                         | &check; |
 | CNL      | Cursor Next Line                      | CSI Ps E      | Move cursor Ps times down (default=1) and to the first column                      | &cross; |
 | CPL      | Cursor Backward                       | CSI Ps F      | Move cursor Ps times up (default=1) and to the first column                        | &cross; |
 | CHA      | Cursor Horizontal Absolute            | CSI Ps G      | Move cursor to Ps-th column of the active row (default=1).                         | &cross; |
