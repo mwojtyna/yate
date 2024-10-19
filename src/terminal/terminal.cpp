@@ -25,12 +25,13 @@
 
 Terminal::TerminalData* Terminal::s_Data;
 
-// TODO: Divide window into terminal rows and columns
 void Terminal::open(int windowWidth, int windowHeight) {
     s_Data = new TerminalData();
 
+    // TODO: Size based on window
+    struct winsize winsize = {.ws_row = 29, .ws_col = 79};
     if (openpty(&s_Data->masterFd, &s_Data->slaveFd, nullptr, nullptr,
-                nullptr)) {
+                &winsize)) {
         FATAL("Failed to open pty: {}", strerror(errno));
     }
 
@@ -85,6 +86,7 @@ void Terminal::open(int windowWidth, int windowHeight) {
         }
         envs.push_back("SHELL=/bin/bash");
         envs.push_back(nullptr);
+
         if (execve("/bin/bash", (char* const*)argv,
                    (char* const*)envs.data()) == -1) {
             FATAL_CHILD("Failed opening shell: {}", std::strerror(errno));

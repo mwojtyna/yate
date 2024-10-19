@@ -1,5 +1,4 @@
 #include "application.hpp"
-#include "GLFW/glfw3.h"
 #include "debug_ui.hpp"
 #include "rendering/font.hpp"
 #include "rendering/program.hpp"
@@ -7,6 +6,7 @@
 #include "shaders/text.frag.hpp"
 #include "shaders/text.vert.hpp"
 #include "terminal/codes.hpp"
+#include "terminal/csi_idents.hpp"
 #include "terminal/parser.hpp"
 #include "terminal/parser_setup.hpp"
 #include "terminal/terminal.hpp"
@@ -18,6 +18,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <memory>
+#include <optional>
 #include <spdlog/cfg/env.h>
 #include <spdlog/spdlog.h>
 #include <string>
@@ -65,6 +66,7 @@ void Application::start() {
                     const auto& rows = termBuf.getRows();
                     for (size_t i = 0; i < parsed.size(); i++) {
                         if (!rows.empty() && i == 0) {
+                            // Append first parsed row to last rendered row
                             auto& row =
                                 termBuf.getRow(termBuf.getRows().size() - 1);
 
@@ -72,6 +74,7 @@ void Application::start() {
                                 row.push_back(std::move(cell));
                             }
                         } else {
+                            // Push rest of parsed rows
                             termBuf.pushRow(std::move(parsed[i]));
                         }
                     }
@@ -105,6 +108,20 @@ void Application::start() {
             Terminal::write({c0::LF});
             break;
         }
+        case GLFW_KEY_RIGHT: {
+            Terminal::write(csiidents::CUF.data(std::nullopt));
+            break;
+        }
+        case GLFW_KEY_LEFT: {
+            Terminal::write(csiidents::CUB.data(std::nullopt));
+            break;
+        }
+        case GLFW_KEY_UP: {
+            Terminal::write(csiidents::CUU.data(std::nullopt));
+            break;
+        }
+        case GLFW_KEY_DOWN: {
+            Terminal::write(csiidents::CUD.data(std::nullopt));
             break;
         }
         }

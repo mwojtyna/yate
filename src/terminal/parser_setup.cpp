@@ -1,4 +1,4 @@
-#include "codes.hpp"
+#include "csi_idents.hpp"
 #include "csi_parser.hpp"
 #include "osc_parser.hpp"
 #include "parser.hpp"
@@ -52,6 +52,16 @@ Parser parser_setup(GLFWwindow* window) {
             //     break;
             // }
         }
+    });
+    csi.addHandler(csiidents::CUB, [](const std::vector<uint32_t> args) {
+        assert(args.size() == 0 || args.size() == 1);
+        uint32_t ps = args.size() > 0 ? args[0] : 1;
+        Terminal::getCursorMut([&ps](glm::vec2& cursor) { cursor.x--; });
+    });
+    csi.addHandler(csiidents::CUF, [](const std::vector<uint32_t> args) {
+        assert(args.size() == 0 || args.size() == 1);
+        uint32_t ps = args.size() > 0 ? args[0] : 1;
+        Terminal::getCursorMut([&ps](glm::vec2& cursor) { cursor.x++; });
     });
 
     OscParser osc;

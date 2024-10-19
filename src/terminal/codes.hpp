@@ -1,6 +1,5 @@
 #pragma once
 
-#include "csi_parser.hpp"
 #include <cstdint>
 
 inline constexpr uint8_t ARG_SEPARATOR = ';';
@@ -54,9 +53,3 @@ inline constexpr uint8_t PM = 0x9e;
 /// Application Program Command
 inline constexpr uint8_t APC = 0x9f;
 } // namespace c1
-
-namespace csiidents {
-/// Erase In Line
-inline constexpr CsiIdent EL = CsiIdent{
-    .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'K'};
-} // namespace csiidents

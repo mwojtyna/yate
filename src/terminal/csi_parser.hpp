@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../utils.hpp"
+#include "codes.hpp"
 #include "types.hpp"
 #include <cstdint>
 #include <functional>
@@ -12,6 +13,22 @@ struct CsiIdent {
     char final;
 
     bool operator==(const CsiIdent& rhs) const;
+    constexpr std::vector<codepoint_t> data(std::optional<uint32_t> ps) const {
+        std::vector<codepoint_t> out{c0::ESC, c0::CSI};
+
+        if (prefix.has_value()) {
+            out.push_back(prefix.value());
+        }
+        if (ps.has_value()) {
+            out.push_back(ps.value());
+        }
+        if (intermediate.has_value()) {
+            out.push_back(intermediate.value());
+        }
+        out.push_back(final);
+
+        return out;
+    }
 };
 
 template <>
