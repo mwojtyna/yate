@@ -1,3 +1,5 @@
+#include <format>
+#include <string>
 #ifdef __APPLE__
 #include <crt_externs.h>
 #include <util.h>
@@ -29,11 +31,16 @@ void Terminal::open(int windowWidth, int windowHeight) {
     s_Data = new TerminalData();
 
     // TODO: Size based on window
-    struct winsize winsize = {.ws_row = 29, .ws_col = 79};
+    struct winsize winsize = {
+        .ws_row = 29, .ws_col = 79, .ws_xpixel = 0, .ws_ypixel = 0};
     if (openpty(&s_Data->masterFd, &s_Data->slaveFd, nullptr, nullptr,
                 &winsize)) {
         FATAL("Failed to open pty: {}", strerror(errno));
     }
+
+    s_Data->ptyPath.reserve(256);
+    ptsname_r(s_Data->masterFd, const_cast<char*>(s_Data->ptyPath.c_str()),
+              256);
 
     if (fcntl(s_Data->masterFd, F_SETFD, FD_CLOEXEC) == -1) {
         FATAL("Failed setting CLOEXEC for master pty");
@@ -84,7 +91,9 @@ void Terminal::open(int windowWidth, int windowHeight) {
         for (size_t i = 0; environ[i] != nullptr; i++) {
             envs.push_back(environ[i]);
         }
-        envs.push_back("SHELL=/bin/bash");
+        envs.push_back(
+            std::format("SHELL={}", "/bin/bash" /* user->pw_shell */).c_str());
+        envs.push_back(std::format("TTY={}", s_Data->ptyPath.c_str()).c_str());
         envs.push_back(nullptr);
 
         if (execve("/bin/bash", (char* const*)argv,
@@ -126,11 +135,10 @@ std::vector<uint8_t> Terminal::read() {
     return buf;
 }
 
-void Terminal::write(std::vector<codepoint_t>&& codepoints) {
-    ::write(s_Data->masterFd, codepoints.data(), codepoints.size());
+void Terminal::write(std::vector<uint8_t>&& bytes) {
+    ::write(s_Data->masterFd, bytes.data(), bytes.size());
     SPDLOG_TRACE("Written to terminal:");
-    hexdump<codepoint_t>(codepoints.data(), codepoints.size(),
-                         SPDLOG_LEVEL_TRACE);
+    hexdump(bytes.data(), bytes.size(), SPDLOG_LEVEL_TRACE);
 }
 
 bool Terminal::shouldClose() {

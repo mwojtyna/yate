@@ -1,13 +1,14 @@
 #pragma once
 
-#include "../rendering/types.hpp"
 #include "terminal_buffer.hpp"
 #include <atomic>
+#include <cstdint>
 #include <cstring>
 #include <exception>
 #include <functional>
 #include <glm/ext/vector_float2.hpp>
 #include <shared_mutex>
+#include <string>
 #include <vector>
 
 class Terminal {
@@ -17,6 +18,7 @@ public:
         int masterFd;
         int slaveFd;
         pid_t termProcessPid;
+        std::string ptyPath;
 
         std::atomic<bool> shouldClose;
         TerminalBuf buf;
@@ -34,7 +36,7 @@ public:
     static void close();
     static bool shouldClose();
     static std::vector<uint8_t> read();
-    static void write(std::vector<codepoint_t>&& codepoints);
+    static void write(std::vector<uint8_t>&& bytes);
 
     static void getBuf(std::function<void(const TerminalBuf&)> cb);
     static void getBufMut(std::function<void(TerminalBuf&)> cb);

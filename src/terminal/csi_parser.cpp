@@ -45,7 +45,7 @@ void CsiParser::parse(iter_t& it, iter_t end) {
 
     if (m_Handlers.contains(ident)) {
         if (ps.has_value()) {
-            m_Handlers[ident](std::vector{ps.value()});
+            m_Handlers[ident]({ps.value()});
         } else {
             m_Handlers[ident](std::vector<uint32_t>());
         }

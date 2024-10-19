@@ -90,8 +90,8 @@ void Application::start() {
     });
 
     glfwSetCharCallback(m_Window, [](GLFWwindow* window, uint32_t codepoint) {
-        // TODO: Translate to utf-8 uint8_t representation
-        Terminal::write({codepoint});
+        // TODO: UTF-8
+        Terminal::write({(uint8_t)codepoint});
     });
     glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scanCode,
                                     int action, int mods) {

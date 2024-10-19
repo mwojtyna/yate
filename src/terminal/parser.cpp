@@ -14,7 +14,6 @@ Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser)
 std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
     std::vector<std::vector<Cell>> rows;
     rows.emplace_back();
-    glm::vec2 newCursor = Terminal::getCursor();
 
     for (auto it = data.begin(); it < data.end(); it++) {
         if (*it == c0::LF || *it == c0::VT || *it == c0::FF) {
@@ -24,12 +23,12 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
         switch (*it) {
         // Others to ignore...
         case c0::BS: {
-            newCursor.x--;
+            Terminal::getCursorMut([](glm::vec2& cursor) { cursor.x--; });
             break;
         }
 
         case c0::CR: {
-            newCursor.x = 0;
+            Terminal::getCursorMut([](glm::vec2& cursor) { cursor.x = 0; });
             break;
         }
         case c0::BEL: {
@@ -82,7 +81,7 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
                 .lineEnd = m_State.lineEnd,
                 .offset = m_State.offset,
             });
-            newCursor.x++;
+            Terminal::getCursorMut([](glm::vec2& cursor) { cursor.x++; });
 
             if (*it == c0::HT) {
                 m_State.offset = 0;
@@ -92,8 +91,10 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
 
             if (m_State.lineEnd) {
                 m_State.offset = 0;
-                newCursor.x = 0;
-                newCursor.y++;
+                Terminal::getCursorMut([](glm::vec2& cursor) {
+                    cursor.x = 0;
+                    cursor.y++;
+                });
                 rows.emplace_back();
             }
             m_State.lineStart = m_State.lineEnd;
@@ -102,8 +103,6 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
         }
         }
     }
-
-    Terminal::setCursor(newCursor);
 
     return rows;
 }
