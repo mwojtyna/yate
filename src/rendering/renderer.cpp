@@ -1,6 +1,7 @@
 #include "renderer.hpp"
 #include "../terminal/codes.hpp"
 #include "../terminal/terminal.hpp"
+#include "../terminal/types.hpp"
 #include "../utils.hpp"
 #include "font.hpp"
 #include "index_buffer.hpp"
@@ -50,7 +51,7 @@ void Renderer::drawText(const std::vector<std::vector<Cell>>& cells, Font& font,
     std::vector<index_t> indices;
     size_t curIndex = 0;
     glm::vec2 pen(0);
-    glm::vec2 cursor = Terminal::getCursor();
+    cursor_t cursor = Terminal::getCursor();
 
     const double bgOffsetY = font.getMetrics().descender;
     const glm::vec2 bgSize(font.getMetrics().max_advance,

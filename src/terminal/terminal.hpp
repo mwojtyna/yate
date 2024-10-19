@@ -1,12 +1,12 @@
 #pragma once
 
 #include "terminal_buffer.hpp"
+#include "types.hpp"
 #include <atomic>
 #include <cstdint>
 #include <cstring>
 #include <exception>
 #include <functional>
-#include <glm/ext/vector_float2.hpp>
 #include <shared_mutex>
 #include <string>
 #include <vector>
@@ -23,7 +23,7 @@ public:
         std::atomic<bool> shouldClose;
         TerminalBuf buf;
         std::shared_mutex bufMutex;
-        glm::vec2 cursor;
+        cursor_t cursor;
         std::shared_mutex cursorMutex;
     };
 
@@ -41,10 +41,10 @@ public:
     static void getBuf(std::function<void(const TerminalBuf&)> cb);
     static void getBufMut(std::function<void(TerminalBuf&)> cb);
 
-    static void getCursor(std::function<void(const glm::vec2&)> cb);
-    static glm::vec2 getCursor();
-    static void getCursorMut(std::function<void(glm::vec2&)> cb);
-    static void setCursor(glm::vec2 value);
+    static void getCursor(std::function<void(const cursor_t&)> cb);
+    static cursor_t getCursor();
+    static void getCursorMut(std::function<void(cursor_t&)> cb);
+    static void setCursor(cursor_t value);
 
 private:
     static TerminalData* s_Data;

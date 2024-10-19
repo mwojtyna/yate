@@ -4,7 +4,7 @@
 #include "csi_parser.hpp"
 #include "osc_parser.hpp"
 #include "terminal.hpp"
-#include <glm/ext/vector_float2.hpp>
+#include "types.hpp"
 #include <spdlog/fmt/bin_to_hex.h>
 #include <spdlog/spdlog.h>
 
@@ -23,12 +23,12 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
         switch (*it) {
         // Others to ignore...
         case c0::BS: {
-            Terminal::getCursorMut([](glm::vec2& cursor) { cursor.x--; });
+            Terminal::getCursorMut([](cursor_t& cursor) { cursor.x--; });
             break;
         }
 
         case c0::CR: {
-            Terminal::getCursorMut([](glm::vec2& cursor) { cursor.x = 0; });
+            Terminal::getCursorMut([](cursor_t& cursor) { cursor.x = 0; });
             break;
         }
         case c0::BEL: {
@@ -81,7 +81,7 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
                 .lineEnd = m_State.lineEnd,
                 .offset = m_State.offset,
             });
-            Terminal::getCursorMut([](glm::vec2& cursor) { cursor.x++; });
+            Terminal::getCursorMut([](cursor_t& cursor) { cursor.x++; });
 
             if (*it == c0::HT) {
                 m_State.offset = 0;
@@ -91,7 +91,7 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
 
             if (m_State.lineEnd) {
                 m_State.offset = 0;
-                Terminal::getCursorMut([](glm::vec2& cursor) {
+                Terminal::getCursorMut([](cursor_t& cursor) {
                     cursor.x = 0;
                     cursor.y++;
                 });

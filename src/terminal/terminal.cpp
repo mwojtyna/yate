@@ -1,5 +1,3 @@
-#include <format>
-#include <string>
 #ifdef __APPLE__
 #include <crt_externs.h>
 #include <util.h>
@@ -10,14 +8,17 @@
 
 #include "../utils.hpp"
 #include "terminal.hpp"
+#include "types.hpp"
 #include <atomic>
 #include <cerrno>
 #include <csignal>
 #include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
+#include <format>
 #include <pwd.h>
 #include <spdlog/spdlog.h>
+#include <string>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
@@ -155,22 +156,22 @@ void Terminal::getBufMut(std::function<void(TerminalBuf&)> cb) {
     cb(s_Data->buf);
 }
 
-void Terminal::getCursor(std::function<void(const glm::vec2&)> cb) {
+void Terminal::getCursor(std::function<void(const cursor_t&)> cb) {
     std::shared_lock lock(s_Data->cursorMutex);
     cb(s_Data->cursor);
 }
 
-glm::vec2 Terminal::getCursor() {
+cursor_t Terminal::getCursor() {
     std::shared_lock lock(s_Data->cursorMutex);
     return s_Data->cursor;
 }
 
-void Terminal::getCursorMut(std::function<void(glm::vec2&)> cb) {
+void Terminal::getCursorMut(std::function<void(cursor_t&)> cb) {
     std::unique_lock lock(s_Data->cursorMutex);
     cb(s_Data->cursor);
 }
 
-void Terminal::setCursor(glm::vec2 value) {
+void Terminal::setCursor(cursor_t value) {
     std::unique_lock lock(s_Data->cursorMutex);
     s_Data->cursor = value;
 }

@@ -4,8 +4,8 @@
 #include "parser.hpp"
 #include "terminal.hpp"
 #include "terminal_buffer.hpp"
+#include "types.hpp"
 #include <GLFW/glfw3.h>
-#include <glm/ext/vector_float2.hpp>
 #include <spdlog/spdlog.h>
 #include <string>
 
@@ -16,18 +16,18 @@
 /// Erase from the cursor through the end of the row.
 static void eraseToEnd() {
     Terminal::getBufMut([](TerminalBuf& termBuf) {
-        glm::vec2 cursor = Terminal::getCursor();
+        cursor_t cursor = Terminal::getCursor();
         std::vector<Cell>& row = termBuf.getRow(cursor.y);
         row.erase(row.begin() + cursor.x, row.end());
     });
 }
 /// Erase from the beginning of the line through the cursor.
 static void eraseToCursor() {
-    //
+    SPDLOG_WARN("Unimplemented EL(1)");
 }
 /// Erase complete line.
 static void eraseLine() {
-    //
+    SPDLOG_WARN("Unimplemented EL(2)");
 }
 
 // OSC
@@ -46,25 +46,25 @@ Parser parser_setup(GLFWwindow* window) {
             eraseToEnd();
             break;
         }
-            // case 1: {
-            //     eraseToCursor();
-            //     break;
-            // }
-            // case 2: {
-            //     eraseLine();
-            //     break;
-            // }
+        case 1: {
+            eraseToCursor();
+            break;
+        }
+        case 2: {
+            eraseLine();
+            break;
+        }
         }
     });
     csi.addHandler(csiidents::CUB, [](const std::vector<uint32_t> args) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 1);
-        Terminal::getCursorMut([&ps](glm::vec2& cursor) { cursor.x -= ps; });
+        Terminal::getCursorMut([&ps](cursor_t& cursor) { cursor.x -= ps; });
     });
     csi.addHandler(csiidents::CUF, [](const std::vector<uint32_t> args) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 1);
-        Terminal::getCursorMut([&ps](glm::vec2& cursor) { cursor.x += ps; });
+        Terminal::getCursorMut([&ps](cursor_t& cursor) { cursor.x += ps; });
     });
 
     OscParser osc;
