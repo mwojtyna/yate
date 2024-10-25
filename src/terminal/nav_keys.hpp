@@ -1,5 +1,6 @@
 #pragma once
 
+#include "csi_parser.hpp"
 #include <cstdint>
 #include <vector>
 
@@ -15,10 +16,25 @@ PageDown | CSI 6 ~ |
 */
 
 namespace csiidents {
-inline constexpr std::vector<uint8_t> Home();
-inline constexpr std::vector<uint8_t> Insert();
-inline constexpr std::vector<uint8_t> Delete();
-inline constexpr std::vector<uint8_t> End();
-inline constexpr std::vector<uint8_t> PageUp();
-inline constexpr std::vector<uint8_t> PageDown();
+static constexpr CsiIdent navKey{
+    .prefix = std::nullopt, .intermediate = std::nullopt, .final = '~'};
+
+inline constexpr std::vector<uint8_t> Home() {
+    return navKey.data('1');
+}
+inline constexpr std::vector<uint8_t> Insert() {
+    return navKey.data('2');
+}
+inline constexpr std::vector<uint8_t> Delete() {
+    return navKey.data('3');
+}
+inline constexpr std::vector<uint8_t> End() {
+    return navKey.data('4');
+}
+inline constexpr std::vector<uint8_t> PageUp() {
+    return navKey.data('5');
+}
+inline constexpr std::vector<uint8_t> PageDown() {
+    return navKey.data('6');
+}
 } // namespace csiidents
