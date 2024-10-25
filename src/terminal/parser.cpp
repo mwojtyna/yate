@@ -5,7 +5,6 @@
 #include "osc_parser.hpp"
 #include "terminal.hpp"
 #include "types.hpp"
-#include <spdlog/fmt/bin_to_hex.h>
 #include <spdlog/spdlog.h>
 
 Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser)
@@ -73,15 +72,25 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
         }
 
         default: {
-            rows[rows.size() - 1].push_back(Cell{
-                .bgColor = m_State.bgColor,
-                .fgColor = m_State.fgColor,
-                .character = *it,
-                .lineStart = m_State.lineStart,
-                .lineEnd = m_State.lineEnd,
-                .offset = m_State.offset,
+            Terminal::getCursorMut([&](cursor_t& cursor) {
+                Terminal::getBufMut([&](TerminalBuf& termBuf) {
+                    std::vector<Cell>& lastRow =
+                        termBuf.getRow(termBuf.getRows().size() - 1);
+                    if (cursor.x < lastRow.size()) {
+                        lastRow.erase(lastRow.begin() + cursor.x,
+                                      lastRow.end());
+                    }
+                    lastRow.push_back(Cell{
+                        .bgColor = m_State.bgColor,
+                        .fgColor = m_State.fgColor,
+                        .character = *it,
+                        .lineStart = m_State.lineStart,
+                        .lineEnd = m_State.lineEnd,
+                        .offset = m_State.offset,
+                    });
+                });
+                cursor.x++;
             });
-            Terminal::getCursorMut([](cursor_t& cursor) { cursor.x++; });
 
             if (*it == c0::HT) {
                 m_State.offset = 0;

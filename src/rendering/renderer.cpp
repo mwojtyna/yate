@@ -4,10 +4,8 @@
 #include "../terminal/types.hpp"
 #include "../utils.hpp"
 #include "font.hpp"
-#include "index_buffer.hpp"
 #include "opengl.hpp"
 #include "program.hpp"
-#include "vertex_buffer.hpp"
 #include <cstddef>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/fwd.hpp>
@@ -37,18 +35,11 @@ void Renderer::destroy() {
     SPDLOG_DEBUG("Shutdown renderer");
 }
 
-void Renderer::drawText(const std::vector<std::vector<Cell>>& cells, Font& font,
-                        const glm::mat4& transform, Program& program) {
+void Renderer::calcText(const std::vector<std::vector<Cell>>& cells,
+                        Font& font) {
+    s_Data->vertices.clear();
+    s_Data->indices.clear();
 
-    if (s_Data->glyphMesh == nullptr) {
-        // TODO: Proper cell sizing
-        s_Data->glyphMesh = std::make_unique<Mesh>(
-            Application::WIDTH * Application::HEIGHT * 4,
-            Application::WIDTH * Application::HEIGHT * 6, transform, program);
-    }
-
-    std::vector<Vertex> vertices;
-    std::vector<index_t> indices;
     size_t curIndex = 0;
     glm::vec2 pen(0);
     cursor_t cursor = Terminal::getCursor();
@@ -70,31 +61,33 @@ void Renderer::drawText(const std::vector<std::vector<Cell>>& cells, Font& font,
                     isCursor ? glm::vec4(1) : cell.bgColor;
 
                 // Background
-                vertices.push_back(
+                s_Data->vertices.push_back(
                     {.pos = {pen.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
                      .color = bgColor,
                      .bg = true}); // left bottom
-                vertices.push_back({.pos = {pen.x + bgSize.x,
-                                            pen.y + bgSize.y + bgOffsetY, 0.0f},
-                                    .color = bgColor,
-                                    .bg = true}); // right bottom
-                vertices.push_back(
+                s_Data->vertices.push_back(
+                    {.pos = {pen.x + bgSize.x, pen.y + bgSize.y + bgOffsetY,
+                             0.0f},
+                     .color = bgColor,
+                     .bg = true}); // right bottom
+                s_Data->vertices.push_back(
                     {.pos = {pen.x + bgSize.x, pen.y + bgOffsetY, 0.0f},
                      .color = bgColor,
                      .bg = true}); // right top
-                vertices.push_back({.pos = {pen.x, pen.y + bgOffsetY, 0.0f},
-                                    .color = bgColor,
-                                    .bg = true}); // left top
+                s_Data->vertices.push_back(
+                    {.pos = {pen.x, pen.y + bgOffsetY, 0.0f},
+                     .color = bgColor,
+                     .bg = true}); // left top
 
                 // Background first triangle
-                indices.push_back(curIndex + 0);
-                indices.push_back(curIndex + 1);
-                indices.push_back(curIndex + 3);
+                s_Data->indices.push_back(curIndex + 0);
+                s_Data->indices.push_back(curIndex + 1);
+                s_Data->indices.push_back(curIndex + 3);
 
                 // Background second triangle
-                indices.push_back(curIndex + 1);
-                indices.push_back(curIndex + 2);
-                indices.push_back(curIndex + 3);
+                s_Data->indices.push_back(curIndex + 1);
+                s_Data->indices.push_back(curIndex + 2);
+                s_Data->indices.push_back(curIndex + 3);
                 curIndex += 4;
             }
 
@@ -102,32 +95,36 @@ void Renderer::drawText(const std::vector<std::vector<Cell>>& cells, Font& font,
             const glm::vec4 fgColor =
                 isCursor ? glm::vec4(0, 0, 0, 1) : cell.fgColor;
 
-            vertices.push_back({.pos = {pen.x + g.pl, pen.y + g.pb, 0.0f},
-                                .color = fgColor,
-                                .uv = {g.al, g.ab},
-                                .bg = false}); // left bottom
-            vertices.push_back({.pos = {pen.x + g.pr, pen.y + g.pb, 0.0f},
-                                .color = fgColor,
-                                .uv = {g.ar, g.ab},
-                                .bg = false}); // right bottom
-            vertices.push_back({.pos = {pen.x + g.pr, pen.y + g.pt, 0.0f},
-                                .color = fgColor,
-                                .uv = {g.ar, g.at},
-                                .bg = false}); // right top
-            vertices.push_back({.pos = {pen.x + g.pl, pen.y + g.pt, 0.0f},
-                                .color = fgColor,
-                                .uv = {g.al, g.at},
-                                .bg = false}); // left top
+            s_Data->vertices.push_back(
+                {.pos = {pen.x + g.pl, pen.y + g.pb, 0.0f},
+                 .color = fgColor,
+                 .uv = {g.al, g.ab},
+                 .bg = false}); // left bottom
+            s_Data->vertices.push_back(
+                {.pos = {pen.x + g.pr, pen.y + g.pb, 0.0f},
+                 .color = fgColor,
+                 .uv = {g.ar, g.ab},
+                 .bg = false}); // right bottom
+            s_Data->vertices.push_back(
+                {.pos = {pen.x + g.pr, pen.y + g.pt, 0.0f},
+                 .color = fgColor,
+                 .uv = {g.ar, g.at},
+                 .bg = false}); // right top
+            s_Data->vertices.push_back(
+                {.pos = {pen.x + g.pl, pen.y + g.pt, 0.0f},
+                 .color = fgColor,
+                 .uv = {g.al, g.at},
+                 .bg = false}); // left top
 
             // Foreground first triangle
-            indices.push_back(curIndex + 0);
-            indices.push_back(curIndex + 1);
-            indices.push_back(curIndex + 3);
+            s_Data->indices.push_back(curIndex + 0);
+            s_Data->indices.push_back(curIndex + 1);
+            s_Data->indices.push_back(curIndex + 3);
 
             // Foreground second triangle
-            indices.push_back(curIndex + 1);
-            indices.push_back(curIndex + 2);
-            indices.push_back(curIndex + 3);
+            s_Data->indices.push_back(curIndex + 1);
+            s_Data->indices.push_back(curIndex + 2);
+            s_Data->indices.push_back(curIndex + 3);
             curIndex += 4;
         }
 
@@ -137,36 +134,45 @@ void Renderer::drawText(const std::vector<std::vector<Cell>>& cells, Font& font,
             font.getGlyphPos(cursorCell, pen);
 
             // Background
-            vertices.push_back(
+            s_Data->vertices.push_back(
                 {.pos = {pen.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
                  .color = cursorCell.bgColor,
                  .bg = true}); // left bottom
-            vertices.push_back(
+            s_Data->vertices.push_back(
                 {.pos = {pen.x + bgSize.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
                  .color = cursorCell.bgColor,
                  .bg = true}); // right bottom
-            vertices.push_back(
+            s_Data->vertices.push_back(
                 {.pos = {pen.x + bgSize.x, pen.y + bgOffsetY, 0.0f},
                  .color = cursorCell.bgColor,
                  .bg = true}); // right top
-            vertices.push_back({.pos = {pen.x, pen.y + bgOffsetY, 0.0f},
-                                .color = cursorCell.bgColor,
-                                .bg = true}); // left top
+            s_Data->vertices.push_back({.pos = {pen.x, pen.y + bgOffsetY, 0.0f},
+                                        .color = cursorCell.bgColor,
+                                        .bg = true}); // left top
 
             // Background first triangle
-            indices.push_back(curIndex + 0);
-            indices.push_back(curIndex + 1);
-            indices.push_back(curIndex + 3);
+            s_Data->indices.push_back(curIndex + 0);
+            s_Data->indices.push_back(curIndex + 1);
+            s_Data->indices.push_back(curIndex + 3);
 
             // Background second triangle
-            indices.push_back(curIndex + 1);
-            indices.push_back(curIndex + 2);
-            indices.push_back(curIndex + 3);
+            s_Data->indices.push_back(curIndex + 1);
+            s_Data->indices.push_back(curIndex + 2);
+            s_Data->indices.push_back(curIndex + 3);
             curIndex += 4;
         }
     }
+}
 
-    s_Data->glyphMesh->update(vertices, indices);
+void Renderer::drawText(const glm::mat4& transform, Program& program) {
+    if (s_Data->glyphMesh == nullptr) {
+        // TODO: Proper cell sizing
+        s_Data->glyphMesh = std::make_unique<Mesh>(
+            Application::WIDTH * Application::HEIGHT * 4,
+            Application::WIDTH * Application::HEIGHT * 6, transform, program);
+    }
+
+    s_Data->glyphMesh->update(s_Data->vertices, s_Data->indices);
     s_Data->glyphMesh->draw();
 }
 

@@ -23,4 +23,7 @@ inline constexpr CsiIdent CUU = CsiIdent{
 inline constexpr CsiIdent CUD = CsiIdent{
     .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'B'};
 
+inline constexpr CsiIdent DCH = CsiIdent{
+    .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'P'};
+
 } // namespace csiidents

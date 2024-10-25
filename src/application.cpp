@@ -43,9 +43,14 @@ void Application::start() {
     }
     glfwMakeContextCurrent(m_Window);
 
+    Renderer::initialize();
+    Renderer::setBgColor(glm::vec3(0.10f, 0.11f, 0.15f));
+    Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 16);
+
     ThreadSafeQueue<std::vector<Cell>> atlasQueue;
     Terminal::open(Application::WIDTH, Application::HEIGHT);
-    m_TerminalThread = std::make_unique<std::thread>([this, &atlasQueue]() {
+    m_TerminalThread = std::make_unique<std::thread>([this, &atlasQueue,
+                                                      &font]() {
         Parser parser = parser_setup(m_Window);
         while (!Terminal::shouldClose()) {
             try {
@@ -67,7 +72,7 @@ void Application::start() {
                     for (size_t i = 0; i < parsed.size(); i++) {
                         if (!rows.empty() && i == 0) {
                             // Append first parsed row to last rendered row
-                            auto& row =
+                            std::vector<Cell>& row =
                                 termBuf.getRow(termBuf.getRows().size() - 1);
 
                             for (const Cell& cell : parsed[i]) {
@@ -78,6 +83,8 @@ void Application::start() {
                             termBuf.pushRow(std::move(parsed[i]));
                         }
                     }
+                    // TODO: Don't recalculate all
+                    Renderer::calcText(termBuf.getRows(), font);
                 });
 
             } catch (TerminalReadException e) {
@@ -127,11 +134,6 @@ void Application::start() {
         }
     });
 
-    Renderer::initialize();
-    Renderer::setBgColor(glm::vec3(0.10f, 0.11f, 0.15f));
-
-    Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 16);
-
     Program program(textVertexShader, textFragmentShader);
 
     glm::vec3 charsPos(glm::round(-font.getMetrics().max_advance +
@@ -166,26 +168,7 @@ void Application::start() {
             }
             font.updateAtlas(chars);
         }
-        Terminal::getBuf([&](const TerminalBuf& termBuf) {
-            // const auto& rows = termBuf.getRows();
-            // for (size_t i = 0; auto& row : rows) {
-            //     std::string msg = "row ";
-            //     msg += std::to_string(i) + ": ";
-            //
-            //     for (auto& cell : row) {
-            //         if (cell.character == '\n') {
-            //             msg += "\\n";
-            //         } else {
-            //             msg += (char)cell.character;
-            //         }
-            //     }
-            //     SPDLOG_ERROR(msg.c_str());
-            //
-            //     i++;
-            // }
-
-            Renderer::drawText(termBuf.getRows(), font, transform, program);
-        });
+        Renderer::drawText(transform, program);
 
         debugData.frameTimeMs = (glfwGetTime() - prevTime) * 1000;
         prevTime = glfwGetTime();

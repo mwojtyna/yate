@@ -9,7 +9,7 @@
 #include <spdlog/spdlog.h>
 #include <string>
 
-#define DEFAULT(arr, default) arr.size() > 0 ? arr[0] : default;
+#define DEFAULT(arr, default) arr.size() > 0 ? arr[0] : default
 
 // CSI
 
@@ -28,6 +28,14 @@ static void eraseToCursor() {
 /// Erase complete line.
 static void eraseLine() {
     SPDLOG_WARN("Unimplemented EL(2)");
+}
+/// Delete n characters to the left of the cursor
+static void deleteCharacters(uint32_t n) {
+    Terminal::getBufMut([&n](TerminalBuf& termBuf) {
+        cursor_t cursor = Terminal::getCursor();
+        std::vector<Cell>& row = termBuf.getRow(cursor.y);
+        row.erase(row.begin() + cursor.x + 1 - n, row.begin() + cursor.x + 1);
+    });
 }
 
 // OSC
@@ -65,6 +73,11 @@ Parser parser_setup(GLFWwindow* window) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 1);
         Terminal::getCursorMut([&ps](cursor_t& cursor) { cursor.x += ps; });
+    });
+    csi.addHandler(csiidents::DCH, [](const std::vector<uint32_t> args) {
+        assert(args.size() == 0 || args.size() == 1);
+        uint32_t ps = DEFAULT(args, 1);
+        deleteCharacters(ps);
     });
 
     OscParser osc;
