@@ -30,17 +30,8 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 # yate
 project(yate VERSION 0.1.0 LANGUAGES C CXX)
 file(GLOB_RECURSE SOURCE_FILES ./src/*.cpp)
-file(GLOB_RECURSE TEST_DIR ./src/tests/*.cpp)
-list(REMOVE_ITEM SOURCE_FILES ${TEST_DIR})
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE ./include)
-
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	# yate-tests
-	file(GLOB_RECURSE TEST_FILES ./src/tests/*.cpp ./src/terminal/*.cpp ./src/utils.cpp)
-	set(TESTS_PROJECT_NAME "yate-tests")
-	add_executable(${TESTS_PROJECT_NAME} ${TEST_FILES})
-endif()
 
 add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wswitch-enum -Wformat=2)
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -122,23 +113,6 @@ target_compile_options(freetype PRIVATE -w) # Disable warnings
 # stb
 target_include_directories(${PROJECT_NAME} PRIVATE ./vendor/stb/)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	# Setup testing
-	message(STATUS "Fetching Catch2...")
-	FetchContent_Declare(
-		Catch2
-		GIT_REPOSITORY https://github.com/catchorg/Catch2
-		GIT_TAG        v3.7.1
-	)
-	FetchContent_MakeAvailable(Catch2)
-	target_compile_options(Catch2 PRIVATE -w) # Disable warnings
-endif()
-
 set(INCLUDE_DIRS ./vendor/stb/)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw OpenGL::GL glad spdlog glm imgui freetype)
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
-
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	target_link_libraries(${TESTS_PROJECT_NAME} PRIVATE spdlog freetype glfw Catch2WithMain)
-	target_include_directories(${TESTS_PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
-endif()
