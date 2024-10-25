@@ -74,13 +74,11 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
         default: {
             Terminal::getCursorMut([&](cursor_t& cursor) {
                 Terminal::getBufMut([&](TerminalBuf& termBuf) {
-                    std::vector<Cell>& lastRow =
-                        termBuf.getRow(termBuf.getRows().size() - 1);
-                    if (cursor.x < lastRow.size()) {
-                        lastRow.erase(lastRow.begin() + cursor.x,
-                                      lastRow.end());
+                    std::vector<Cell>& row = termBuf.getRow(cursor.y);
+                    if (*it != c0::LF && cursor.x < row.size()) {
+                        row.erase(row.begin() + cursor.x, row.end());
                     }
-                    lastRow.push_back(Cell{
+                    row.push_back(Cell{
                         .bgColor = m_State.bgColor,
                         .fgColor = m_State.fgColor,
                         .character = *it,
