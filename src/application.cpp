@@ -7,6 +7,8 @@
 #include "shaders/text.vert.hpp"
 #include "terminal/codes.hpp"
 #include "terminal/csi_idents.hpp"
+#include "terminal/nav_keys.cpp"
+#include "terminal/nav_keys.hpp"
 #include "terminal/parser.hpp"
 #include "terminal/parser_setup.hpp"
 #include "terminal/terminal.hpp"
@@ -129,6 +131,30 @@ void Application::start() {
         }
         case GLFW_KEY_DOWN: {
             Terminal::write(csiidents::CUD.data(std::nullopt));
+            break;
+        }
+        case GLFW_KEY_HOME: {
+            Terminal::write(csiidents::Home());
+            break;
+        }
+        case GLFW_KEY_END: {
+            Terminal::write(csiidents::End());
+            break;
+        }
+        case GLFW_KEY_PAGE_UP: {
+            Terminal::write(csiidents::PageUp());
+            break;
+        }
+        case GLFW_KEY_PAGE_DOWN: {
+            Terminal::write(csiidents::PageDown());
+            break;
+        }
+        case GLFW_KEY_INSERT: {
+            Terminal::write(csiidents::Insert());
+            break;
+        }
+        case GLFW_KEY_DELETE: {
+            Terminal::write(csiidents::Delete());
             break;
         }
         }
