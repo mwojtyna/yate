@@ -87,7 +87,7 @@ Credit to https://xtermjs.org/docs/api/vtfeatures/
 | DECSEL   | Selective Erase In Line               | CSI ? Ps K    | Same as EL with respecting protecting flag.                                        | &cross; |
 | IL       | Insert Line                           | CSI Ps L      | Insert Ps blank lines at active row (default=1)                                    | &cross; |
 | DL       | Delete Line                           | CSI Ps M      | Delete Ps lines at active row (default=1)                                          | &cross; |
-| DCH      | Delete Character                      | CSI Ps P      | Delete Ps characters (default=1)                                                   | &cross; |
+| DCH      | Delete Character                      | CSI Ps P      | Delete Ps characters (default=1)                                                   | &check; |
 | SU       | Scroll Up                             | CSI Ps S      | Scroll Ps lines up (default=1).                                                    | &cross; |
 | SD       | Scroll Down                           | CSI Ps T      | Scroll Ps lines down (default=1).                                                  | &cross; |
 | ECH      | Erase Character                       | CSI Ps X      | Erase Ps characters from current cursor position to the right (default=1)          | &cross; |
