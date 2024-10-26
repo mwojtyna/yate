@@ -17,6 +17,7 @@ void InputHandler::setupHandlers() {
             return;
         }
 
+        // Handle normal keys
         switch (key) {
         case GLFW_KEY_BACKSPACE: {
             Terminal::write({c0::BS});
@@ -66,6 +67,10 @@ void InputHandler::setupHandlers() {
             Terminal::write(csiidents::Delete());
             break;
         }
+        }
+
+        if (mods == GLFW_MOD_CONTROL) {
+            Terminal::write({static_cast<uint8_t>(0x1 + key - 'A')});
         }
     });
 }
