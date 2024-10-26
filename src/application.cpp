@@ -64,10 +64,10 @@ void Application::start() {
                 if (codepoints.empty()) {
                     continue;
                 }
+
                 for (const codepoint_t c : codepoints) {
                     atlasQueue.push(c);
                 }
-
                 Terminal::getBuf([&font](const TerminalBuf& termBuf) {
                     // TODO: Don't recalculate all
                     Renderer::makeTextMesh(termBuf.getRows(), font);
@@ -110,11 +110,16 @@ void Application::start() {
         Renderer::setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));
 
         // When new terminal data appears, update font atlas for new glyphs
-        if (codepoint_t tmp; atlasQueue.pop(tmp)) {
-            codepoints.insert(tmp);
+        if (codepoint_t c; atlasQueue.pop(c)) {
+            codepoints.insert(c);
         }
-        font.updateAtlas(codepoints);
-        codepoints.clear();
+        if (!codepoints.empty()) {
+            font.updateAtlas(codepoints);
+            codepoints.clear();
+            Terminal::getBuf([&font](const TerminalBuf& termBuf) {
+                Renderer::makeTextMesh(termBuf.getRows(), font);
+            });
+        }
 
         Renderer::drawText(transform, program);
 
