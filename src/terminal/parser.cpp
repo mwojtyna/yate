@@ -10,9 +10,9 @@
 Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser)
     : m_CsiParser(csiParser), m_OscParser(oscParser) {};
 
-std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
-    std::vector<std::vector<Cell>> rows;
-    rows.emplace_back();
+std::vector<codepoint_t>
+Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
+    std::vector<codepoint_t> codepoints(data.size());
 
     for (auto it = data.begin(); it < data.end(); it++) {
         if (*it == c0::LF || *it == c0::VT || *it == c0::FF) {
@@ -53,7 +53,6 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
                 SPDLOG_WARN("Unsupported escape sequence 'ESC {}' in buf:",
                             (char)*it);
                 hexdump(data.data(), data.size(), SPDLOG_LEVEL_WARN);
-                return rows;
             }
             }
             break;
@@ -72,20 +71,31 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
         }
 
         default: {
+            codepoints.push_back(*it);
+
             Terminal::getCursorMut([&](cursor_t& cursor) {
                 Terminal::getBufMut([&](TerminalBuf& termBuf) {
-                    std::vector<Cell>& row = termBuf.getRow(cursor.y);
-                    if (*it != c0::LF && cursor.x < row.size()) {
-                        row.erase(row.begin() + cursor.x, row.end());
-                    }
-                    row.push_back(Cell{
+                    const Cell newCell = Cell{
                         .bgColor = m_State.bgColor,
                         .fgColor = m_State.fgColor,
                         .character = *it,
                         .lineStart = m_State.lineStart,
                         .lineEnd = m_State.lineEnd,
                         .offset = m_State.offset,
-                    });
+                    };
+
+                    if (!termBuf.getRows().empty()) {
+                        std::vector<Cell>& row =
+                            termBuf.getRow(termBuf.getRows().size() - 1);
+
+                        if (*it != c0::LF && cursor.x < row.size()) {
+                            row.erase(row.begin() + cursor.x, row.end());
+                        }
+
+                        row.push_back(std::move(newCell));
+                    } else {
+                        termBuf.pushRow({std::move(newCell)});
+                    }
                 });
                 cursor.x++;
             });
@@ -102,7 +112,8 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
                     cursor.x = 0;
                     cursor.y++;
                 });
-                rows.emplace_back();
+                Terminal::getBufMut(
+                    [&](TerminalBuf& termBuf) { termBuf.pushRow({}); });
             }
             m_State.lineStart = m_State.lineEnd;
             m_State.lineEnd = false;
@@ -111,7 +122,7 @@ std::vector<std::vector<Cell>> Parser::parse(std::vector<uint8_t>& data) {
         }
     }
 
-    return rows;
+    return codepoints;
 }
 
 // STATIC

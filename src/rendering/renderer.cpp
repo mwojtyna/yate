@@ -35,8 +35,8 @@ void Renderer::destroy() {
     SPDLOG_DEBUG("Shutdown renderer");
 }
 
-void Renderer::calcText(const std::vector<std::vector<Cell>>& cells,
-                        Font& font) {
+void Renderer::makeTextMesh(const std::vector<std::vector<Cell>>& cells,
+                            Font& font) {
     s_Data->vertices.clear();
     s_Data->indices.clear();
 

@@ -16,7 +16,7 @@ PageDown | CSI 6 ~ |
 */
 
 namespace csiidents {
-static constexpr CsiIdent navKey{
+inline constexpr CsiIdent navKey{
     .prefix = std::nullopt, .intermediate = std::nullopt, .final = '~'};
 
 inline constexpr std::vector<uint8_t> Home() {

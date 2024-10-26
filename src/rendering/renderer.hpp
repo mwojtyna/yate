@@ -18,8 +18,8 @@ public:
     static void initialize();
     static void destroy();
 
-    static void calcText(const std::vector<std::vector<Cell>>& cells,
-                         Font& font);
+    static void makeTextMesh(const std::vector<std::vector<Cell>>& cells,
+                             Font& font);
     static void drawText(const glm::mat4& transform, Program& program);
     static void setWireframe(const bool enabled);
     static void setBgColor(const glm::vec3& color);
