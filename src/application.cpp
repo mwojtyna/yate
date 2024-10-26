@@ -114,11 +114,13 @@ void Application::start() {
             codepoints.insert(c);
         }
         if (!codepoints.empty()) {
-            font.updateAtlas(codepoints);
+            bool anyNew = font.updateAtlas(codepoints);
             codepoints.clear();
-            Terminal::getBuf([&font](const TerminalBuf& termBuf) {
-                Renderer::makeTextMesh(termBuf.getRows(), font);
-            });
+            if (anyNew) {
+                Terminal::getBuf([&font](const TerminalBuf& termBuf) {
+                    Renderer::makeTextMesh(termBuf.getRows(), font);
+                });
+            }
         }
 
         Renderer::drawText(transform, program);

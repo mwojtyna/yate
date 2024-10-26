@@ -44,7 +44,9 @@ Font::~Font() {
     SPDLOG_DEBUG("Destroyed font '{}'", m_Path.c_str());
 }
 
-void Font::updateAtlas(std::unordered_set<codepoint_t>& codepoints) {
+/// Returns: true if any codepoints were new, false if not
+bool Font::updateAtlas(std::unordered_set<codepoint_t>& codepoints) {
+    bool anyNew = false;
     FT_Error error = 0;
 
     // Filter out already rendered glyphs
@@ -52,10 +54,11 @@ void Font::updateAtlas(std::unordered_set<codepoint_t>& codepoints) {
     for (codepoint_t c : codepoints) {
         if (!m_CodepointToGeometry.contains(c)) {
             newCodepoints.insert(c);
+            anyNew = true;
         }
     }
     if (newCodepoints.empty()) {
-        return;
+        return false;
     }
 
     size_t numGlyphs = m_CodepointToGeometry.size() + newCodepoints.size();
@@ -115,6 +118,7 @@ void Font::updateAtlas(std::unordered_set<codepoint_t>& codepoints) {
     }
 
     SPDLOG_DEBUG("Generated {}x{} font atlas", atlasSize, atlasSize);
+    return anyNew;
 }
 
 GlyphPos Font::getGlyphPos(const Cell& cell, glm::vec2& pen) {

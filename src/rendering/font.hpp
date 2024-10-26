@@ -18,7 +18,7 @@ public:
     Font(std::filesystem::path path, float size);
     ~Font();
 
-    void updateAtlas(std::unordered_set<codepoint_t>& codepoints);
+    bool updateAtlas(std::unordered_set<codepoint_t>& codepoints);
     GlyphPos getGlyphPos(const Cell& cell, glm::vec2& pen);
 
     FT_Size_Metrics getMetrics() const;
