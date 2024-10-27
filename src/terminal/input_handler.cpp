@@ -1,4 +1,5 @@
 #include "input_handler.hpp"
+#include "../debug_ui.hpp"
 #include "codes.hpp"
 #include "csi_idents.hpp"
 #include "nav_keys.hpp"
@@ -67,10 +68,19 @@ void InputHandler::setupHandlers() {
             Terminal::write(csiidents::Delete());
             break;
         }
+        case GLFW_KEY_F12: {
+#ifndef NDEBUG
+            DebugUI::toggle();
+#endif
+            break;
+        }
         }
 
-        if (mods == GLFW_MOD_CONTROL) {
+        switch (mods) {
+        case GLFW_MOD_CONTROL: {
             Terminal::write({static_cast<uint8_t>(0x1 + key - 'A')});
+            break;
+        }
         }
     });
 }

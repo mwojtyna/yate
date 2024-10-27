@@ -8,17 +8,17 @@
 #include <imgui_impl_opengl3.h>
 #include <spdlog/spdlog.h>
 
-ImGuiIO DebugUI::m_IO;
-bool DebugUI::m_ShowDemoWindow = false;
+ImGuiIO DebugUI::s_IO;
+bool DebugUI::s_ShowDemoWindow = false;
 
 void DebugUI::initialize(GLFWwindow* window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    m_IO = ImGui::GetIO();
-    m_IO.ConfigFlags |=
+    s_IO = ImGui::GetIO();
+    s_IO.ConfigFlags |=
         ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-    m_IO.Fonts->AddFontDefault();
-    m_IO.Fonts->Build();
+    s_IO.Fonts->AddFontDefault();
+    s_IO.Fonts->Build();
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init();
@@ -34,6 +34,10 @@ void DebugUI::destroy() {
 }
 
 void DebugUI::draw(DebugUI::DebugData& data) {
+    if (!s_ShowDemoWindow) {
+        return;
+    }
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -46,20 +50,24 @@ void DebugUI::draw(DebugUI::DebugData& data) {
         ImGui::Begin(title);
 
         ImGui::SeparatorText("Characters");
-        ImGui::SliderFloat2("position###charPos", &data.charsPos->x,
+        ImGui::SliderFloat2("position###charPos", &data.charsPos.x,
                             -Application::WIDTH * 2, Application::WIDTH * 2);
-        ImGui::SliderFloat("scale###charScale", data.charsScale, 0.0f, 50.0f);
+        ImGui::SliderFloat("scale###charScale", &data.charsScale, 0.0f, 50.0f);
 
         ImGui::SeparatorText("Camera");
-        ImGui::SliderFloat2("position###camPos", &data.cameraPos->x,
+        ImGui::SliderFloat2("position###camPos", &data.cameraPos.x,
                             -Application::WIDTH, Application::WIDTH);
 
         ImGui::Separator();
-        ImGui::Checkbox("wireframe", data.wireframe);
+        ImGui::Checkbox("wireframe", &data.wireframe);
 
         ImGui::End();
     }
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void DebugUI::toggle() {
+    s_ShowDemoWindow = !s_ShowDemoWindow;
 }
