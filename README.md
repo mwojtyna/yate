@@ -39,13 +39,13 @@ Credit to https://xtermjs.org/docs/api/vtfeatures/
 
 | Mnemonic | Name                  | Sequence | Short Description                                 | Support |
 | -------- | --------------------- | -------- | ------------------------------------------------- | ------- |
-| NUL      | Null                  | \0, \x00 | NUL is ignored.                                   | &cross; |
+| NUL      | Null                  | \0, \x00 | NUL is ignored.                                   | &check; |
 | BEL      | Bell                  | \a, \x07 | Ring the bell                                     | &cross; |
-| BS       | Backspace             | \b, \x08 | Move the cursor one position to the left          | &cross; |
+| BS       | Backspace             | \b, \x08 | Move the cursor one position to the left          | &check; |
 | HT       | Horizontal Tabulation | \t, \x09 | Move the cursor to the next character tab stop.   | &check; |
 | LF       | Line Feed             | \n, \x0A | Move the cursor one row down, scrolling if needed | &check; |
-| VT       | Vertical Tabulation   | \v, \x0B | Treated as LF.                                    | &cross; |
-| FF       | Form Feed             | \f, \x0C | Treated as LF.                                    | &cross; |
+| VT       | Vertical Tabulation   | \v, \x0B | Treated as LF.                                    | &check; |
+| FF       | Form Feed             | \f, \x0C | Treated as LF.                                    | &check; |
 | CR       | Carriage Return       | \r, \x0D | Move the cursor to the beginning of the row.      | &check; |
 | SO       | Shift Out             | \x0E     | Switch to an alternative character set.           | &cross; |
 | SI       | Shift In              | \x0F     | Return to regular character set after Shift Out.  | &cross; |
@@ -83,7 +83,7 @@ Credit to https://xtermjs.org/docs/api/vtfeatures/
 | CHT      | Cursor Horizontal Tabulation          | CSI Ps I      | Move cursor Ps times tabs forward (default=1).                                     | &cross; |
 | ED       | Erase In Display                      | CSI Ps J      | Erase various parts of the viewport                                                | &cross; |
 | DECSED   | Selective Erase In Display            | CSI ? Ps J    | Same as ED with respecting protection flag.                                        | &cross; |
-| EL       | Erase In Line                         | CSI Ps K      | Erase various parts of the active row                                              | &cross; |
+| EL       | Erase In Line                         | CSI Ps K      | Erase various parts of the active row                                              | &minus; |
 | DECSEL   | Selective Erase In Line               | CSI ? Ps K    | Same as EL with respecting protecting flag.                                        | &cross; |
 | IL       | Insert Line                           | CSI Ps L      | Insert Ps blank lines at active row (default=1)                                    | &cross; |
 | DL       | Delete Line                           | CSI Ps M      | Delete Ps lines at active row (default=1)                                          | &cross; |
