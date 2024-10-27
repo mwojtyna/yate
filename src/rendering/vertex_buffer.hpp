@@ -8,14 +8,15 @@
 
 struct Vertex {
     glm::vec3 pos;
-    glm::vec3 color;
+    glm::vec4 color;
     glm::vec2 uv;
+    GLint bg;
 };
 
 class VertexBuffer {
 public:
     VertexBuffer() = delete;
-    VertexBuffer(const GLsizei count);
+    VertexBuffer(const GLsizei maxCount);
     ~VertexBuffer();
 
     void bind() const;

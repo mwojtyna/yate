@@ -12,7 +12,7 @@ class Mesh {
 public:
     Mesh() = delete;
     Mesh(const GLsizei verticesCount, const GLsizei indicesCount,
-         glm::mat4& transform, Program& program);
+         const glm::mat4& transform, Program& program);
     ~Mesh();
 
     void draw() const;
@@ -23,6 +23,6 @@ private:
     std::unique_ptr<VertexBuffer> m_Vb;
     std::unique_ptr<IndexBuffer> m_Ib;
 
-    glm::mat4& m_Transform;
+    const glm::mat4& m_Transform;
     Program& m_Program;
 };

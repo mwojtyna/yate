@@ -8,12 +8,14 @@ bool Atlas::initialized() const {
     return m_TexId != 0;
 }
 
-void Atlas::newTarget(size_t width, size_t height, size_t numRects) {
+void Atlas::newTarget(size_t width, size_t height, size_t capacity) {
+    assert(capacity <= CAPACITY);
+
     if (initialized()) {
         glCall(glDeleteTextures(1, &m_TexId));
     }
 
-    stbrp_init_target(&m_Context, width, height, m_Nodes, numRects);
+    stbrp_init_target(&m_Context, width, height, m_Nodes, capacity);
     glCall(glGenTextures(1, &m_TexId));
     glCall(glBindTexture(GL_TEXTURE_2D, m_TexId));
     glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
