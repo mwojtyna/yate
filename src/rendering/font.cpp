@@ -142,7 +142,7 @@ GlyphPos Font::getGlyphPos(const Cell& cell, glm::vec2& pen) {
     if (cell.lineEnd) {
         pen.x = 0;
         advance.x = 0;
-        advance.y = -fracToPx(m_Font->size->metrics.height);
+        advance.y = -getMetricsInPx().height;
         gp.pl = 0;
         gp.pt = 0;
         gp.pr = 0;
@@ -162,7 +162,7 @@ GlyphPos Font::getGlyphPos(const Cell& cell, glm::vec2& pen) {
     return gp;
 }
 
-FT_Size_Metrics Font::getMetrics() const {
+FT_Size_Metrics Font::getMetricsInPx() const {
     FT_Size_Metrics metrics = m_Font->size->metrics;
     metrics.ascender = fracToPx(metrics.ascender);
     metrics.descender = fracToPx(metrics.descender);

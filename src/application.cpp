@@ -85,9 +85,9 @@ void Application::start() {
     });
 
     // Render loop variables
-    glm::vec3 charsPos(glm::round(-font.getMetrics().max_advance +
-                                  font.getMetrics().max_advance * 0.25),
-                       -font.getMetrics().ascender, 0);
+    glm::vec3 charsPos(glm::round(-font.getMetricsInPx().max_advance +
+                                  font.getMetricsInPx().max_advance * 0.25),
+                       -font.getMetricsInPx().ascender, 0);
     float charsScale = 1.0f;
     glm::vec3 cameraPos(0);
     bool wireframe = false;
@@ -112,7 +112,7 @@ void Application::start() {
                 return;
             }
 
-            auto metrics = font.getMetrics();
+            auto metrics = font.getMetricsInPx();
             // Subtract initial charsPos.y
             while (rows * metrics.height - metrics.ascender >
                    Application::HEIGHT + charsPos.y) {

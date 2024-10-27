@@ -44,9 +44,9 @@ void Renderer::makeTextMesh(const std::vector<std::vector<Cell>>& cells,
     glm::vec2 pen(0);
     cursor_t cursor = Terminal::getCursor();
 
-    const double bgOffsetY = font.getMetrics().descender;
-    const glm::vec2 bgSize(font.getMetrics().max_advance,
-                           font.getMetrics().height);
+    const double bgOffsetY = font.getMetricsInPx().descender;
+    const glm::vec2 bgSize(font.getMetricsInPx().max_advance,
+                           font.getMetricsInPx().height);
 
     for (size_t y = 0; y < cells.size(); y++) {
         const auto& row = cells[y];

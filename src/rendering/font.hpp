@@ -21,7 +21,7 @@ public:
     bool updateAtlas(std::unordered_set<codepoint_t>& codepoints);
     GlyphPos getGlyphPos(const Cell& cell, glm::vec2& pen);
 
-    FT_Size_Metrics getMetrics() const;
+    FT_Size_Metrics getMetricsInPx() const;
     float getSize() const;
     static double fracToPx(double value);
 
