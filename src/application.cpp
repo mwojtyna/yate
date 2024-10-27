@@ -41,12 +41,13 @@ void Application::start() {
     }
     glfwMakeContextCurrent(m_Window);
 
-    InputHandler inputHandler(m_Window);
-    inputHandler.setupHandlers();
-
     Renderer::initialize();
     Renderer::setBgColor(glm::vec3(0.10f, 0.11f, 0.15f));
+    Program program(textVertexShader, textFragmentShader);
     Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 16);
+    DebugUI::initialize(m_Window);
+    InputHandler inputHandler(m_Window);
+    inputHandler.setupHandlers();
 
     ThreadSafeQueue<codepoint_t> atlasQueue;
     Terminal::open(Application::WIDTH, Application::HEIGHT);
@@ -83,28 +84,42 @@ void Application::start() {
         SPDLOG_DEBUG("Terminal thread finished");
     });
 
-    Program program(textVertexShader, textFragmentShader);
-
+    // Render loop variables
     glm::vec3 charsPos(glm::round(-font.getMetrics().max_advance +
                                   font.getMetrics().max_advance * 0.25),
-                       glm::round(-font.getMetrics().height), 0);
+                       -font.getMetrics().ascender, 0);
     float charsScale = 1.0f;
     glm::vec3 cameraPos(0);
     bool wireframe = false;
     double prevTime = glfwGetTime();
     auto debugData = DebugUI::DebugData{.frameTimeMs = 0,
-                                        .charsPos = &charsPos,
-                                        .charsScale = &charsScale,
-                                        .cameraPos = &cameraPos,
-                                        .wireframe = &wireframe};
-    DebugUI::initialize(m_Window);
+                                        .charsPos = charsPos,
+                                        .charsScale = charsScale,
+                                        .cameraPos = cameraPos,
+                                        .wireframe = wireframe};
+    std::unordered_set<codepoint_t> codepoints(atlasQueue.size());
+    size_t prevRows = 0;
 
     SPDLOG_INFO("Application started");
-
-    std::unordered_set<codepoint_t> codepoints(atlasQueue.size());
     while (!glfwWindowShouldClose(m_Window)) {
         Renderer::clear();
-        Renderer::setWireframe(*debugData.wireframe);
+        Renderer::setWireframe(debugData.wireframe);
+
+        // Scroll down when necessary
+        Terminal::getBuf([&](const TerminalBuf& termBuf) {
+            size_t rows = termBuf.getRows().size();
+            if (rows == prevRows) {
+                return;
+            }
+
+            auto metrics = font.getMetrics();
+            // Subtract initial charsPos.y
+            while (rows * metrics.height - metrics.ascender >
+                   Application::HEIGHT + charsPos.y) {
+                charsPos.y += metrics.height;
+            }
+            prevRows = rows;
+        });
 
         glm::mat4 transform = glm::scale(
             glm::translate(glm::mat4(1.0f), charsPos), glm::vec3(charsScale));
