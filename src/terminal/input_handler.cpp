@@ -68,6 +68,11 @@ void InputHandler::setupHandlers() {
             Terminal::write(csiidents::Delete());
             break;
         }
+        case GLFW_KEY_TAB: {
+            Terminal::write({c0::HT});
+            break;
+        }
+
         case GLFW_KEY_F12: {
 #ifndef NDEBUG
             DebugUI::toggle();
