@@ -34,7 +34,7 @@ static void deleteCharacters(uint32_t n) {
     Terminal::getBufMut([&n](TerminalBuf& termBuf) {
         cursor_t cursor = Terminal::getCursor();
         std::vector<Cell>& row = termBuf.getRow(cursor.y);
-        row.erase(row.begin() + cursor.x + 1 - n, row.begin() + cursor.x + 1);
+        row.erase(row.begin() + cursor.x, row.begin() + cursor.x + n);
     });
 }
 

@@ -68,6 +68,7 @@ void Application::start() {
                 for (const codepoint_t c : codepoints) {
                     atlasQueue.push(c);
                 }
+
                 Terminal::getBuf([&font](const TerminalBuf& termBuf) {
                     // TODO: Don't recalculate all
                     Renderer::makeTextMesh(termBuf.getRows(), font);
@@ -115,12 +116,12 @@ void Application::start() {
         }
         if (!codepoints.empty()) {
             bool anyNew = font.updateAtlas(codepoints);
-            codepoints.clear();
             if (anyNew) {
                 Terminal::getBuf([&font](const TerminalBuf& termBuf) {
                     Renderer::makeTextMesh(termBuf.getRows(), font);
                 });
             }
+            codepoints.clear();
         }
 
         Renderer::drawText(transform, program);
