@@ -20,7 +20,10 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
         }
 
         switch (*it) {
-        // Others to ignore...
+        case c0::NUL: {
+            continue;
+        }
+
         case c0::BS: {
             Terminal::getCursorMut([](cursor_t& cursor) { cursor.x--; });
             break;
