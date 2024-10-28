@@ -24,8 +24,8 @@ void CsiParser::parse(iter_t& it, iter_t end) {
     }
     SPDLOG_TRACE("CSI:prefix = {}", optionalToString(prefix));
 
-    std::optional<uint32_t> ps = Parser::parsePs(it, end);
-    SPDLOG_TRACE("CSI:Ps = {}", optionalToString(ps));
+    const std::vector<uint32_t> ps = Parser::parsePs(it, end);
+    SPDLOG_TRACE("CSI:Ps = {}", vectorToString(ps));
 
     std::optional<char> intermediate = std::nullopt;
     if (!std::isdigit(*it) && !std::isalpha(*it)) {
@@ -34,25 +34,25 @@ void CsiParser::parse(iter_t& it, iter_t end) {
     }
     SPDLOG_TRACE("CSI:intermediate = {}", optionalToString(intermediate));
 
-    char final = *it;
+    const char final = *it;
     SPDLOG_TRACE("CSI:final = {}", final);
 
-    CsiIdent ident = CsiIdent{
+    const CsiIdent ident = CsiIdent{
         .prefix = prefix,
         .intermediate = intermediate,
         .final = final,
     };
 
     if (m_Handlers.contains(ident)) {
-        if (ps.has_value()) {
-            m_Handlers[ident]({ps.value()});
+        if (!ps.empty()) {
+            m_Handlers[ident](ps);
         } else {
             m_Handlers[ident](std::vector<uint32_t>());
         }
     } else {
         SPDLOG_WARN("Unsupported CSI sequence with: prefix={}, Ps={}, "
                     "intermediate={}, final={}",
-                    optionalToString(prefix), optionalToString(ps),
+                    optionalToString(prefix), vectorToString(ps),
                     optionalToString(intermediate), final);
     }
 }

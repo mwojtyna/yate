@@ -129,18 +129,29 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
 }
 
 // STATIC
-std::optional<uint32_t> Parser::parsePs(iter_t& it, iter_t end) {
-    std::string digits = "";
-    for (; it < end; it++) {
-        if (!std::isdigit(*it)) {
-            if (digits != "") {
-                return std::stoi(digits);
-            } else {
-                return std::nullopt;
-            }
+std::vector<uint32_t> Parser::parsePs(iter_t& it, iter_t end) {
+    std::vector<std::string> argsString;
+
+    for (uint8_t argIdx = 0; it < end; it++) {
+        if (*it == ARG_SEPARATOR) {
+            argIdx++;
+            continue;
         }
-        digits += *it;
+        // If we have gone past the Ps array
+        if (!std::isdigit(*it)) {
+            std::vector<uint32_t> args(argsString.size());
+            for (uint8_t i = 0; i < argsString.size(); i++) {
+                args[i] = std::stoi(argsString[i]);
+            }
+            return args;
+        }
+
+        // Add new argument to list if argIdx has been incremented
+        if (argsString.empty() || argsString.size() - 1 < argIdx) {
+            argsString.push_back("");
+        }
+        argsString[argIdx] += *it;
     }
 
-    return std::nullopt;
+    return {};
 }

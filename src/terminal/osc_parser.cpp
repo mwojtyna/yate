@@ -1,16 +1,23 @@
 #include "osc_parser.hpp"
+#include "../utils.hpp"
 #include "codes.hpp"
-#include "parser.hpp"
 #include "types.hpp"
 #include <spdlog/fmt/bin_to_hex.h>
 #include <spdlog/spdlog.h>
 #include <string>
 
 void OscParser::parse(iter_t& it, iter_t end) {
-    const std::optional<uint8_t> ident = Parser::parsePs(it, end);
+    std::optional<uint32_t> ident = std::nullopt;
+    std::string identStr = "";
+    for (; std::isdigit(*it); it++) {
+        identStr += *it;
+    }
+    ident = std::stoi(identStr);
+
     if (!ident.has_value()) {
-        SPDLOG_ERROR("OSC:ident - cannot be optional:{}",
-                     spdlog::to_hex(it, end));
+        SPDLOG_ERROR("OSC:ident - cannot be optional:");
+        std::vector<uint8_t> osc(it, end);
+        hexdump(osc.data(), osc.size(), SPDLOG_LEVEL_ERROR);
         return;
     }
     SPDLOG_TRACE("OSC:ident = {}", ident.value());
@@ -24,7 +31,7 @@ void OscParser::parse(iter_t& it, iter_t end) {
     uint8_t identv = ident.value();
     std::vector<std::string> args = parseArgs(it, end);
     if (m_Handlers.contains(identv)) {
-        m_Handlers[identv](std::move(args));
+        m_Handlers[identv](args);
     } else {
         SPDLOG_WARN("Unsupported OSC sequence with ident={}", identv);
     }

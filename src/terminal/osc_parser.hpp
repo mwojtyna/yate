@@ -9,7 +9,7 @@
 
 class OscParser {
     using ident_t = uint8_t;
-    using handlerfn_t = std::function<void(const std::vector<std::string>&&)>;
+    using handlerfn_t = std::function<void(const std::vector<std::string>)>;
 
 public:
     void parse(iter_t& it, iter_t end);

@@ -12,7 +12,7 @@ public:
     /// Returns: list of parsed character codepoints
     std::vector<codepoint_t> parseAndModifyTermBuf(std::vector<uint8_t>& data);
 
-    static std::optional<uint32_t> parsePs(iter_t& it, iter_t end);
+    static std::vector<uint32_t> parsePs(iter_t& it, iter_t end);
 
 private:
     struct ParserState {

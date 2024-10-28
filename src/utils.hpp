@@ -55,7 +55,7 @@ inline void hashCombine(std::size_t& s, const T& v) {
 }
 
 template <typename T>
-std::string optionalToString(std::optional<T>& optional) {
+std::string optionalToString(const std::optional<T>& optional) {
     if (optional.has_value()) {
         return std::to_string(optional.value());
     } else {
@@ -63,10 +63,35 @@ std::string optionalToString(std::optional<T>& optional) {
     }
 }
 template <>
-inline std::string optionalToString(std::optional<char>& optional) {
+inline std::string optionalToString(const std::optional<char>& optional) {
     if (optional.has_value()) {
         return std::string{optional.value()};
     } else {
         return std::string("nullopt");
     }
+}
+
+template <typename T>
+std::string vectorToString(const std::vector<T>& vec) {
+    std::string out = "[";
+    for (size_t i = 0; i < vec.size(); i++) {
+        out += std::to_string(vec[i]);
+        if (i < vec.size() - 1) {
+            out += ",";
+        }
+    }
+    out += "]";
+    return out;
+}
+template <>
+inline std::string vectorToString(const std::vector<char>& vec) {
+    std::string out = "[";
+    for (size_t i = 0; i < vec.size(); i++) {
+        out += vec[i];
+        if (i < vec.size() - 1) {
+            out += ",";
+        }
+    }
+    out += "]";
+    return out;
 }

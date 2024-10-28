@@ -97,7 +97,7 @@ void Application::start() {
                                         .charsScale = charsScale,
                                         .cameraPos = cameraPos,
                                         .wireframe = wireframe};
-    std::unordered_set<codepoint_t> codepoints(atlasQueue.size());
+    std::unordered_set<codepoint_t> codepoints;
     size_t prevRows = 0;
 
     SPDLOG_INFO("Application started");
