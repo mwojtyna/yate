@@ -23,6 +23,14 @@ inline constexpr CsiIdent CUU = CsiIdent{
 inline constexpr CsiIdent CUD = CsiIdent{
     .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'B'};
 
+/// Cursor Position
+inline constexpr CsiIdent CUP = CsiIdent{
+    .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'H'};
+
+/// Erase In Display
+inline constexpr CsiIdent ED = CsiIdent{
+    .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'J'};
+
 /// Delete character(s)
 inline constexpr CsiIdent DCH = CsiIdent{
     .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'P'};

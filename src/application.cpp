@@ -113,10 +113,16 @@ void Application::start() {
             }
 
             auto metrics = font.getMetricsInPx();
-            // Subtract initial charsPos.y
+            // Also subtract initial charsPos.y
+            // Scroll down
             while (rows * metrics.height - metrics.ascender >
                    Application::HEIGHT + charsPos.y) {
                 charsPos.y += metrics.height;
+            }
+
+            // Scroll up
+            while (rows * metrics.height < charsPos.y + metrics.height) {
+                charsPos.y -= metrics.height;
             }
             prevRows = rows;
         });

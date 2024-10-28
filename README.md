@@ -79,9 +79,9 @@ Credit to https://xtermjs.org/docs/api/vtfeatures/
 | CNL      | Cursor Next Line                      | CSI Ps E      | Move cursor Ps times down (default=1) and to the first column                      | &cross; |
 | CPL      | Cursor Backward                       | CSI Ps F      | Move cursor Ps times up (default=1) and to the first column                        | &cross; |
 | CHA      | Cursor Horizontal Absolute            | CSI Ps G      | Move cursor to Ps-th column of the active row (default=1).                         | &cross; |
-| CUP      | Cursor Position                       | CSI Ps ; Ps H | Set cursor to position [Ps, Ps] (default = [1, 1])                                 | &cross; |
+| CUP      | Cursor Position                       | CSI Ps ; Ps H | Set cursor to position [Ps, Ps] (default = [1, 1])                                 | &check; |
 | CHT      | Cursor Horizontal Tabulation          | CSI Ps I      | Move cursor Ps times tabs forward (default=1).                                     | &cross; |
-| ED       | Erase In Display                      | CSI Ps J      | Erase various parts of the viewport                                                | &cross; |
+| ED       | Erase In Display                      | CSI Ps J      | Erase various parts of the viewport                                                | &minus; |
 | DECSED   | Selective Erase In Display            | CSI ? Ps J    | Same as ED with respecting protection flag.                                        | &cross; |
 | EL       | Erase In Line                         | CSI Ps K      | Erase various parts of the active row                                              | &minus; |
 | DECSEL   | Selective Erase In Line               | CSI ? Ps K    | Same as EL with respecting protecting flag.                                        | &cross; |

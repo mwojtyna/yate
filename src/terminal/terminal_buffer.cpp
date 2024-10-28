@@ -17,3 +17,10 @@ const std::vector<std::vector<Cell>>& TerminalBuf::getRows() const {
 void TerminalBuf::pushRow(const std::vector<Cell>&& cells) {
     m_Buf.push_back(std::move(cells));
 }
+
+void TerminalBuf::deleteRow(size_t row) {
+    m_Buf.erase(m_Buf.begin() + row);
+}
+void TerminalBuf::deleteRow(size_t row, size_t end) {
+    m_Buf.erase(m_Buf.begin() + row, m_Buf.begin() + end);
+}

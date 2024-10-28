@@ -25,6 +25,8 @@ public:
     const std::vector<std::vector<Cell>>& getRows() const;
 
     void pushRow(const std::vector<Cell>&& cells);
+    void deleteRow(size_t row);
+    void deleteRow(size_t row, size_t end);
 
 private:
     std::vector<std::vector<Cell>> m_Buf;
