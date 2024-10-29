@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../application.hpp"
 #include "font.hpp"
 #include "mesh.hpp"
 #include "program.hpp"
@@ -11,33 +10,22 @@
 
 class Renderer {
 public:
-    Renderer() = delete;
-    Renderer(Renderer& renderer) = delete;
-    Renderer(Renderer&& renderer) = delete;
-
-    static void initialize();
-    static void destroy();
-
-    static void makeTextMesh(const std::vector<std::vector<Cell>>& cells,
-                             Font& font);
-    static void drawText(const glm::mat4& transform, Program& program);
-    static void setWireframe(const bool enabled);
-    static void setBgColor(const glm::vec3& color);
-    static void clear();
+    void initialize();
+    void makeTextMesh(const std::vector<std::vector<Cell>>& cells, Font& font);
+    void drawText(const glm::mat4& transform, Program& program);
+    void setWireframe(const bool enabled);
+    void setBgColor(const glm::vec3& color);
+    void clear();
+    void setViewMat(const glm::mat4& mat);
 
     static glm::mat4& getProjectionMat();
     static glm::mat4& getViewMat();
-    static void setViewMat(const glm::mat4& mat);
 
 private:
-    struct RendererData {
-        glm::mat4 projectionMat = glm::ortho(0.0f, (float)Application::WIDTH,
-                                             -(float)Application::HEIGHT, 0.0f);
-        glm::mat4 viewMat = glm::mat4(1.0f);
-        std::vector<Vertex> vertices;
-        std::vector<index_t> indices;
-        std::unique_ptr<Mesh> glyphMesh;
-    };
+    std::vector<Vertex> m_Vertices;
+    std::vector<index_t> m_Indices;
+    std::unique_ptr<Mesh> m_GlyphMesh;
 
-    static RendererData* s_Data;
+    static glm::mat4 s_ProjectionMat;
+    static glm::mat4 s_ViewMat;
 };

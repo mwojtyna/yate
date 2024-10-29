@@ -41,8 +41,9 @@ void Application::start() {
     }
     glfwMakeContextCurrent(m_Window);
 
-    Renderer::initialize();
-    Renderer::setBgColor(glm::vec3(0.10f, 0.11f, 0.15f));
+    Renderer renderer;
+    renderer.initialize();
+    renderer.setBgColor(glm::vec3(0.10f, 0.11f, 0.15f));
     Program program(textVertexShader, textFragmentShader);
     Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 16);
     DebugUI::initialize(m_Window);
@@ -51,8 +52,8 @@ void Application::start() {
 
     ThreadSafeQueue<codepoint_t> atlasQueue;
     Terminal::open(Application::WIDTH, Application::HEIGHT);
-    m_TerminalThread = std::make_unique<std::thread>([this, &atlasQueue,
-                                                      &font]() {
+    m_TerminalThread = std::make_unique<std::thread>([this, &atlasQueue, &font,
+                                                      &renderer]() {
         Parser parser = parser_setup(m_Window);
         while (!Terminal::shouldClose()) {
             try {
@@ -70,10 +71,11 @@ void Application::start() {
                     atlasQueue.push(c);
                 }
 
-                Terminal::getBuf([&font](const TerminalBuf& termBuf) {
-                    // TODO: Don't recalculate all
-                    Renderer::makeTextMesh(termBuf.getRows(), font);
-                });
+                Terminal::getBuf(
+                    [&font, &renderer](const TerminalBuf& termBuf) {
+                        // TODO: Don't recalculate all
+                        renderer.makeTextMesh(termBuf.getRows(), font);
+                    });
 
             } catch (TerminalReadException e) {
                 if (!Terminal::shouldClose()) {
@@ -102,8 +104,8 @@ void Application::start() {
 
     SPDLOG_INFO("Application started");
     while (!glfwWindowShouldClose(m_Window)) {
-        Renderer::clear();
-        Renderer::setWireframe(debugData.wireframe);
+        renderer.clear();
+        renderer.setWireframe(debugData.wireframe);
 
         // Scroll down when necessary
         Terminal::getBuf([&](const TerminalBuf& termBuf) {
@@ -129,7 +131,7 @@ void Application::start() {
 
         glm::mat4 transform = glm::scale(
             glm::translate(glm::mat4(1.0f), charsPos), glm::vec3(charsScale));
-        Renderer::setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));
+        renderer.setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));
 
         // When new terminal data appears, update font atlas for new glyphs
         if (codepoint_t c; atlasQueue.pop(c)) {
@@ -138,14 +140,15 @@ void Application::start() {
         if (!codepoints.empty()) {
             bool anyNew = font.updateAtlas(codepoints);
             if (anyNew) {
-                Terminal::getBuf([&font](const TerminalBuf& termBuf) {
-                    Renderer::makeTextMesh(termBuf.getRows(), font);
-                });
+                Terminal::getBuf(
+                    [&font, &renderer](const TerminalBuf& termBuf) {
+                        renderer.makeTextMesh(termBuf.getRows(), font);
+                    });
             }
             codepoints.clear();
         }
 
-        Renderer::drawText(transform, program);
+        renderer.drawText(transform, program);
 
         debugData.frameTimeMs = (glfwGetTime() - prevTime) * 1000;
         prevTime = glfwGetTime();
@@ -159,7 +162,6 @@ void Application::start() {
 Application::~Application() {
     SPDLOG_INFO("Application exiting");
     DebugUI::destroy();
-    Renderer::destroy();
     // FIX: Doesn't work on macos, because read() doesn't error for some reason
     Terminal::close();
     assert(m_TerminalThread->joinable());
