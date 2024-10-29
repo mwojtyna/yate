@@ -61,7 +61,7 @@ void Application::start() {
                 SPDLOG_DEBUG("Read from terminal:");
                 HEXDUMP(rawCodes.data(), rawCodes.size());
 
-                std::vector<codepoint_t> codepoints =
+                std::unordered_set<codepoint_t> codepoints =
                     parser.parseAndModifyTermBuf(rawCodes);
                 if (codepoints.empty()) {
                     continue;
