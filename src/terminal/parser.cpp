@@ -5,13 +5,14 @@
 #include "osc_parser.hpp"
 #include "terminal.hpp"
 #include "types.hpp"
+#include <spdlog/spdlog.h>
 
 Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser)
     : m_CsiParser(csiParser), m_OscParser(oscParser) {};
 
-std::unordered_set<codepoint_t>
+std::vector<codepoint_t>
 Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
-    std::unordered_set<codepoint_t> codepoints(data.size());
+    std::vector<codepoint_t> codepoints(data.size());
 
     for (auto it = data.begin(); it < data.end(); it++) {
         if (*it == c0::LF || *it == c0::VT || *it == c0::FF) {
@@ -73,7 +74,7 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
         }
 
         default: {
-            codepoints.insert(*it);
+            codepoints.push_back(*it);
 
             Terminal::getCursorMut([&](cursor_t& cursor) {
                 Terminal::getBufMut([&](TerminalBuf& termBuf) {
