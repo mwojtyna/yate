@@ -21,11 +21,12 @@ Yet Another Terminal Emulator
 - [x] OpenGL setup
 - [x] Font rendering
 - [x] PTY initialization
-- [ ] Terminal codes parsing
-- [ ] Window resizing
+- [x] Minimal terminal codes parsing
+- [ ] Colors
 
 ### later
 
+- [ ] Window resizing
 - [ ] Font resizing
 - [ ] Bold, italic, etc.
 - [ ] Emojis
