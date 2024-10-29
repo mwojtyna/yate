@@ -68,7 +68,10 @@ void Application::start() {
                 }
 
                 for (const codepoint_t c : codepoints) {
-                    atlasQueue.push(c);
+                    // Skip control characters
+                    if (c >= ' ') {
+                        atlasQueue.push(c);
+                    }
                 }
 
                 Terminal::getBuf(
@@ -134,7 +137,8 @@ void Application::start() {
         renderer.setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));
 
         // When new terminal data appears, update font atlas for new glyphs
-        if (codepoint_t c; atlasQueue.pop(c)) {
+        codepoint_t c;
+        while (atlasQueue.pop(c)) {
             codepoints.insert(c);
         }
         if (!codepoints.empty()) {
