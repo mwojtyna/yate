@@ -95,3 +95,15 @@ inline std::string vectorToString(const std::vector<char>& vec) {
     out += "]";
     return out;
 }
+template <>
+inline std::string vectorToString(const std::vector<std::string>& vec) {
+    std::string out = "[";
+    for (size_t i = 0; i < vec.size(); i++) {
+        out += vec[i];
+        if (i < vec.size() - 1) {
+            out += ",";
+        }
+    }
+    out += "]";
+    return out;
+}
