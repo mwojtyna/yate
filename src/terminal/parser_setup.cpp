@@ -1,11 +1,10 @@
+#include "parser_setup.hpp"
 #include "csi_idents.hpp"
 #include "csi_parser.hpp"
 #include "osc_parser.hpp"
-#include "parser.hpp"
 #include "terminal.hpp"
 #include "terminal_buffer.hpp"
 #include "types.hpp"
-#include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
 #include <string>
 
@@ -81,7 +80,9 @@ Parser parser_setup(GLFWwindow* window) {
         Terminal::getCursorMut([&ps](cursor_t& cursor) {
             switch (ps) {
             case 0: {
-                SPDLOG_WARN("Unimplemented ED(0)");
+                Terminal::getBufMut([&cursor](TerminalBuf& termBuf) {
+                    termBuf.deleteRow(0, termBuf.getRows().size());
+                });
                 break;
             }
             case 1: {
@@ -89,7 +90,9 @@ Parser parser_setup(GLFWwindow* window) {
                 break;
             }
             case 2: {
-                SPDLOG_WARN("Unimplemented ED(2)");
+                Terminal::getBufMut([&cursor](TerminalBuf& termBuf) {
+                    termBuf.deleteRow(0, termBuf.getRows().size());
+                });
                 break;
             }
             case 3: {
