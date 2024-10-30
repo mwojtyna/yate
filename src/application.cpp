@@ -61,6 +61,14 @@ void Application::start() {
                 SPDLOG_DEBUG("Read from terminal:");
                 HEXDUMP(rawCodes.data(), rawCodes.size());
 
+                // Closing of the terminal happens on the render thread, so it could happen between the while loop checks.
+                // Sometimes when the terminal is being closed, a running program will send a message to signal it is being closed (e.g ssh).
+                // That message would try to be rendered, but the render thread has finished, calling the font's destructor,
+                // which means deleted font data would be read, resulting in a segfault.
+                if (Terminal::shouldClose()) {
+                    break;
+                }
+
                 std::vector<codepoint_t> codepoints =
                     parser.parseAndModifyTermBuf(rawCodes);
                 if (codepoints.empty()) {
