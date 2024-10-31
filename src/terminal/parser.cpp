@@ -88,13 +88,19 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
                     };
 
                     if (!termBuf.getRows().empty()) {
-                        std::vector<Cell>& row =
-                            termBuf.getRow(termBuf.getRows().size() - 1);
+                        std::vector<Cell>& row = termBuf.getRow(cursor.y);
 
                         if (*it != c0::LF && cursor.x < row.size()) {
                             row.erase(row.begin() + cursor.x, row.end());
                         }
 
+                        // Delete lineEnd Cell if it exists when appending to a row
+                        // TODO: More optimized way (hashmap[row] = cell_index_with_lineEnd)
+                        for (size_t i = 0; i < row.size(); i++) {
+                            if (row[i].lineEnd) {
+                                row.erase(row.begin() + i);
+                            }
+                        }
                         row.push_back(std::move(newCell));
                     } else {
                         termBuf.pushRow({std::move(newCell)});
@@ -109,15 +115,20 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
                 m_State.offset++;
             }
 
-            if (m_State.lineEnd) {
-                m_State.offset = 0;
-                Terminal::getCursorMut([](cursor_t& cursor) {
-                    cursor.x = 0;
-                    cursor.y++;
+            Terminal::getBufMut([this](TerminalBuf& termBuf) {
+                Terminal::getCursorMut([this, &termBuf](cursor_t& cursor) {
+                    if (m_State.lineEnd) {
+                        // Only add new row when at the last row
+                        if (cursor.y == termBuf.getRows().size() - 1) {
+                            termBuf.pushRow({});
+                        }
+
+                        m_State.offset = 0;
+                        cursor.x = 0;
+                        cursor.y++;
+                    }
                 });
-                Terminal::getBufMut(
-                    [&](TerminalBuf& termBuf) { termBuf.pushRow({}); });
-            }
+            });
             m_State.lineStart = m_State.lineEnd;
             m_State.lineEnd = false;
             break;

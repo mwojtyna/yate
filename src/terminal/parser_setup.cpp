@@ -36,6 +36,11 @@ static void setWindowTitle(const char* title, GLFWwindow* window) {
 
 Parser parser_setup(GLFWwindow* window) {
     CsiParser csi;
+    csi.addHandler(csiidents::CUU, [](const std::vector<uint32_t> args) {
+        assert(args.size() == 0 || args.size() == 1);
+        uint32_t ps = DEFAULT(args, 1);
+        Terminal::getCursorMut([&ps](cursor_t& cursor) { cursor.y -= ps; });
+    });
     csi.addHandler(csiidents::EL, [](const std::vector<uint32_t> args) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 0);
@@ -58,12 +63,26 @@ Parser parser_setup(GLFWwindow* window) {
     csi.addHandler(csiidents::CUF, [](const std::vector<uint32_t> args) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 1);
-        Terminal::getCursorMut([&ps](cursor_t& cursor) { cursor.x += ps; });
+        Terminal::getCursorMut([&ps](cursor_t& cursor) {
+            Terminal::getBufMut([&ps, &cursor](TerminalBuf& termBuf) {
+                auto& row = termBuf.getRow(cursor.y);
+                // TODO: Maybe always add cells for the entire screen?
+                while (cursor.x + ps > row.size() - 1) {
+                    row.push_back(Cell{});
+                }
+            });
+            cursor.x += ps;
+        });
     });
     csi.addHandler(csiidents::CUB, [](const std::vector<uint32_t> args) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 1);
         Terminal::getCursorMut([&ps](cursor_t& cursor) { cursor.x -= ps; });
+    });
+    csi.addHandler(csiidents::CHA, [](const std::vector<uint32_t> args) {
+        assert(args.size() == 0 || args.size() == 1);
+        uint32_t ps = DEFAULT(args, 1);
+        Terminal::getCursorMut([&ps](cursor_t& cursor) { cursor.x = ps - 1; });
     });
     csi.addHandler(csiidents::CUP, [](const std::vector<uint32_t> args) {
         assert(args.size() == 0 || args.size() == 2);

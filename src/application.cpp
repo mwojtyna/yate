@@ -160,6 +160,26 @@ void Application::start() {
             codepoints.clear();
         }
 
+        // Debug TerminalBuf
+        // Terminal::getBuf([&](const TerminalBuf& termBuf) {
+        //     const auto& rows = termBuf.getRows();
+        //     for (size_t i = 0; auto& row : rows) {
+        //         std::string msg = "row ";
+        //         msg += std::to_string(i) + ": ";
+        //
+        //         for (auto& cell : row) {
+        //             if (cell.lineEnd) {
+        //                 msg += "\\n";
+        //             } else {
+        //                 msg += (char)cell.character;
+        //             }
+        //         }
+        //         SPDLOG_ERROR(msg.c_str());
+        //
+        //         i++;
+        //     }
+        // });
+
         renderer.drawText(transform, program);
 
         debugData.frameTimeMs = (glfwGetTime() - prevTime) * 1000;

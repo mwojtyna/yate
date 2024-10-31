@@ -23,6 +23,10 @@ inline constexpr CsiIdent CUU = CsiIdent{
 inline constexpr CsiIdent CUD = CsiIdent{
     .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'B'};
 
+/// Cursor Horizontal Absolute
+inline constexpr CsiIdent CHA = CsiIdent{
+    .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'G'};
+
 /// Cursor Position
 inline constexpr CsiIdent CUP = CsiIdent{
     .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'H'};

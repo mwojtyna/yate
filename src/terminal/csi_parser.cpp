@@ -44,11 +44,7 @@ void CsiParser::parse(iter_t& it, iter_t end) {
     };
 
     if (m_Handlers.contains(ident)) {
-        if (!ps.empty()) {
-            m_Handlers[ident](ps);
-        } else {
-            m_Handlers[ident](std::vector<uint32_t>());
-        }
+        m_Handlers[ident](!ps.empty() ? ps : std::vector<uint32_t>());
     } else {
         SPDLOG_WARN("Unsupported CSI sequence with: prefix={}, Ps={}, "
                     "intermediate={}, final={}",
