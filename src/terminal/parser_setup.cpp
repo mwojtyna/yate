@@ -67,11 +67,11 @@ Parser parser_setup(GLFWwindow* window) {
     });
     csi.addHandler(csiidents::CUP, [](const std::vector<uint32_t> args) {
         assert(args.size() == 0 || args.size() == 2);
-        uint32_t x = args.size() == 0 ? 0 : args[0];
-        uint32_t y = args.size() == 0 ? 0 : args[1];
+        uint32_t x = args.size() == 0 ? 1 : args[0];
+        uint32_t y = args.size() == 0 ? 1 : args[1];
         Terminal::getCursorMut([&x, &y](cursor_t& cursor) {
-            cursor.x = x;
-            cursor.y = y;
+            cursor.x = x - 1;
+            cursor.y = y - 1;
         });
     });
     csi.addHandler(csiidents::ED, [](const std::vector<uint32_t> args) {
