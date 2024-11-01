@@ -39,7 +39,9 @@ Parser parser_setup(GLFWwindow* window) {
     csi.addHandler(csiidents::CUU, [](const std::vector<uint32_t> args) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 1);
-        Terminal::getCursorMut([&ps](cursor_t& cursor) { cursor.y -= ps; });
+        Terminal::getCursorMut([&ps](cursor_t& cursor) {
+            cursor.y = std::max<size_t>(0, cursor.y - ps);
+        });
     });
     csi.addHandler(csiidents::EL, [](const std::vector<uint32_t> args) {
         assert(args.size() == 0 || args.size() == 1);
@@ -77,20 +79,24 @@ Parser parser_setup(GLFWwindow* window) {
     csi.addHandler(csiidents::CUB, [](const std::vector<uint32_t> args) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 1);
-        Terminal::getCursorMut([&ps](cursor_t& cursor) { cursor.x -= ps; });
+        Terminal::getCursorMut([&ps](cursor_t& cursor) {
+            cursor.x = std::max<size_t>(0, cursor.x - ps);
+        });
     });
     csi.addHandler(csiidents::CHA, [](const std::vector<uint32_t> args) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 1);
-        Terminal::getCursorMut([&ps](cursor_t& cursor) { cursor.x = ps - 1; });
+        Terminal::getCursorMut([&ps](cursor_t& cursor) {
+            cursor.x = std::max<size_t>(0, ps - 1);
+        });
     });
     csi.addHandler(csiidents::CUP, [](const std::vector<uint32_t> args) {
         assert(args.size() == 0 || args.size() == 2);
         uint32_t x = args.size() == 0 ? 1 : args[0];
         uint32_t y = args.size() == 0 ? 1 : args[1];
         Terminal::getCursorMut([&x, &y](cursor_t& cursor) {
-            cursor.x = x - 1;
-            cursor.y = y - 1;
+            cursor.x = std::max<size_t>(0, x - 1);
+            cursor.y = std::max<size_t>(0, y - 1);
         });
     });
     csi.addHandler(csiidents::ED, [](const std::vector<uint32_t> args) {
