@@ -1,5 +1,11 @@
 #include "terminal_buffer.hpp"
 
+// Cell
+Cell Cell::empty() {
+    return Cell{.character = ' '};
+}
+
+// TerminalBuf
 Cell& TerminalBuf::getCell(size_t col, size_t row) {
     return m_Buf[row][col];
 }

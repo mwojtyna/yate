@@ -10,24 +10,6 @@
 
 #define DEFAULT(arr, default) arr.size() > 0 ? arr[0] : default
 
-// CSI
-
-/// Erase from the cursor through the end of the row.
-static void eraseToEnd(cursor_t& cursor) {
-    Terminal::getBufMut([&cursor](TerminalBuf& termBuf) {
-        std::vector<Cell>& row = termBuf.getRow(cursor.y);
-        row.erase(row.begin() + cursor.x, row.end());
-    });
-}
-/// Delete n characters to the right of the cursor
-static void deleteCharacters(uint32_t n) {
-    Terminal::getBufMut([&n](TerminalBuf& termBuf) {
-        cursor_t cursor = Terminal::getCursor();
-        std::vector<Cell>& row = termBuf.getRow(cursor.y);
-        row.erase(row.begin() + cursor.x, row.begin() + cursor.x + n);
-    });
-}
-
 // OSC
 static void setWindowTitle(const char* title, GLFWwindow* window) {
     SPDLOG_DEBUG("Set window title: '{}'", title);
@@ -43,21 +25,41 @@ Parser parser_setup(GLFWwindow* window) {
             cursor.y = std::max<size_t>(0, cursor.y - ps);
         });
     });
+    csi.addHandler(csiidents::CUD, [](const std::vector<uint32_t> args) {
+        assert(args.size() == 0 || args.size() == 1);
+        uint32_t ps = DEFAULT(args, 1);
+        Terminal::getCursorMut([&ps](cursor_t& cursor) {
+            Terminal::getBufMut([&ps, &cursor](TerminalBuf& termBuf) {
+                while (cursor.y + ps > termBuf.getRows().size() - 1) {
+                    termBuf.pushRow({Cell::empty()});
+                }
+            });
+            cursor.y += ps;
+        });
+    });
     csi.addHandler(csiidents::EL, [](const std::vector<uint32_t> args) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 0);
         switch (ps) {
+        // Erase from the cursor through the end of the row.
         case 0: {
             cursor_t cursor = Terminal::getCursor();
-            eraseToEnd(cursor);
+            Terminal::getBufMut([&cursor](TerminalBuf& termBuf) {
+                std::vector<Cell>& row = termBuf.getRow(cursor.y);
+                row.erase(row.begin() + cursor.x, row.end());
+            });
             break;
         }
-        case 1: {
-            SPDLOG_WARN("Unimplemented EL(1)");
-            break;
-        }
+        // Erase complete line.
         case 2: {
-            SPDLOG_WARN("Unimplemented EL(2)");
+            Terminal::getBufMut([](TerminalBuf& termBuf) {
+                cursor_t cursor = Terminal::getCursor();
+                termBuf.deleteRow(cursor.y);
+            });
+            break;
+        }
+        default: {
+            SPDLOG_WARN("Unimplemented EL({})", ps);
             break;
         }
         }
@@ -69,7 +71,7 @@ Parser parser_setup(GLFWwindow* window) {
             Terminal::getBufMut([&ps, &cursor](TerminalBuf& termBuf) {
                 auto& row = termBuf.getRow(cursor.y);
                 while (cursor.x + ps > row.size() - 1) {
-                    row.push_back(Cell{.character = ' '});
+                    row.push_back(Cell::empty());
                 }
             });
             cursor.x += ps;
@@ -103,26 +105,31 @@ Parser parser_setup(GLFWwindow* window) {
         uint32_t ps = DEFAULT(args, 0);
         Terminal::getCursorMut([&ps](cursor_t& cursor) {
             switch (ps) {
+            // Erase from the cursor through the end of the viewport.
             case 0: {
                 Terminal::getBufMut([&cursor](TerminalBuf& termBuf) {
-                    termBuf.deleteRows(0, termBuf.getRows().size());
+                    std::vector<Cell>& row = termBuf.getRow(cursor.y);
+                    row.erase(row.begin() + cursor.x, row.end());
+                    termBuf.deleteRows(cursor.y + 1, termBuf.getRows().size());
                 });
                 break;
             }
-            case 1: {
-                SPDLOG_WARN("Unimplemented ED(1)");
-                break;
-            }
+            // Erase complete viewport.
             case 2: {
                 Terminal::getBufMut([&cursor](TerminalBuf& termBuf) {
                     termBuf.deleteRows(0, termBuf.getRows().size());
                 });
                 break;
             }
+            // Erase scrollback (same as ED(1) for now)
             case 3: {
                 Terminal::getBufMut([&cursor](TerminalBuf& termBuf) {
                     termBuf.deleteRows(0, termBuf.getRows().size());
                 });
+                break;
+            }
+            default: {
+                SPDLOG_WARN("Unimplemented ED({})", ps);
                 break;
             }
             }
@@ -131,7 +138,11 @@ Parser parser_setup(GLFWwindow* window) {
     csi.addHandler(csiidents::DCH, [](const std::vector<uint32_t> args) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 1);
-        deleteCharacters(ps);
+        Terminal::getBufMut([&ps](TerminalBuf& termBuf) {
+            cursor_t cursor = Terminal::getCursor();
+            std::vector<Cell>& row = termBuf.getRow(cursor.y);
+            row.erase(row.begin() + cursor.x, row.begin() + cursor.x + ps);
+        });
     });
 
     OscParser osc;

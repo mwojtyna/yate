@@ -72,15 +72,15 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
         default: {
             codepoints.push_back(*it);
 
-            Terminal::getCursorMut([&](cursor_t& cursor) {
-                Terminal::getBufMut([&](TerminalBuf& termBuf) {
-                    const Cell newCell = Cell{
-                        .bgColor = m_State.bgColor,
-                        .fgColor = m_State.fgColor,
-                        .character = *it,
-                        .offset = m_State.offset,
-                    };
-
+            const Cell newCell = Cell{
+                .bgColor = m_State.bgColor,
+                .fgColor = m_State.fgColor,
+                .character = *it,
+                .offset = m_State.offset,
+            };
+            Terminal::getCursorMut([this, &newCell, &it](cursor_t& cursor) {
+                Terminal::getBufMut([this, &newCell, &cursor,
+                                     &it](TerminalBuf& termBuf) {
                     if (!termBuf.getRows().empty()) {
                         std::vector<Cell>& row = termBuf.getRow(cursor.y);
 
@@ -101,6 +101,9 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
 
                         row.push_back(std::move(newCell));
                         if (isEol(*it)) {
+                            // Needed to avoid cursor jumping to next line in some cases
+                            // e.g. node REPL `console.log()`
+                            row.insert(row.end() - 1, Cell::empty());
                             termBuf.setEolIndexInRow(cursor.y, row.size() - 1);
                         }
                     } else {
@@ -117,20 +120,21 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
                 m_State.offset++;
             }
 
-            Terminal::getBufMut([this, &it](TerminalBuf& termBuf) {
-                Terminal::getCursorMut([this, &termBuf, &it](cursor_t& cursor) {
-                    if (isEol(*it)) {
-                        // Only add new row when at the last row
-                        if (cursor.y == termBuf.getRows().size() - 1) {
-                            termBuf.pushRow({});
-                        }
+            if (isEol(*it)) {
+                Terminal::getBufMut([this, &it](TerminalBuf& termBuf) {
+                    Terminal::getCursorMut(
+                        [this, &termBuf, &it](cursor_t& cursor) {
+                            // Only add new row when at the last row
+                            if (cursor.y == termBuf.getRows().size() - 1) {
+                                termBuf.pushRow({});
+                            }
 
-                        m_State.offset = 0;
-                        cursor.x = 0;
-                        cursor.y++;
-                    }
+                            m_State.offset = 0;
+                            cursor.x = 0;
+                            cursor.y++;
+                        });
                 });
-            });
+            }
             break;
         }
         }
@@ -166,6 +170,7 @@ std::vector<uint32_t> Parser::parsePs(iter_t& it, iter_t end) {
 
     return {};
 }
+
 bool Parser::isEol(codepoint_t character) {
     return character == c0::LF || character == c0::VT || character == c0::FF;
 }

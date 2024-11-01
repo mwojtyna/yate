@@ -26,11 +26,11 @@ Yet Another Terminal Emulator
 
 ### later
 
-- [ ] Window resizing
-- [ ] Font resizing
+- [ ] UTF-8
 - [ ] Bold, italic, etc.
-- [ ] Emojis
 - [ ] Font fallback
+- [ ] Font resizing
+- [ ] Window resizing
 
 ## Supported Terminal Sequences
 

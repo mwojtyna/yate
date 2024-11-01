@@ -14,7 +14,7 @@
 class Terminal {
 public:
     struct TerminalData {
-        // These are set on open() and not changed later, so they don't need to be atomic
+        // These are set on open() and not changed later, so they don't need to be thread-safe
         int masterFd;
         int slaveFd;
         pid_t termProcessPid;

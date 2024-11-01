@@ -11,6 +11,8 @@ struct Cell {
     codepoint_t character;
     /// Offset since start of line
     size_t offset = 0;
+
+    static Cell empty();
 };
 
 // TODO: Ring buffer
