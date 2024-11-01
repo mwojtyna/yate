@@ -84,22 +84,30 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
                     if (!termBuf.getRows().empty()) {
                         std::vector<Cell>& row = termBuf.getRow(cursor.y);
 
-                        if (*it != c0::LF && cursor.x < row.size()) {
+                        // Delete all characters in the row after this character when appending to this row
+                        if (!isEol(*it) && cursor.x < row.size()) {
                             row.erase(row.begin() + cursor.x, row.end());
                         }
 
-                        // Delete lineEnd Cell if it exists when appending to a row
-                        // TODO: More optimized way (hashmap[row] = cell_index_with_lineEnd)
-                        for (size_t i = 0; i < row.size(); i++) {
-                            if (isEol(row[i].character)) {
-                                row.erase(row.begin() + i);
+                        // Delete '\n' cell if it exists when appending to this row
+                        std::optional<size_t> eolIndex =
+                            termBuf.getEolIndexInRow(cursor.y);
+                        if (eolIndex.has_value()) {
+                            if (eolIndex.value() < row.size()) {
+                                row.erase(row.begin() + eolIndex.value());
                             }
+                            termBuf.deleteEolIndexInRow(cursor.y);
                         }
+
                         row.push_back(std::move(newCell));
+                        if (isEol(*it)) {
+                            termBuf.setEolIndexInRow(cursor.y, row.size() - 1);
+                        }
                     } else {
                         termBuf.pushRow({std::move(newCell)});
                     }
                 });
+
                 cursor.x++;
             });
 

@@ -105,7 +105,7 @@ Parser parser_setup(GLFWwindow* window) {
             switch (ps) {
             case 0: {
                 Terminal::getBufMut([&cursor](TerminalBuf& termBuf) {
-                    termBuf.deleteRow(0, termBuf.getRows().size());
+                    termBuf.deleteRows(0, termBuf.getRows().size());
                 });
                 break;
             }
@@ -115,13 +115,13 @@ Parser parser_setup(GLFWwindow* window) {
             }
             case 2: {
                 Terminal::getBufMut([&cursor](TerminalBuf& termBuf) {
-                    termBuf.deleteRow(0, termBuf.getRows().size());
+                    termBuf.deleteRows(0, termBuf.getRows().size());
                 });
                 break;
             }
             case 3: {
                 Terminal::getBufMut([&cursor](TerminalBuf& termBuf) {
-                    termBuf.deleteRow(0, termBuf.getRows().size());
+                    termBuf.deleteRows(0, termBuf.getRows().size());
                 });
                 break;
             }
