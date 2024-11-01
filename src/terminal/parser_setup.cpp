@@ -69,7 +69,7 @@ Parser parser_setup(GLFWwindow* window) {
             Terminal::getBufMut([&ps, &cursor](TerminalBuf& termBuf) {
                 auto& row = termBuf.getRow(cursor.y);
                 while (cursor.x + ps > row.size() - 1) {
-                    row.push_back(Cell{});
+                    row.push_back(Cell{.character = ' '});
                 }
             });
             cursor.x += ps;
