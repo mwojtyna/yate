@@ -168,7 +168,7 @@ void Application::start() {
         //         msg += std::to_string(i) + ": ";
         //
         //         for (auto& cell : row) {
-        //             if (cell.lineEnd) {
+        //             if (Parser::isEol(cell.character)) {
         //                 msg += "\\n";
         //             } else {
         //                 msg += (char)cell.character;

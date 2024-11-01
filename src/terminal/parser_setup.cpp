@@ -68,7 +68,6 @@ Parser parser_setup(GLFWwindow* window) {
         Terminal::getCursorMut([&ps](cursor_t& cursor) {
             Terminal::getBufMut([&ps, &cursor](TerminalBuf& termBuf) {
                 auto& row = termBuf.getRow(cursor.y);
-                // TODO: Maybe always add cells for the entire screen?
                 while (cursor.x + ps > row.size() - 1) {
                     row.push_back(Cell{});
                 }

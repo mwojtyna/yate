@@ -15,10 +15,6 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
     std::vector<codepoint_t> codepoints(data.size());
 
     for (auto it = data.begin(); it < data.end(); it++) {
-        if (*it == c0::LF || *it == c0::VT || *it == c0::FF) {
-            m_State.lineEnd = true;
-        }
-
         switch (*it) {
         case c0::NUL: {
             continue;
@@ -82,8 +78,6 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
                         .bgColor = m_State.bgColor,
                         .fgColor = m_State.fgColor,
                         .character = *it,
-                        .lineStart = m_State.lineStart,
-                        .lineEnd = m_State.lineEnd,
                         .offset = m_State.offset,
                     };
 
@@ -97,7 +91,7 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
                         // Delete lineEnd Cell if it exists when appending to a row
                         // TODO: More optimized way (hashmap[row] = cell_index_with_lineEnd)
                         for (size_t i = 0; i < row.size(); i++) {
-                            if (row[i].lineEnd) {
+                            if (isEol(row[i].character)) {
                                 row.erase(row.begin() + i);
                             }
                         }
@@ -115,9 +109,9 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
                 m_State.offset++;
             }
 
-            Terminal::getBufMut([this](TerminalBuf& termBuf) {
-                Terminal::getCursorMut([this, &termBuf](cursor_t& cursor) {
-                    if (m_State.lineEnd) {
+            Terminal::getBufMut([this, &it](TerminalBuf& termBuf) {
+                Terminal::getCursorMut([this, &termBuf, &it](cursor_t& cursor) {
+                    if (isEol(*it)) {
                         // Only add new row when at the last row
                         if (cursor.y == termBuf.getRows().size() - 1) {
                             termBuf.pushRow({});
@@ -129,8 +123,6 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
                     }
                 });
             });
-            m_State.lineStart = m_State.lineEnd;
-            m_State.lineEnd = false;
             break;
         }
         }
@@ -165,4 +157,7 @@ std::vector<uint32_t> Parser::parsePs(iter_t& it, iter_t end) {
     }
 
     return {};
+}
+bool Parser::isEol(codepoint_t character) {
+    return character == c0::LF || character == c0::VT || character == c0::FF;
 }

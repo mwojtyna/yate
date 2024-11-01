@@ -1,5 +1,6 @@
 #include "font.hpp"
 #include "../terminal/codes.hpp"
+#include "../terminal/parser.hpp"
 #include "../utils.hpp"
 #include "opengl.hpp"
 #include <freetype/freetype.h>
@@ -139,7 +140,7 @@ GlyphPos Font::getGlyphPos(const Cell& cell, glm::vec2& pen) {
     gp.pb = gp.pt + gg.rect.h;
 
     glm::vec2 advance(fracToPx(gg.metrics.horiAdvance), 0);
-    if (cell.lineEnd) {
+    if (Parser::isEol(cell.character)) {
         pen.x = 0;
         advance.x = 0;
         advance.y = -getMetricsInPx().height;

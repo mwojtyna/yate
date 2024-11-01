@@ -1,7 +1,5 @@
 #include "terminal_buffer.hpp"
 
-TerminalBuf::TerminalBuf(size_t capacity) : m_Capacity(capacity) {}
-
 Cell& TerminalBuf::getCell(size_t col, size_t row) {
     return m_Buf[row][col];
 }

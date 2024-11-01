@@ -13,13 +13,12 @@ public:
     std::vector<codepoint_t> parseAndModifyTermBuf(std::vector<uint8_t>& data);
 
     static std::vector<uint32_t> parsePs(iter_t& it, iter_t end);
+    static bool isEol(codepoint_t character);
 
 private:
     struct ParserState {
         glm::vec4 bgColor = glm::vec4(0);
         glm::vec4 fgColor = glm::vec4(1);
-        bool lineStart = true;
-        bool lineEnd = false;
         size_t offset = 0;
     };
 

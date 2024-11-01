@@ -1,6 +1,6 @@
 #include "renderer.hpp"
 #include "../application.hpp"
-#include "../terminal/codes.hpp"
+#include "../terminal/parser.hpp"
 #include "../terminal/terminal.hpp"
 #include "../terminal/types.hpp"
 #include "../utils.hpp"
@@ -53,7 +53,8 @@ void Renderer::makeTextMesh(const std::vector<std::vector<Cell>>& cells,
             const GlyphPos g = font.getGlyphPos(cell, pen);
             const bool isCursor = y == cursor.y && x == cursor.x;
 
-            if (!cell.lineEnd && cell.character != c0::HT || isCursor) {
+            if (!Parser::isEol(cell.character) && cell.character != c0::HT ||
+                isCursor) {
                 const glm::vec4 bgColor =
                     isCursor ? glm::vec4(1) : cell.bgColor;
 
