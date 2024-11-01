@@ -19,7 +19,7 @@ static void eraseToEnd(cursor_t& cursor) {
         row.erase(row.begin() + cursor.x, row.end());
     });
 }
-/// Delete n characters to the left of the cursor
+/// Delete n characters to the right of the cursor
 static void deleteCharacters(uint32_t n) {
     Terminal::getBufMut([&n](TerminalBuf& termBuf) {
         cursor_t cursor = Terminal::getCursor();

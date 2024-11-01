@@ -72,14 +72,14 @@ Credit to https://xtermjs.org/docs/api/vtfeatures/
 | -------- | ------------------------------------- | ------------- | ---------------------------------------------------------------------------------- | ------- |
 | ICH      | Insert Characters                     | CSI Ps @      | Insert Ps (blank) characters (default = 1)                                         | &cross; |
 | SL       | Scroll Left                           | CSI Ps SP @   | Scroll viewport Ps times to the left                                               | &cross; |
-| CUU      | Cursor Up                             | CSI Ps A      | Move cursor Ps times up (default=1)                                                | &cross; |
+| CUU      | Cursor Up                             | CSI Ps A      | Move cursor Ps times up (default=1)                                                | &check; |
 | SR       | Scroll Right                          | CSI Ps SP A   | Scroll viewport Ps times to the right                                              | &cross; |
 | CUD      | Cursor Down                           | CSI Ps B      | Move cursor Ps times down (default=1)                                              | &cross; |
 | CUF      | Cursor Forward                        | CSI Ps C      | Move cursor Ps times forward (default=1).                                          | &check; |
 | CUB      | Cursor Backward                       | CSI Ps D      | Move cursor Ps times backward (default=1).                                         | &check; |
 | CNL      | Cursor Next Line                      | CSI Ps E      | Move cursor Ps times down (default=1) and to the first column                      | &cross; |
 | CPL      | Cursor Backward                       | CSI Ps F      | Move cursor Ps times up (default=1) and to the first column                        | &cross; |
-| CHA      | Cursor Horizontal Absolute            | CSI Ps G      | Move cursor to Ps-th column of the active row (default=1).                         | &cross; |
+| CHA      | Cursor Horizontal Absolute            | CSI Ps G      | Move cursor to Ps-th column of the active row (default=1).                         | &check; |
 | CUP      | Cursor Position                       | CSI Ps ; Ps H | Set cursor to position [Ps, Ps] (default = [1, 1])                                 | &check; |
 | CHT      | Cursor Horizontal Tabulation          | CSI Ps I      | Move cursor Ps times tabs forward (default=1).                                     | &cross; |
 | ED       | Erase In Display                      | CSI Ps J      | Erase various parts of the viewport                                                | &minus; |
