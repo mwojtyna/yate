@@ -39,4 +39,8 @@ inline constexpr CsiIdent ED = CsiIdent{
 inline constexpr CsiIdent DCH = CsiIdent{
     .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'P'};
 
+/// Select Graphic Rendition
+inline constexpr CsiIdent SGR = CsiIdent{
+    .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'm'};
+
 } // namespace csiidents

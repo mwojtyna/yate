@@ -16,7 +16,7 @@ bool CsiIdent::operator==(const CsiIdent& rhs) const {
     return equals;
 }
 
-void CsiParser::parse(iter_t& it, iter_t end) {
+void CsiParser::parse(iter_t& it, iter_t end, ParserState& parserState) {
     std::optional<char> prefix = std::nullopt;
     if (!std::isdigit(*it) && !std::isalpha(*it)) {
         prefix = *it;
@@ -44,7 +44,8 @@ void CsiParser::parse(iter_t& it, iter_t end) {
     };
 
     if (m_Handlers.contains(ident)) {
-        m_Handlers[ident](!ps.empty() ? ps : std::vector<uint32_t>());
+        m_Handlers[ident](!ps.empty() ? ps : std::vector<uint32_t>(),
+                          parserState);
     } else {
         SPDLOG_WARN("Unsupported CSI sequence with: prefix={}, Ps={}, "
                     "intermediate={}, final={}",

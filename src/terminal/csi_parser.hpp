@@ -44,10 +44,11 @@ struct std::hash<CsiIdent> {
 };
 
 class CsiParser {
-    using handlerfn_t = std::function<void(const std::vector<uint32_t>)>;
+    using handlerfn_t =
+        std::function<void(const std::vector<uint32_t>, ParserState&)>;
 
 public:
-    void parse(iter_t& it, iter_t end);
+    void parse(iter_t& it, iter_t end, ParserState& parserState);
     void addHandler(const CsiIdent& ident, handlerfn_t handler);
 
 private:

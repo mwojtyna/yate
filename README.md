@@ -22,15 +22,18 @@ Yet Another Terminal Emulator
 - [x] Font rendering
 - [x] PTY initialization
 - [x] Minimal terminal codes parsing
-- [ ] Colors
+- [x] Colors
+- [ ] UTF-8
 
 ### later
 
-- [ ] UTF-8
 - [ ] Bold, italic, etc.
+- [ ] Text decoration
 - [ ] Font fallback
 - [ ] Font resizing
 - [ ] Window resizing
+- [ ] Scrolling
+- [ ] Support enough terminal codes to make vim/nano work
 
 ## Supported Terminal Sequences
 
@@ -82,9 +85,9 @@ Credit to https://xtermjs.org/docs/api/vtfeatures/
 | CHA      | Cursor Horizontal Absolute            | CSI Ps G      | Move cursor to Ps-th column of the active row (default=1).                         | &check; |
 | CUP      | Cursor Position                       | CSI Ps ; Ps H | Set cursor to position [Ps, Ps] (default = [1, 1])                                 | &check; |
 | CHT      | Cursor Horizontal Tabulation          | CSI Ps I      | Move cursor Ps times tabs forward (default=1).                                     | &cross; |
-| ED       | Erase In Display                      | CSI Ps J      | Erase various parts of the viewport                                                | &minus; |
+| ED       | Erase In Display                      | CSI Ps J      | Erase various parts of the viewport                                                | 3/4     |
 | DECSED   | Selective Erase In Display            | CSI ? Ps J    | Same as ED with respecting protection flag.                                        | &cross; |
-| EL       | Erase In Line                         | CSI Ps K      | Erase various parts of the active row                                              | &minus; |
+| EL       | Erase In Line                         | CSI Ps K      | Erase various parts of the active row                                              | 2/3     |
 | DECSEL   | Selective Erase In Line               | CSI ? Ps K    | Same as EL with respecting protecting flag.                                        | &cross; |
 | IL       | Insert Line                           | CSI Ps L      | Insert Ps blank lines at active row (default=1)                                    | &cross; |
 | DL       | Delete Line                           | CSI Ps M      | Delete Ps lines at active row (default=1)                                          | &cross; |
@@ -106,7 +109,7 @@ Credit to https://xtermjs.org/docs/api/vtfeatures/
 | DECSET   | DEC Private Set Mode                  | CSI ? Pm h    | Set various terminal attributes                                                    | &cross; |
 | RM       | Reset Mode                            | CSI Pm l      | Set various terminal attributes                                                    | &cross; |
 | DECRST   | DEC Private Reset Mode                | CSI ? Pm l    | Reset various terminal attributes                                                  | &cross; |
-| SGR      | Select Graphic Rendition              | CSI Pm m      | Set/Reset various text attributes                                                  | &cross; |
+| SGR      | Select Graphic Rendition              | CSI Pm m      | Set/Reset various text attributes                                                  | 18/55   |
 | DSR      | Device Status Report                  | CSI Ps n      | Request cursor position (CPR) with Ps = 6.                                         | &cross; |
 | DECDSR   | DEC Device Status Report              | CSI ? Ps n    | Only CPR is supported (same as DSR).                                               | &cross; |
 | DECRQM   | Request Mode                          | CSI Ps $p     | Request mode state                                                                 | &cross; |

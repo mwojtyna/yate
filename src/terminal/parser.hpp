@@ -16,12 +16,6 @@ public:
     static bool isEol(codepoint_t character);
 
 private:
-    struct ParserState {
-        glm::vec4 bgColor = glm::vec4(0);
-        glm::vec4 fgColor = glm::vec4(1);
-        size_t offset = 0;
-    };
-
     ParserState m_State;
     CsiParser m_CsiParser;
     OscParser m_OscParser;

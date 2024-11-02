@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../rendering/types.hpp"
+#include "colors.hpp"
 #include <cstdint>
 #include <glm/ext/vector_float2.hpp>
 #include <glm/ext/vector_float4.hpp>
@@ -9,3 +10,9 @@
 
 using iter_t = std::vector<uint8_t>::iterator;
 using cursor_t = glm::vec2;
+
+struct ParserState {
+    glm::vec4 bgColor = colors::defaultBg;
+    glm::vec4 fgColor = colors::defaultFg;
+    size_t offset = 0;
+};

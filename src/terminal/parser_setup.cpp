@@ -1,4 +1,5 @@
 #include "parser_setup.hpp"
+#include "colors.hpp"
 #include "csi_idents.hpp"
 #include "csi_parser.hpp"
 #include "osc_parser.hpp"
@@ -10,6 +11,50 @@
 
 #define DEFAULT(arr, default) arr.size() > 0 ? arr[0] : default
 
+// CSI
+static glm::vec4 getColorFromPs(uint32_t ps, bool bg) {
+    if (bg) {
+        ps -= 40;
+    } else {
+        ps -= 30;
+    }
+
+    switch (ps) {
+    case 0: {
+        return colors::black;
+    }
+    case 1: {
+        return colors::red;
+    }
+    case 2: {
+        return colors::green;
+    }
+    case 3: {
+        return colors::yellow;
+    }
+    case 4: {
+        return colors::blue;
+    }
+    case 5: {
+        return colors::magenta;
+    }
+    case 6: {
+        return colors::cyan;
+    }
+    case 7: {
+        return colors::white;
+    }
+    case 9: {
+        return bg ? colors::defaultBg : colors::defaultFg;
+    }
+    default: {
+        SPDLOG_WARN("Invalid single color code ({}), returning default color",
+                    ps);
+        return bg ? colors::defaultBg : colors::defaultFg;
+    }
+    }
+}
+
 // OSC
 static void setWindowTitle(const char* title, GLFWwindow* window) {
     SPDLOG_DEBUG("Set window title: '{}'", title);
@@ -18,14 +63,16 @@ static void setWindowTitle(const char* title, GLFWwindow* window) {
 
 Parser parser_setup(GLFWwindow* window) {
     CsiParser csi;
-    csi.addHandler(csiidents::CUU, [](const std::vector<uint32_t> args) {
+    csi.addHandler(csiidents::CUU, [](const std::vector<uint32_t> args,
+                                      ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 1);
         Terminal::getCursorMut([&ps](cursor_t& cursor) {
             cursor.y = std::max<size_t>(0, cursor.y - ps);
         });
     });
-    csi.addHandler(csiidents::CUD, [](const std::vector<uint32_t> args) {
+    csi.addHandler(csiidents::CUD, [](const std::vector<uint32_t> args,
+                                      ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 1);
         Terminal::getCursorMut([&ps](cursor_t& cursor) {
@@ -37,7 +84,8 @@ Parser parser_setup(GLFWwindow* window) {
             cursor.y += ps;
         });
     });
-    csi.addHandler(csiidents::EL, [](const std::vector<uint32_t> args) {
+    csi.addHandler(csiidents::EL, [](const std::vector<uint32_t> args,
+                                     ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 0);
         switch (ps) {
@@ -64,7 +112,8 @@ Parser parser_setup(GLFWwindow* window) {
         }
         }
     });
-    csi.addHandler(csiidents::CUF, [](const std::vector<uint32_t> args) {
+    csi.addHandler(csiidents::CUF, [](const std::vector<uint32_t> args,
+                                      ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 1);
         Terminal::getCursorMut([&ps](cursor_t& cursor) {
@@ -77,21 +126,24 @@ Parser parser_setup(GLFWwindow* window) {
             cursor.x += ps;
         });
     });
-    csi.addHandler(csiidents::CUB, [](const std::vector<uint32_t> args) {
+    csi.addHandler(csiidents::CUB, [](const std::vector<uint32_t> args,
+                                      ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 1);
         Terminal::getCursorMut([&ps](cursor_t& cursor) {
             cursor.x = std::max<size_t>(0, cursor.x - ps);
         });
     });
-    csi.addHandler(csiidents::CHA, [](const std::vector<uint32_t> args) {
+    csi.addHandler(csiidents::CHA, [](const std::vector<uint32_t> args,
+                                      ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 1);
         Terminal::getCursorMut([&ps](cursor_t& cursor) {
             cursor.x = std::max<size_t>(0, ps - 1);
         });
     });
-    csi.addHandler(csiidents::CUP, [](const std::vector<uint32_t> args) {
+    csi.addHandler(csiidents::CUP, [](const std::vector<uint32_t> args,
+                                      ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 2);
         uint32_t x = args.size() == 0 ? 1 : args[0];
         uint32_t y = args.size() == 0 ? 1 : args[1];
@@ -100,7 +152,8 @@ Parser parser_setup(GLFWwindow* window) {
             cursor.y = std::max<size_t>(0, y - 1);
         });
     });
-    csi.addHandler(csiidents::ED, [](const std::vector<uint32_t> args) {
+    csi.addHandler(csiidents::ED, [](const std::vector<uint32_t> args,
+                                     ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 0);
         Terminal::getCursorMut([&ps](cursor_t& cursor) {
@@ -135,7 +188,8 @@ Parser parser_setup(GLFWwindow* window) {
             }
         });
     });
-    csi.addHandler(csiidents::DCH, [](const std::vector<uint32_t> args) {
+    csi.addHandler(csiidents::DCH, [](const std::vector<uint32_t> args,
+                                      ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
         uint32_t ps = DEFAULT(args, 1);
         Terminal::getBufMut([&ps](TerminalBuf& termBuf) {
@@ -144,12 +198,40 @@ Parser parser_setup(GLFWwindow* window) {
             row.erase(row.begin() + cursor.x, row.begin() + cursor.x + ps);
         });
     });
+    csi.addHandler(csiidents::SGR, [](const std::vector<uint32_t> args,
+                                      ParserState& parserState) {
+        assert(args.size() >= 0 && args.size() <= 32);
+
+        uint32_t p1 = DEFAULT(args, 0);
+        if (args.size() == 0 || args.size() == 1) {
+            switch (p1) {
+            case 0: {
+                parserState.bgColor = colors::defaultBg;
+                parserState.fgColor = colors::defaultFg;
+                break;
+            }
+            default: {
+                if (p1 >= 30 && p1 <= 39) {
+                    parserState.fgColor = getColorFromPs(p1, false);
+                } else if (p1 >= 40 && p1 <= 49) {
+                    parserState.bgColor = getColorFromPs(p1, true);
+                } else {
+                    SPDLOG_WARN("Unimplemented SGR({})", p1);
+                }
+                break;
+            }
+            }
+
+        } else {
+            SPDLOG_WARN("Unimplemented SGR({})", vectorToString(args));
+        }
+    });
 
     OscParser osc;
-    osc.addHandler(0, [window](std::vector<std::string> data) {
+    osc.addHandler(0, [&window](std::vector<std::string> data) {
         setWindowTitle(data[0].c_str(), window);
     });
-    osc.addHandler(2, [window](std::vector<std::string> data) {
+    osc.addHandler(2, [&window](std::vector<std::string> data) {
         setWindowTitle(data[0].c_str(), window);
     });
 

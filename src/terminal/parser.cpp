@@ -40,7 +40,7 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
             switch (*it) {
             case c0::CSI: {
                 it++;
-                m_CsiParser.parse(it, data.end());
+                m_CsiParser.parse(it, data.end(), m_State);
                 break;
             }
             case c0::OSC: {
@@ -60,7 +60,7 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
         // 8-bit
         case c1::CSI: {
             it++;
-            m_CsiParser.parse(it, data.end());
+            m_CsiParser.parse(it, data.end(), m_State);
             break;
         }
         case c1::OSC: {
