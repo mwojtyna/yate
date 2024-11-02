@@ -122,7 +122,8 @@ void Terminal::close() {
 }
 
 std::vector<uint8_t> Terminal::read() {
-    constexpr size_t BUF_SIZE = 65535;
+    // read() is always capped at 1024 bytes by the system
+    constexpr size_t BUF_SIZE = 1024;
 
     std::vector<uint8_t> buf(BUF_SIZE);
     int bytesRead = ::read(s_Data->masterFd, buf.data(), BUF_SIZE);

@@ -49,8 +49,9 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
                 break;
             }
             default: {
-                SPDLOG_WARN("Unsupported escape sequence 'ESC {}' in buf:",
-                            (char)*it);
+                SPDLOG_WARN(
+                    "Unsupported escape sequence 'ESC {}' (0x{:x}) in buf:",
+                    (char)*it, *it);
                 hexdump(data.data(), data.size(), SPDLOG_LEVEL_WARN);
             }
             }
