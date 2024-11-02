@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../rendering/colors.hpp"
 #include "../rendering/types.hpp"
-#include "colors.hpp"
 #include <cstdint>
 #include <glm/ext/vector_float2.hpp>
 #include <glm/ext/vector_float4.hpp>

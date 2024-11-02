@@ -1,5 +1,5 @@
 #include "parser_setup.hpp"
-#include "colors.hpp"
+#include "../rendering/colors.hpp"
 #include "csi_idents.hpp"
 #include "csi_parser.hpp"
 #include "osc_parser.hpp"
