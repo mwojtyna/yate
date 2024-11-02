@@ -90,12 +90,12 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
                             row.erase(row.begin() + cursor.x, row.end());
                         }
 
-                        // Delete '\n' cell if it exists when appending to this row
+                        // Change '\n' cell to empty cell if it exists when appending to this row
                         std::optional<size_t> eolIndex =
                             termBuf.getEolIndexInRow(cursor.y);
                         if (eolIndex.has_value()) {
                             if (eolIndex.value() < row.size()) {
-                                row.erase(row.begin() + eolIndex.value());
+                                row[eolIndex.value()] = Cell::empty();
                             }
                             termBuf.deleteEolIndexInRow(cursor.y);
                         }

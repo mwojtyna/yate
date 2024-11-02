@@ -119,11 +119,11 @@ Parser parser_setup(GLFWwindow* window) {
         Terminal::getCursorMut([&ps](cursor_t& cursor) {
             Terminal::getBufMut([&ps, &cursor](TerminalBuf& termBuf) {
                 auto& row = termBuf.getRow(cursor.y);
-                while (cursor.x + ps > row.size() - 1) {
+                while (row.empty() || cursor.x + ps > row.size() - 1) {
                     row.push_back(Cell::empty());
                 }
+                cursor.x += ps;
             });
-            cursor.x += ps;
         });
     });
     csi.addHandler(csiidents::CUB, [](const std::vector<uint32_t> args,
