@@ -201,29 +201,69 @@ Parser parser_setup(GLFWwindow* window) {
     csi.addHandler(csiidents::SGR, [](const std::vector<uint32_t> args,
                                       ParserState& parserState) {
         assert(args.size() >= 0 && args.size() <= 32);
+        uint32_t p0 = DEFAULT(args, 0);
 
-        uint32_t p1 = DEFAULT(args, 0);
-        if (args.size() == 0 || args.size() == 1) {
-            switch (p1) {
+        switch (args.size()) {
+        case 0:
+        case 1: {
+            switch (p0) {
             case 0: {
                 parserState.bgColor = colors::defaultBg;
                 parserState.fgColor = colors::defaultFg;
                 break;
             }
             default: {
-                if (p1 >= 30 && p1 <= 39) {
-                    parserState.fgColor = getColorFromPs(p1, false);
-                } else if (p1 >= 40 && p1 <= 49) {
-                    parserState.bgColor = getColorFromPs(p1, true);
+                if (p0 >= 30 && p0 <= 39 && p0 != 38) {
+                    parserState.fgColor = getColorFromPs(p0, false);
+                } else if (p0 >= 40 && p0 <= 49 && p0 != 48) {
+                    parserState.bgColor = getColorFromPs(p0, true);
                 } else {
-                    SPDLOG_WARN("Unimplemented SGR({})", p1);
+                    SPDLOG_WARN("Unimplemented SGR({})", p0);
                 }
                 break;
             }
             }
-
-        } else {
+            break;
+        }
+        case 3: {
+            switch (p0) {
+            case 38: {
+                switch (args[1]) {
+                case 5: {
+                    parserState.fgColor = colors::colors256[args[2]];
+                    break;
+                }
+                default: {
+                    SPDLOG_WARN("Unimplemented SGR({})", vectorToString(args));
+                    break;
+                }
+                }
+                break;
+            }
+            case 48: {
+                switch (args[1]) {
+                case 5: {
+                    parserState.bgColor = colors::colors256[args[2]];
+                    break;
+                }
+                default: {
+                    SPDLOG_WARN("Unimplemented SGR({})", vectorToString(args));
+                    break;
+                }
+                }
+                break;
+            }
+            default: {
+                SPDLOG_WARN("Unimplemented SGR({})", vectorToString(args));
+                break;
+            }
+            }
+            break;
+        }
+        default: {
             SPDLOG_WARN("Unimplemented SGR({})", vectorToString(args));
+            break;
+        }
         }
     });
 
