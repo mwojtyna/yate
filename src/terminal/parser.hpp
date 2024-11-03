@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../rendering/types.hpp"
 #include "csi_parser.hpp"
 #include "osc_parser.hpp"
 #include <glm/ext/vector_float4.hpp>

@@ -2,6 +2,7 @@
 
 #include "../rendering/types.hpp"
 #include <glm/ext/vector_float4.hpp>
+#include <optional>
 #include <unordered_map>
 #include <vector>
 
