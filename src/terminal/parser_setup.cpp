@@ -55,12 +55,6 @@ static glm::vec4 getColorFromPs(uint32_t ps, bool bg) {
     }
 }
 
-// OSC
-static void setWindowTitle(const char* title, GLFWwindow* window) {
-    SPDLOG_DEBUG("Set window title: '{}'", title);
-    glfwSetWindowTitle(window, title);
-}
-
 Parser parser_setup(GLFWwindow* window) {
     CsiParser csi;
     csi.addHandler(csiidents::CUU, [](const std::vector<uint32_t> args,
@@ -267,11 +261,13 @@ Parser parser_setup(GLFWwindow* window) {
     });
 
     OscParser osc;
-    osc.addHandler(0, [&window](std::vector<std::string> data) {
-        setWindowTitle(data[0].c_str(), window);
+    // WTF: When capturing window pointer as a reference, SOMETIMES the next rendered prompt is [�?[
+    // BUT, this bug only happens after the new terminal reading function, and the OS is Linux
+    osc.addHandler(0, [window](const std::vector<std::string> data) {
+        glfwSetWindowTitle(window, data[0].c_str());
     });
-    osc.addHandler(2, [&window](std::vector<std::string> data) {
-        setWindowTitle(data[0].c_str(), window);
+    osc.addHandler(2, [window](const std::vector<std::string> data) {
+        glfwSetWindowTitle(window, data[0].c_str());
     });
 
     Parser parser(std::move(csi), std::move(osc));

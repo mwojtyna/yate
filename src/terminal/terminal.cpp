@@ -122,19 +122,30 @@ void Terminal::close() {
 }
 
 std::vector<uint8_t> Terminal::read() {
-    // read() is always capped at 1024 bytes by the system
-    constexpr size_t BUF_SIZE = 1024;
+    constexpr size_t CHUNK_SIZE = 1024;
+    std::vector<uint8_t> buffer;
+    std::vector<uint8_t> tempBuf(CHUNK_SIZE);
 
-    std::vector<uint8_t> buf(BUF_SIZE);
-    int bytesRead = ::read(s_Data->masterFd, buf.data(), BUF_SIZE);
+    while (true) {
+        int bytesRead = ::read(s_Data->masterFd, tempBuf.data(), CHUNK_SIZE);
 
-    if (bytesRead >= 0) {
-        buf.resize(bytesRead);
-    } else {
-        throw TerminalReadException();
+        if (bytesRead > 0) {
+            buffer.insert(buffer.end(), tempBuf.begin(),
+                          tempBuf.begin() + bytesRead);
+            if (bytesRead < CHUNK_SIZE) {
+                // Less than BUF_SIZE bytes indicates we've reached the end of current data.
+                break;
+            }
+        } else if (bytesRead == 0) {
+            // EOF reached
+            break;
+        } else {
+            // Read error/user closed terminal
+            throw TerminalReadException();
+        }
     }
 
-    return buf;
+    return buffer;
 }
 
 void Terminal::write(std::vector<uint8_t>&& bytes) {
