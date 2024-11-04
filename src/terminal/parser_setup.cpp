@@ -194,75 +194,70 @@ Parser parser_setup(GLFWwindow* window) {
     csi.addHandler(csiidents::SGR, [](const std::vector<uint32_t> args,
                                       ParserState& parserState) {
         assert(args.size() >= 0 && args.size() <= 32);
-        uint32_t p0 = DEFAULT(args, 0);
+        if (args.size() == 0) {
+            parserState.bgColor = colors::defaultBg;
+            parserState.fgColor = colors::defaultFg;
+        }
 
-        switch (args.size()) {
-        case 0:
-        case 1: {
-            switch (p0) {
+        size_t i = 0;
+        while (i < args.size()) {
+            uint32_t pi = args[i];
+            switch (pi) {
             case 0: {
                 parserState.bgColor = colors::defaultBg;
                 parserState.fgColor = colors::defaultFg;
                 break;
             }
-            default: {
-                if (p0 >= 30 && p0 <= 39 && p0 != 38) {
-                    parserState.fgColor = getColorFromPs(p0, false);
-                } else if (p0 >= 40 && p0 <= 49 && p0 != 48) {
-                    parserState.bgColor = getColorFromPs(p0, true);
-                } else {
-                    SPDLOG_WARN("Unimplemented SGR({})", p0);
-                }
-                break;
-            }
-            }
-            break;
-        }
-        case 3: {
-            switch (p0) {
             case 38: {
-                switch (args[1]) {
+                switch (args[i + 1]) {
                 case 5: {
-                    parserState.fgColor = colors::colors256[args[2]];
+                    parserState.fgColor = colors::colors256[args[i + 2]];
                     break;
                 }
                 default: {
-                    SPDLOG_WARN("Unimplemented SGR({})", vectorToString(args));
+                    SPDLOG_WARN("Unimplemented '{}' (index={}) in SGR({})",
+                                args[i + 1], i + 1, vectorToString(args));
                     break;
                 }
                 }
-                break;
+                i += 3;
+                continue;
             }
             case 48: {
-                switch (args[1]) {
+                switch (args[i + 1]) {
                 case 5: {
-                    parserState.bgColor = colors::colors256[args[2]];
+                    parserState.bgColor = colors::colors256[args[i + 2]];
                     break;
                 }
                 default: {
-                    SPDLOG_WARN("Unimplemented SGR({})", vectorToString(args));
+                    SPDLOG_WARN("Unimplemented '{}' (index={}) in SGR({})",
+                                args[i + 1], i + 1, vectorToString(args));
                     break;
                 }
                 }
-                break;
+                i += 3;
+                continue;
             }
             default: {
-                SPDLOG_WARN("Unimplemented SGR({})", vectorToString(args));
+                if (pi >= 30 && pi <= 39 && pi != 38) {
+                    parserState.fgColor = getColorFromPs(pi, false);
+                } else if (pi >= 40 && pi <= 49 && pi != 48) {
+                    parserState.bgColor = getColorFromPs(pi, true);
+                } else {
+                    SPDLOG_WARN("Unimplemented '{}' (index={}) in SGR({})", pi,
+                                i, vectorToString(args));
+                }
                 break;
             }
             }
-            break;
-        }
-        default: {
-            SPDLOG_WARN("Unimplemented SGR({})", vectorToString(args));
-            break;
-        }
+
+            i++;
         }
     });
 
     OscParser osc;
     // WTF: When capturing window pointer as a reference, SOMETIMES the next rendered prompt is [�?[
-    // BUT, this bug only happens after the new terminal reading function, and the OS is Linux
+    // BUT, this bug only happens after the new terminal reading function, and when running on Linux
     osc.addHandler(0, [window](const std::vector<std::string> data) {
         glfwSetWindowTitle(window, data[0].c_str());
     });
