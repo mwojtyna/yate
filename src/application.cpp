@@ -69,7 +69,7 @@ void Application::start() {
                     break;
                 }
 
-                std::vector<codepoint_t> codepoints =
+                std::unordered_set<codepoint_t> codepoints =
                     parser.parseAndModifyTermBuf(rawCodes);
                 if (codepoints.empty()) {
                     continue;

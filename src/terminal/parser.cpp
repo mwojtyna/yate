@@ -10,11 +10,13 @@
 Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser)
     : m_CsiParser(csiParser), m_OscParser(oscParser) {};
 
-std::vector<codepoint_t>
+std::unordered_set<codepoint_t>
 Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
-    std::vector<codepoint_t> codepoints(data.size());
+    std::unordered_set<codepoint_t> codepoints;
 
     for (auto it = data.begin(); it < data.end(); it++) {
+        codepoints.insert(*it);
+
         switch (*it) {
         case c0::NUL: {
             continue;
@@ -71,8 +73,6 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
         }
 
         default: {
-            codepoints.push_back(*it);
-
             const Cell newCell = Cell{
                 .bgColor = m_State.bgColor,
                 .fgColor = m_State.fgColor,
