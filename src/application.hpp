@@ -12,8 +12,8 @@ public:
     ~Application();
     GLFWwindow* getWindow();
 
-    constexpr static int WIDTH = 1000;
-    constexpr static int HEIGHT = 600;
+    constexpr static int WIDTH = 1200;
+    constexpr static int HEIGHT = 840;
 
 private:
     GLFWwindow* m_Window;
