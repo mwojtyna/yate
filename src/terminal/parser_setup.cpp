@@ -197,6 +197,7 @@ Parser parser_setup(GLFWwindow* window) {
         if (args.size() == 0) {
             parserState.bgColor = colors::defaultBg;
             parserState.fgColor = colors::defaultFg;
+            return;
         }
 
         size_t i = 0;
