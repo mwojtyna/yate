@@ -10,14 +10,12 @@
 Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser)
     : m_CsiParser(csiParser), m_OscParser(oscParser) {};
 
-std::vector<codepoint_t>
+std::unordered_set<codepoint_t>
 Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
-    std::vector<codepoint_t> codepoints(data.size());
+    std::unordered_set<codepoint_t> codepoints;
 
     for (auto it = data.begin(); it < data.end(); it++) {
-        if (*it == c0::LF || *it == c0::VT || *it == c0::FF) {
-            m_State.lineEnd = true;
-        }
+        codepoints.insert(*it);
 
         switch (*it) {
         case c0::NUL: {
@@ -44,7 +42,7 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
             switch (*it) {
             case c0::CSI: {
                 it++;
-                m_CsiParser.parse(it, data.end());
+                m_CsiParser.parse(it, data.end(), m_State);
                 break;
             }
             case c0::OSC: {
@@ -53,8 +51,9 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
                 break;
             }
             default: {
-                SPDLOG_WARN("Unsupported escape sequence 'ESC {}' in buf:",
-                            (char)*it);
+                SPDLOG_WARN(
+                    "Unsupported escape sequence 'ESC {}' (0x{:x}) in buf:",
+                    (char)*it, *it);
                 hexdump(data.data(), data.size(), SPDLOG_LEVEL_WARN);
             }
             }
@@ -64,7 +63,7 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
         // 8-bit
         case c1::CSI: {
             it++;
-            m_CsiParser.parse(it, data.end());
+            m_CsiParser.parse(it, data.end(), m_State);
             break;
         }
         case c1::OSC: {
@@ -74,32 +73,45 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
         }
 
         default: {
-            codepoints.push_back(*it);
-
-            Terminal::getCursorMut([&](cursor_t& cursor) {
-                Terminal::getBufMut([&](TerminalBuf& termBuf) {
-                    const Cell newCell = Cell{
-                        .bgColor = m_State.bgColor,
-                        .fgColor = m_State.fgColor,
-                        .character = *it,
-                        .lineStart = m_State.lineStart,
-                        .lineEnd = m_State.lineEnd,
-                        .offset = m_State.offset,
-                    };
-
+            const Cell newCell = Cell{
+                .bgColor = m_State.bgColor,
+                .fgColor = m_State.fgColor,
+                .character = *it,
+                .offset = m_State.offset,
+            };
+            Terminal::getCursorMut([this, &newCell, &it](cursor_t& cursor) {
+                Terminal::getBufMut([this, &newCell, &cursor,
+                                     &it](TerminalBuf& termBuf) {
                     if (!termBuf.getRows().empty()) {
-                        std::vector<Cell>& row =
-                            termBuf.getRow(termBuf.getRows().size() - 1);
+                        std::vector<Cell>& row = termBuf.getRow(cursor.y);
 
-                        if (*it != c0::LF && cursor.x < row.size()) {
+                        // Delete all characters in the row after this character when appending to this row
+                        if (!isEol(*it) && cursor.x < row.size()) {
                             row.erase(row.begin() + cursor.x, row.end());
                         }
 
+                        // Change '\n' cell to empty cell if it exists when appending to this row
+                        std::optional<size_t> eolIndex =
+                            termBuf.getEolIndexInRow(cursor.y);
+                        if (eolIndex.has_value()) {
+                            if (eolIndex.value() < row.size()) {
+                                row[eolIndex.value()] = Cell::empty();
+                            }
+                            termBuf.deleteEolIndexInRow(cursor.y);
+                        }
+
                         row.push_back(std::move(newCell));
+                        if (isEol(*it)) {
+                            // Needed to avoid cursor jumping to next line in some cases
+                            // e.g. node REPL `console.log()`
+                            row.insert(row.end() - 1, Cell::empty());
+                            termBuf.setEolIndexInRow(cursor.y, row.size() - 1);
+                        }
                     } else {
                         termBuf.pushRow({std::move(newCell)});
                     }
                 });
+
                 cursor.x++;
             });
 
@@ -109,17 +121,21 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
                 m_State.offset++;
             }
 
-            if (m_State.lineEnd) {
-                m_State.offset = 0;
-                Terminal::getCursorMut([](cursor_t& cursor) {
-                    cursor.x = 0;
-                    cursor.y++;
+            if (isEol(*it)) {
+                Terminal::getBufMut([this, &it](TerminalBuf& termBuf) {
+                    Terminal::getCursorMut(
+                        [this, &termBuf, &it](cursor_t& cursor) {
+                            // Only add new row when at the last row
+                            if (cursor.y == termBuf.getRows().size() - 1) {
+                                termBuf.pushRow({});
+                            }
+
+                            m_State.offset = 0;
+                            cursor.x = 0;
+                            cursor.y++;
+                        });
                 });
-                Terminal::getBufMut(
-                    [&](TerminalBuf& termBuf) { termBuf.pushRow({}); });
             }
-            m_State.lineStart = m_State.lineEnd;
-            m_State.lineEnd = false;
             break;
         }
         }
@@ -154,4 +170,8 @@ std::vector<uint32_t> Parser::parsePs(iter_t& it, iter_t end) {
     }
 
     return {};
+}
+
+bool Parser::isEol(codepoint_t character) {
+    return character == c0::LF || character == c0::VT || character == c0::FF;
 }

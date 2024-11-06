@@ -69,7 +69,7 @@ void Application::start() {
                     break;
                 }
 
-                std::vector<codepoint_t> codepoints =
+                std::unordered_set<codepoint_t> codepoints =
                     parser.parseAndModifyTermBuf(rawCodes);
                 if (codepoints.empty()) {
                     continue;
@@ -159,6 +159,26 @@ void Application::start() {
             }
             codepoints.clear();
         }
+
+        // Debug TerminalBuf
+        // Terminal::getBuf([&](const TerminalBuf& termBuf) {
+        //     const auto& rows = termBuf.getRows();
+        //     for (size_t i = 0; auto& row : rows) {
+        //         std::string msg = "row ";
+        //         msg += std::to_string(i) + ": ";
+        //
+        //         for (auto& cell : row) {
+        //             if (Parser::isEol(cell.character)) {
+        //                 msg += "\\n";
+        //             } else {
+        //                 msg += (char)cell.character;
+        //             }
+        //         }
+        //         SPDLOG_ERROR(msg.c_str());
+        //
+        //         i++;
+        //     }
+        // });
 
         renderer.drawText(transform, program);
 
