@@ -109,7 +109,7 @@ Credit to https://xtermjs.org/docs/api/vtfeatures/
 | DECSET   | DEC Private Set Mode                  | CSI ? Pm h    | Set various terminal attributes                                                    | &cross; |
 | RM       | Reset Mode                            | CSI Pm l      | Set various terminal attributes                                                    | &cross; |
 | DECRST   | DEC Private Reset Mode                | CSI ? Pm l    | Reset various terminal attributes                                                  | &cross; |
-| SGR      | Select Graphic Rendition              | CSI Pm m      | Set/Reset various text attributes                                                  | 18/55   |
+| SGR      | Select Graphic Rendition              | CSI Pm m      | Set/Reset various text attributes                                                  | 34/55   |
 | DSR      | Device Status Report                  | CSI Ps n      | Request cursor position (CPR) with Ps = 6.                                         | &cross; |
 | DECDSR   | DEC Device Status Report              | CSI ? Ps n    | Only CPR is supported (same as DSR).                                               | &cross; |
 | DECRQM   | Request Mode                          | CSI Ps $p     | Request mode state                                                                 | &cross; |

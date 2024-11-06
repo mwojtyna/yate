@@ -5,17 +5,8 @@
 #define RGB(r, g, b) glm::vec4(r / 255.0, g / 255.0, b / 255.0, 1)
 
 namespace colors {
-inline constexpr glm::vec4 white = RGB(255, 255, 255);
-inline constexpr glm::vec4 black = RGB(0, 0, 0);
-inline constexpr glm::vec4 red = RGB(255, 0, 0);
-inline constexpr glm::vec4 green = RGB(0, 255, 0);
-inline constexpr glm::vec4 blue = RGB(0, 0, 255);
-inline constexpr glm::vec4 yellow = RGB(255, 255, 0);
-inline constexpr glm::vec4 magenta = RGB(255, 0, 255);
-inline constexpr glm::vec4 cyan = RGB(0, 255, 255);
-
 inline constexpr glm::vec4 defaultBg = glm::vec4(0); // Must be transparent
-inline constexpr glm::vec4 defaultFg = white;
+inline constexpr glm::vec4 defaultFg = glm::vec4(1);
 
 // Generated with scripts/fetch_colors/main.py
 inline constexpr glm::vec4 colors256[256] = {

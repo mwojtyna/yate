@@ -12,46 +12,38 @@
 #define DEFAULT(arr, default) arr.size() > 0 ? arr[0] : default
 
 // CSI
-static glm::vec4 getColorFromPs(uint32_t ps, bool bg) {
+static glm::vec4 getSystemColorFromPs(uint32_t ps, bool bg) {
     if (bg) {
         ps -= 40;
     } else {
         ps -= 30;
     }
 
-    switch (ps) {
-    case 0: {
-        return colors::black;
-    }
-    case 1: {
-        return colors::red;
-    }
-    case 2: {
-        return colors::green;
-    }
-    case 3: {
-        return colors::yellow;
-    }
-    case 4: {
-        return colors::blue;
-    }
-    case 5: {
-        return colors::magenta;
-    }
-    case 6: {
-        return colors::cyan;
-    }
-    case 7: {
-        return colors::white;
-    }
-    case 9: {
+    if (ps >= 0 && ps <= 7) {
+        return colors::colors256[ps];
+    } else if (ps == 9) {
+        return bg ? colors::defaultBg : colors::defaultFg;
+    } else {
+        SPDLOG_WARN(
+            "Invalid single syystem color code ({}), returning default color",
+            ps);
         return bg ? colors::defaultBg : colors::defaultFg;
     }
-    default: {
-        SPDLOG_WARN("Invalid single color code ({}), returning default color",
-                    ps);
-        return bg ? colors::defaultBg : colors::defaultFg;
+}
+static glm::vec4 getBrightColorFromPs(uint32_t ps, bool bg) {
+    if (bg) {
+        ps -= 100;
+    } else {
+        ps -= 90;
     }
+
+    if (ps >= 0 && ps <= 7) {
+        return colors::colors256[ps];
+    } else {
+        SPDLOG_WARN(
+            "Invalid single bright color code ({}), returning default color",
+            ps);
+        return bg ? colors::defaultBg : colors::defaultFg;
     }
 }
 
@@ -241,9 +233,13 @@ Parser parser_setup(GLFWwindow* window) {
             }
             default: {
                 if (pi >= 30 && pi <= 39 && pi != 38) {
-                    parserState.fgColor = getColorFromPs(pi, false);
+                    parserState.fgColor = getSystemColorFromPs(pi, false);
                 } else if (pi >= 40 && pi <= 49 && pi != 48) {
-                    parserState.bgColor = getColorFromPs(pi, true);
+                    parserState.bgColor = getSystemColorFromPs(pi, true);
+                } else if (pi >= 90 && pi <= 97) {
+                    parserState.fgColor = getBrightColorFromPs(pi, false);
+                } else if (pi >= 100 && pi <= 107) {
+                    parserState.bgColor = getBrightColorFromPs(pi, true);
                 } else {
                     SPDLOG_WARN("Unimplemented '{}' (index={}) in SGR({})", pi,
                                 i, vectorToString(args));
