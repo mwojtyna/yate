@@ -6,10 +6,6 @@ Yet Another Terminal Emulator
 
 `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j && build/yate`
 
-## Test
-
-`cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug && cmake --build build -j && build/yate-test`
-
 ## Configuration
 
 - Set log level with `SPDLOG_LEVEL` environment variable
