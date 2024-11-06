@@ -194,7 +194,7 @@ Parser parser_setup(GLFWwindow* window) {
 
         size_t i = 0;
         while (i < args.size()) {
-            uint32_t pi = args[i];
+            uint32_t pi = args[i++];
             switch (pi) {
             case 0: {
                 parserState.bgColor = colors::defaultBg;
@@ -202,33 +202,49 @@ Parser parser_setup(GLFWwindow* window) {
                 break;
             }
             case 38: {
-                switch (args[i + 1]) {
+                uint32_t extendedColorType = args[i++];
+                switch (extendedColorType) {
+                case 2: {
+                    uint32_t r = args[i++];
+                    uint32_t g = args[i++];
+                    uint32_t b = args[i++];
+                    parserState.fgColor =
+                        glm::vec4(r / 256.0, g / 256.0, b / 256.0, 1);
+                    break;
+                }
                 case 5: {
-                    parserState.fgColor = colors::colors256[args[i + 2]];
+                    parserState.fgColor = colors::colors256[args[i++]];
                     break;
                 }
                 default: {
                     SPDLOG_WARN("Unimplemented '{}' (index={}) in SGR({})",
-                                args[i + 1], i + 1, vectorToString(args));
+                                extendedColorType, i - 1, vectorToString(args));
                     break;
                 }
                 }
-                i += 3;
                 continue;
             }
             case 48: {
-                switch (args[i + 1]) {
+                uint32_t extendedColorType = args[i++];
+                switch (extendedColorType) {
+                case 2: {
+                    uint32_t r = args[i++];
+                    uint32_t g = args[i++];
+                    uint32_t b = args[i++];
+                    parserState.bgColor =
+                        glm::vec4(r / 256.0, g / 256.0, b / 256.0, 1);
+                    break;
+                }
                 case 5: {
-                    parserState.bgColor = colors::colors256[args[i + 2]];
+                    parserState.bgColor = colors::colors256[args[i++]];
                     break;
                 }
                 default: {
                     SPDLOG_WARN("Unimplemented '{}' (index={}) in SGR({})",
-                                args[i + 1], i + 1, vectorToString(args));
+                                extendedColorType, i - 1, vectorToString(args));
                     break;
                 }
                 }
-                i += 3;
                 continue;
             }
             default: {
@@ -242,12 +258,11 @@ Parser parser_setup(GLFWwindow* window) {
                     parserState.bgColor = getBrightColorFromPs(pi, true);
                 } else {
                     SPDLOG_WARN("Unimplemented '{}' (index={}) in SGR({})", pi,
-                                i, vectorToString(args));
+                                i - 1, vectorToString(args));
                 }
                 break;
             }
             }
-
             i++;
         }
     });

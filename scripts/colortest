@@ -432,6 +432,8 @@ class term256(term16):
             print()
             print("6x6x6 color cube and greyscale:")
             term256._compact_display()
+            print("\ntruecolor gradient:")
+            colors_gradient()
 
 
 class term88(term16):
@@ -653,6 +655,22 @@ def convert256to88(n):
         y = (b // 6) % 6
         z = b // 36
         return 16 + m(x) + (4 * m(y) + 16 * m(z))
+
+
+# https://gist.github.com/lilydjwg/fdeaf79e921c2f413f44b6f613f6ad53#file-colors-py-L53
+def colors_gradient():
+    s = "/\\" * 40
+    for col in range(0, 77):
+        r = 255 - col * 255 // 76
+        g = col * 510 // 76
+        b = col * 255 // 76
+        if g > 255:
+            g = 510 - g
+        print(
+            f"\x1b[48;2;{r};{g};{b}m\x1b[38;2;{255-r};{255-g};{255-b}m{s[col]}\x1b[0m",
+            end="",
+        )
+    print()
 
 
 def _terminal():
