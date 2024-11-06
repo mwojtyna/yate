@@ -8,7 +8,7 @@
 
 #define FATAL(...)                                                             \
     SPDLOG_ERROR(__VA_ARGS__);                                                 \
-    std::exit(EXIT_FAILURE);
+    std::exit(EXIT_FAILURE)
 
 #if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_DEBUG
 #define HEXDUMP(ptr, len) (hexdump(ptr, len))

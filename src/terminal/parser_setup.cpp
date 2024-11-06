@@ -25,7 +25,7 @@ static glm::vec4 getSystemColorFromPs(uint32_t ps, bool bg) {
         return bg ? colors::defaultBg : colors::defaultFg;
     } else {
         SPDLOG_WARN(
-            "Invalid single syystem color code ({}), returning default color",
+            "Invalid single system color code ({}), returning default color",
             ps);
         return bg ? colors::defaultBg : colors::defaultFg;
     }
@@ -38,7 +38,7 @@ static glm::vec4 getBrightColorFromPs(uint32_t ps, bool bg) {
     }
 
     if (ps >= 0 && ps <= 7) {
-        return colors::colors256[ps];
+        return colors::colors256[ps + 8];
     } else {
         SPDLOG_WARN(
             "Invalid single bright color code ({}), returning default color",
@@ -248,9 +248,9 @@ Parser parser_setup(GLFWwindow* window) {
                 continue;
             }
             default: {
-                if (pi >= 30 && pi <= 39 && pi != 38) {
+                if (pi >= 30 && pi <= 39) {
                     parserState.fgColor = getSystemColorFromPs(pi, false);
-                } else if (pi >= 40 && pi <= 49 && pi != 48) {
+                } else if (pi >= 40 && pi <= 49) {
                     parserState.bgColor = getSystemColorFromPs(pi, true);
                 } else if (pi >= 90 && pi <= 97) {
                     parserState.fgColor = getBrightColorFromPs(pi, false);
