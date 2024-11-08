@@ -83,7 +83,9 @@ void InputHandler::setupHandlers() {
 
         switch (mods) {
         case GLFW_MOD_CONTROL: {
-            Terminal::write({static_cast<uint8_t>(0x1 + key - 'A')});
+            if (std::isalpha(key)) {
+                Terminal::write({static_cast<uint8_t>(0x1 + key - 'A')});
+            }
             break;
         }
         }
