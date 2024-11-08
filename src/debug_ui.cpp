@@ -15,8 +15,6 @@ void DebugUI::initialize(GLFWwindow* window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     s_IO = ImGui::GetIO();
-    s_IO.ConfigFlags |=
-        ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     s_IO.Fonts->AddFontDefault();
     s_IO.Fonts->Build();
     ImGui::StyleColorsDark();

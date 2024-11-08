@@ -73,12 +73,12 @@ void InputHandler::setupHandlers() {
             break;
         }
 
-        case GLFW_KEY_F12: {
 #ifndef NDEBUG
+        case GLFW_KEY_F12: {
             DebugUI::toggle();
-#endif
             break;
         }
+#endif
         }
 
         switch (mods) {
