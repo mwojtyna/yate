@@ -13,5 +13,6 @@ using cursor_t = glm::vec2;
 struct ParserState {
     glm::vec4 bgColor = colors::defaultBg;
     glm::vec4 fgColor = colors::defaultFg;
+    bool inversed = false;
     size_t offset = 0;
 };

@@ -201,6 +201,14 @@ Parser parser_setup(GLFWwindow* window) {
                 parserState.fgColor = colors::defaultFg;
                 break;
             }
+            case 7: {
+                parserState.inversed = true;
+                break;
+            }
+            case 27: {
+                parserState.inversed = false;
+                break;
+            }
             case 38: {
                 uint32_t extendedColorType = args[i++];
                 switch (extendedColorType) {

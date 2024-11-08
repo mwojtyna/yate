@@ -73,12 +73,22 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
         }
 
         default: {
+            glm::vec4 bgColor =
+                m_State.inversed ? m_State.fgColor : m_State.bgColor;
+            glm::vec4 fgColor =
+                m_State.inversed ? m_State.bgColor : m_State.fgColor;
+            // Default background has opacity of 0, we have to correct it otherwise when inverted the text would be transparent
+            if (m_State.inversed && m_State.bgColor.a == 0) {
+                fgColor.a = 1;
+            }
+
             const Cell newCell = Cell{
-                .bgColor = m_State.bgColor,
-                .fgColor = m_State.fgColor,
+                .bgColor = bgColor,
+                .fgColor = fgColor,
                 .character = *it,
                 .offset = m_State.offset,
             };
+
             Terminal::getCursorMut([this, &newCell, &it](cursor_t& cursor) {
                 Terminal::getBufMut([this, &newCell, &cursor,
                                      &it](TerminalBuf& termBuf) {
