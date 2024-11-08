@@ -3,6 +3,10 @@
 #include "csi_parser.hpp"
 
 namespace csiidents {
+/// Insert Characters
+inline constexpr CsiIdent ICH = CsiIdent{
+    .prefix = std::nullopt, .intermediate = std::nullopt, .final = '@'};
+
 /// Erase In Line
 inline constexpr CsiIdent EL = CsiIdent{
     .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'K'};
@@ -38,6 +42,18 @@ inline constexpr CsiIdent ED = CsiIdent{
 /// Delete character(s)
 inline constexpr CsiIdent DCH = CsiIdent{
     .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'P'};
+
+/// Horizontal Position Absolute
+inline constexpr CsiIdent HPA = CsiIdent{
+    .prefix = std::nullopt, .intermediate = std::nullopt, .final = '`'};
+
+/// Horizontal Position Relative
+inline constexpr CsiIdent HPR = CsiIdent{
+    .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'a'};
+
+/// Horizontal and Vertical Position
+inline constexpr CsiIdent HVP = CsiIdent{
+    .prefix = std::nullopt, .intermediate = std::nullopt, .final = 'f'};
 
 /// Select Graphic Rendition
 inline constexpr CsiIdent SGR = CsiIdent{

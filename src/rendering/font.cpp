@@ -140,15 +140,7 @@ GlyphPos Font::getGlyphPos(const Cell& cell, glm::vec2& pen) {
     gp.pb = gp.pt + gg.rect.h;
 
     glm::vec2 advance(fracToPx(gg.metrics.horiAdvance), 0);
-    if (Parser::isEol(cell.character)) {
-        pen.x = 0;
-        advance.x = 0;
-        advance.y = -getMetricsInPx().height;
-        gp.pl = 0;
-        gp.pt = 0;
-        gp.pr = 0;
-        gp.pb = 0;
-    } else if (cell.character == c0::HT) {
+    if (cell.character == c0::HT) {
         const GlyphGeometry& space = m_CodepointToGeometry[' '];
         // Align to next tab stop
         advance.x = fracToPx(space.metrics.horiAdvance) *

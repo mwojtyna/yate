@@ -53,8 +53,11 @@ void Renderer::makeTextMesh(const std::vector<std::vector<Cell>>& cells,
             const GlyphPos g = font.getGlyphPos(cell, pen);
             const bool isCursor = y == cursor.y && x == cursor.x;
 
-            if (!Parser::isEol(cell.character) && cell.character != c0::HT ||
-                isCursor) {
+#ifndef NDEBUG
+            assert(!Parser::isEol(cell.character));
+#endif
+
+            if (cell.character != c0::HT || isCursor) {
                 const glm::vec4 bgColor =
                     isCursor ? glm::vec4(1) : cell.bgColor;
 
@@ -154,6 +157,9 @@ void Renderer::makeTextMesh(const std::vector<std::vector<Cell>>& cells,
             m_Indices.push_back(curIndex + 3);
             curIndex += 4;
         }
+
+        pen.x = 0;
+        pen.y -= font.getMetricsInPx().height;
     }
 }
 

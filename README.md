@@ -69,7 +69,7 @@ Credit to https://xtermjs.org/docs/api/vtfeatures/
 
 | Mnemonic | Name                                  | Sequence      | Short Description                                                                  | Support |
 | -------- | ------------------------------------- | ------------- | ---------------------------------------------------------------------------------- | ------- |
-| ICH      | Insert Characters                     | CSI Ps @      | Insert Ps (blank) characters (default = 1)                                         | &cross; |
+| ICH      | Insert Characters                     | CSI Ps @      | Insert Ps (blank) characters (default = 1)                                         | &check; |
 | SL       | Scroll Left                           | CSI Ps SP @   | Scroll viewport Ps times to the left                                               | &cross; |
 | CUU      | Cursor Up                             | CSI Ps A      | Move cursor Ps times up (default=1)                                                | &check; |
 | SR       | Scroll Right                          | CSI Ps SP A   | Scroll viewport Ps times to the right                                              | &cross; |
@@ -92,14 +92,14 @@ Credit to https://xtermjs.org/docs/api/vtfeatures/
 | SD       | Scroll Down                           | CSI Ps T      | Scroll Ps lines down (default=1).                                                  | &cross; |
 | ECH      | Erase Character                       | CSI Ps X      | Erase Ps characters from current cursor position to the right (default=1)          | &cross; |
 | CBT      | Cursor Backward Tabulation            | CSI Ps Z      | Move cursor Ps tabs backward (default=1).                                          | &cross; |
-| HPA      | Horizontal Position Absolute          | CSI Ps `      | Same as CHA.                                                                       | &cross; |
-| HPR      | Horizontal Position Relative          | CSI Ps a      | Same as CUF.                                                                       | &cross; |
+| HPA      | Horizontal Position Absolute          | CSI Ps `      | Same as CHA.                                                                       | &check; |
+| HPR      | Horizontal Position Relative          | CSI Ps a      | Same as CUF.                                                                       | &check; |
 | REP      | Repeat Preceding Character            | CSI Ps b      | Repeat preceding character Ps times (default=1)                                    | &cross; |
 | DA1      | Primary Device Attributes             | CSI c         | Send primary device attributes.                                                    | &cross; |
 | DA2      | Secondary Device Attributes           | CSI &gt; c    | Send primary device attributes.                                                    | &cross; |
 | VPA      | Vertical Position Absolute            | CSI Ps d      | Move cursor to Ps-th row (default=1).                                              | &cross; |
 | VPR      | Vertical Position Relative            | CSI Ps e      | Move cursor Ps times down (default=1).                                             | &cross; |
-| HVP      | Horizontal and Vertical Position      | CSI Ps ; Ps f | Same as CUP.                                                                       | &cross; |
+| HVP      | Horizontal and Vertical Position      | CSI Ps ; Ps f | Same as CUP.                                                                       | &check; |
 | TBC      | Tab Clear                             | CSI Ps g      | Clear tab stops at current position (0) or all (3) (default=0)                     | &cross; |
 | SM       | Set Mode                              | CSI Pm h      | Set various terminal modes                                                         | &cross; |
 | DECSET   | DEC Private Set Mode                  | CSI ? Pm h    | Set various terminal attributes                                                    | &cross; |

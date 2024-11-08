@@ -90,37 +90,21 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
             };
 
             Terminal::getCursorMut([this, &newCell, &it](cursor_t& cursor) {
-                Terminal::getBufMut([this, &newCell, &cursor,
-                                     &it](TerminalBuf& termBuf) {
-                    if (!termBuf.getRows().empty()) {
-                        std::vector<Cell>& row = termBuf.getRow(cursor.y);
-
-                        // Delete all characters in the row after this character when appending to this row
-                        if (!isEol(*it) && cursor.x < row.size()) {
-                            row.erase(row.begin() + cursor.x, row.end());
-                        }
-
-                        // Change '\n' cell to empty cell if it exists when appending to this row
-                        std::optional<size_t> eolIndex =
-                            termBuf.getEolIndexInRow(cursor.y);
-                        if (eolIndex.has_value()) {
-                            if (eolIndex.value() < row.size()) {
-                                row[eolIndex.value()] = Cell::empty();
+                Terminal::getBufMut(
+                    [this, &newCell, &cursor, &it](TerminalBuf& termBuf) {
+                        if (!termBuf.getRows().empty()) {
+                            std::vector<Cell>& row = termBuf.getRow(cursor.y);
+                            if (!isEol(*it)) {
+                                if (cursor.x + 1 > row.size()) {
+                                    row.push_back(std::move(newCell));
+                                } else {
+                                    row[cursor.x] = std::move(newCell);
+                                }
                             }
-                            termBuf.deleteEolIndexInRow(cursor.y);
+                        } else {
+                            termBuf.pushRow({std::move(newCell)});
                         }
-
-                        row.push_back(std::move(newCell));
-                        if (isEol(*it)) {
-                            // Needed to avoid cursor jumping to next line in some cases
-                            // e.g. node REPL `console.log()`
-                            row.insert(row.end() - 1, Cell::empty());
-                            termBuf.setEolIndexInRow(cursor.y, row.size() - 1);
-                        }
-                    } else {
-                        termBuf.pushRow({std::move(newCell)});
-                    }
-                });
+                    });
 
                 cursor.x++;
             });
@@ -136,7 +120,7 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
                     Terminal::getCursorMut(
                         [this, &termBuf, &it](cursor_t& cursor) {
                             // Only add new row when at the last row
-                            if (cursor.y == termBuf.getRows().size() - 1) {
+                            if (cursor.y + 1 == termBuf.getRows().size()) {
                                 termBuf.pushRow({});
                             }
 
@@ -173,7 +157,7 @@ std::vector<uint32_t> Parser::parsePs(iter_t& it, iter_t end) {
         }
 
         // Add new argument to list if argIdx has been incremented
-        if (argsString.empty() || argsString.size() - 1 < argIdx) {
+        if (argsString.size() < argIdx + 1) {
             argsString.push_back("");
         }
         argsString[argIdx] += *it;

@@ -6,6 +6,8 @@
 #include <spdlog/fmt/bin_to_hex.h>
 #include <spdlog/spdlog.h>
 
+static std::unordered_set<uint8_t> invalidIntermediates{'@', '`', '}', '~'};
+
 bool CsiIdent::operator==(const CsiIdent& rhs) const {
     bool equals = true;
 
@@ -28,7 +30,8 @@ void CsiParser::parse(iter_t& it, iter_t end, ParserState& parserState) {
     SPDLOG_TRACE("CSI:Ps = {}", vectorToString(ps));
 
     std::optional<char> intermediate = std::nullopt;
-    if (!std::isdigit(*it) && !std::isalpha(*it)) {
+    if (!std::isdigit(*it) && !std::isalpha(*it) &&
+        !invalidIntermediates.contains(*it)) {
         intermediate = *it;
         it++;
     }

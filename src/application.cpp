@@ -20,7 +20,6 @@
 #include <spdlog/cfg/env.h>
 #include <spdlog/spdlog.h>
 #include <string>
-#include <unordered_set>
 
 void Application::start() {
     spdlog::cfg::load_env_levels();
