@@ -263,7 +263,6 @@ Parser parser_setup(GLFWwindow* window) {
                 break;
             }
             }
-            i++;
         }
     });
 
