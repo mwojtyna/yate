@@ -46,9 +46,9 @@ static glm::vec4 getBrightColorFromPs(uint32_t ps, bool bg) {
         return bg ? colors::defaultBg : colors::defaultFg;
     }
 }
-static void cursorForward(uint32_t ps) {
-    Terminal::getCursorMut([&ps](cursor_t& cursor) {
-        Terminal::getBufMut([&ps, &cursor](TerminalBuf& termBuf) {
+static void cursorForward(const uint32_t ps) {
+    Terminal::getCursorMut([ps](cursor_t& cursor) {
+        Terminal::getBufMut([ps, &cursor](TerminalBuf& termBuf) {
             auto& row = termBuf.getRow(cursor.y);
             while (cursor.x + ps + 1 > row.size()) {
                 row.push_back(Cell::empty());
@@ -89,9 +89,9 @@ Parser parser_setup(GLFWwindow* window) {
     csi.addHandler(csiidents::ICH, [](const std::vector<uint32_t> args,
                                       ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
-        uint32_t ps = DEFAULT(args, 1);
-        Terminal::getBufMut([&ps](TerminalBuf& termBuf) {
-            Terminal::getCursorMut([&termBuf, &ps](cursor_t& cursor) {
+        const uint32_t ps = DEFAULT(args, 1);
+        Terminal::getBufMut([ps](TerminalBuf& termBuf) {
+            Terminal::getCursorMut([&termBuf, ps](cursor_t& cursor) {
                 std::vector<Cell>& row = termBuf.getRow(cursor.y);
                 row.insert(row.begin() + cursor.x, ps, Cell::empty());
             });
@@ -100,17 +100,17 @@ Parser parser_setup(GLFWwindow* window) {
     csi.addHandler(csiidents::CUU, [](const std::vector<uint32_t> args,
                                       ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
-        uint32_t ps = DEFAULT(args, 1);
-        Terminal::getCursorMut([&ps](cursor_t& cursor) {
+        const uint32_t ps = DEFAULT(args, 1);
+        Terminal::getCursorMut([ps](cursor_t& cursor) {
             cursor.y = std::max<float>(0, cursor.y - ps);
         });
     });
     csi.addHandler(csiidents::CUD, [](const std::vector<uint32_t> args,
                                       ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
-        uint32_t ps = DEFAULT(args, 1);
-        Terminal::getCursorMut([&ps](cursor_t& cursor) {
-            Terminal::getBufMut([&ps, &cursor](TerminalBuf& termBuf) {
+        const uint32_t ps = DEFAULT(args, 1);
+        Terminal::getCursorMut([ps](cursor_t& cursor) {
+            Terminal::getBufMut([ps, &cursor](TerminalBuf& termBuf) {
                 while (cursor.y + ps + 1 > termBuf.getRows().size()) {
                     termBuf.pushRow({});
                 }
@@ -121,7 +121,7 @@ Parser parser_setup(GLFWwindow* window) {
     csi.addHandler(csiidents::EL, [](const std::vector<uint32_t> args,
                                      ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
-        uint32_t ps = DEFAULT(args, 0);
+        const uint32_t ps = DEFAULT(args, 0);
         switch (ps) {
         // Erase from the cursor through the end of the row.
         case 0: {
@@ -149,21 +149,21 @@ Parser parser_setup(GLFWwindow* window) {
     csi.addHandler(csiidents::CUF, [](const std::vector<uint32_t> args,
                                       ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
-        uint32_t ps = DEFAULT(args, 1);
+        const uint32_t ps = DEFAULT(args, 1);
         cursorForward(ps);
     });
     csi.addHandler(csiidents::CUB, [](const std::vector<uint32_t> args,
                                       ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
-        uint32_t ps = DEFAULT(args, 1);
-        Terminal::getCursorMut([&ps](cursor_t& cursor) {
+        const uint32_t ps = DEFAULT(args, 1);
+        Terminal::getCursorMut([ps](cursor_t& cursor) {
             cursor.x = std::max<float>(0, cursor.x - ps);
         });
     });
     csi.addHandler(csiidents::CHA, [](const std::vector<uint32_t> args,
                                       ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
-        uint32_t ps = DEFAULT(args, 1);
+        const uint32_t ps = DEFAULT(args, 1);
         setCursorX(ps - 1);
     });
     csi.addHandler(csiidents::CUP, [](const std::vector<uint32_t> args,
@@ -176,8 +176,8 @@ Parser parser_setup(GLFWwindow* window) {
     csi.addHandler(csiidents::ED, [](const std::vector<uint32_t> args,
                                      ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
-        uint32_t ps = DEFAULT(args, 0);
-        Terminal::getCursorMut([&ps](cursor_t& cursor) {
+        const uint32_t ps = DEFAULT(args, 0);
+        Terminal::getCursorMut([ps](cursor_t& cursor) {
             switch (ps) {
             // Erase from the cursor through the end of the viewport.
             case 0: {
@@ -212,8 +212,8 @@ Parser parser_setup(GLFWwindow* window) {
     csi.addHandler(csiidents::DCH, [](const std::vector<uint32_t> args,
                                       ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
-        uint32_t ps = DEFAULT(args, 1);
-        Terminal::getBufMut([&ps](TerminalBuf& termBuf) {
+        const uint32_t ps = DEFAULT(args, 1);
+        Terminal::getBufMut([ps](TerminalBuf& termBuf) {
             cursor_t cursor = Terminal::getCursor();
             std::vector<Cell>& row = termBuf.getRow(cursor.y);
             row.erase(row.begin() + cursor.x, row.begin() + cursor.x + ps);
@@ -222,13 +222,13 @@ Parser parser_setup(GLFWwindow* window) {
     csi.addHandler(csiidents::HPA, [](const std::vector<uint32_t> args,
                                       ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
-        uint32_t ps = DEFAULT(args, 1);
+        const uint32_t ps = DEFAULT(args, 1);
         setCursorX(ps - 1);
     });
     csi.addHandler(csiidents::HPR, [](const std::vector<uint32_t> args,
                                       ParserState& parserState) {
         assert(args.size() == 0 || args.size() == 1);
-        uint32_t ps = DEFAULT(args, 1);
+        const uint32_t ps = DEFAULT(args, 1);
         cursorForward(ps);
     });
     csi.addHandler(csiidents::HVP, [](const std::vector<uint32_t> args,
