@@ -122,11 +122,10 @@ bool Font::updateAtlas(std::unordered_set<codepoint_t>& codepoints) {
 }
 
 GlyphPos Font::getGlyphPos(const Cell& cell, glm::vec2& pen) {
-    bool found = m_CodepointToGeometry.contains(cell.character);
-
     GlyphPos gp{};
-    GlyphGeometry& gg = found ? m_CodepointToGeometry[cell.character]
-                              : m_CodepointToGeometry[REPLACEMENT_CHAR];
+    GlyphGeometry& gg = m_CodepointToGeometry.contains(cell.character)
+                            ? m_CodepointToGeometry[cell.character]
+                            : m_CodepointToGeometry[REPLACEMENT_CHAR];
 
     gp.al = gg.rect.x / (float)atlasSize;
     gp.at = (gg.rect.y + gg.rect.h) / (float)atlasSize;
@@ -135,8 +134,8 @@ GlyphPos Font::getGlyphPos(const Cell& cell, glm::vec2& pen) {
 
     gp.pl = fracToPx(gg.metrics.horiBearingX);
     gp.pt = -fracToPx(gg.metrics.height - gg.metrics.horiBearingY),
-    gp.pr = gp.pl + gg.rect.w;
-    gp.pb = gp.pt + gg.rect.h;
+    gp.pr = gp.pl + fracToPx(gg.metrics.width);
+    gp.pb = gp.pt + fracToPx(gg.metrics.height);
 
     glm::vec2 advance(fracToPx(gg.metrics.horiAdvance), 0);
     if (cell.character == c0::HT) {

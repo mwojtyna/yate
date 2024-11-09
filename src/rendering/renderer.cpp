@@ -24,10 +24,10 @@ void Renderer::initialize() {
     }
 
     glCall(SPDLOG_INFO("OpenGL version: {}", (GLchar*)glGetString(GL_VERSION)));
+
     glCall(glEnable(GL_BLEND));
     glCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
-    glCall(glDepthMask(GL_FALSE));
 
     SPDLOG_DEBUG("Initialized renderer");
 }
@@ -37,6 +37,7 @@ void Renderer::makeTextMesh(const std::vector<std::vector<Cell>>& cells,
     m_Vertices.clear();
     m_Indices.clear();
 
+    std::vector<index_t> bgIndices, fgIndices;
     size_t curIndex = 0;
     glm::vec2 pen(0);
     cursor_t cursor = Terminal::getCursor();
@@ -80,14 +81,14 @@ void Renderer::makeTextMesh(const std::vector<std::vector<Cell>>& cells,
                                       .bg = true}); // left top
 
                 // Background first triangle
-                m_Indices.push_back(curIndex + 0);
-                m_Indices.push_back(curIndex + 1);
-                m_Indices.push_back(curIndex + 3);
+                bgIndices.push_back(curIndex + 0);
+                bgIndices.push_back(curIndex + 1);
+                bgIndices.push_back(curIndex + 3);
 
                 // Background second triangle
-                m_Indices.push_back(curIndex + 1);
-                m_Indices.push_back(curIndex + 2);
-                m_Indices.push_back(curIndex + 3);
+                bgIndices.push_back(curIndex + 1);
+                bgIndices.push_back(curIndex + 2);
+                bgIndices.push_back(curIndex + 3);
                 curIndex += 4;
             }
 
@@ -113,14 +114,15 @@ void Renderer::makeTextMesh(const std::vector<std::vector<Cell>>& cells,
                                   .bg = false}); // left top
 
             // Foreground first triangle
-            m_Indices.push_back(curIndex + 0);
-            m_Indices.push_back(curIndex + 1);
-            m_Indices.push_back(curIndex + 3);
+            fgIndices.push_back(curIndex + 0);
+            fgIndices.push_back(curIndex + 1);
+            fgIndices.push_back(curIndex + 3);
 
             // Foreground second triangle
-            m_Indices.push_back(curIndex + 1);
-            m_Indices.push_back(curIndex + 2);
-            m_Indices.push_back(curIndex + 3);
+            fgIndices.push_back(curIndex + 1);
+            fgIndices.push_back(curIndex + 2);
+            fgIndices.push_back(curIndex + 3);
+
             curIndex += 4;
         }
 
@@ -147,20 +149,23 @@ void Renderer::makeTextMesh(const std::vector<std::vector<Cell>>& cells,
                                   .bg = true}); // left top
 
             // Background first triangle
-            m_Indices.push_back(curIndex + 0);
-            m_Indices.push_back(curIndex + 1);
-            m_Indices.push_back(curIndex + 3);
+            bgIndices.push_back(curIndex + 0);
+            bgIndices.push_back(curIndex + 1);
+            bgIndices.push_back(curIndex + 3);
 
             // Background second triangle
-            m_Indices.push_back(curIndex + 1);
-            m_Indices.push_back(curIndex + 2);
-            m_Indices.push_back(curIndex + 3);
+            bgIndices.push_back(curIndex + 1);
+            bgIndices.push_back(curIndex + 2);
+            bgIndices.push_back(curIndex + 3);
             curIndex += 4;
         }
 
         pen.x = 0;
         pen.y -= font.getMetricsInPx().height;
     }
+
+    m_Indices.insert(m_Indices.end(), bgIndices.begin(), bgIndices.end());
+    m_Indices.insert(m_Indices.end(), fgIndices.begin(), fgIndices.end());
 }
 
 void Renderer::drawText(const glm::mat4& transform, Program& program) {
