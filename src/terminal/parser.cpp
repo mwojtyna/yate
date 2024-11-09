@@ -121,7 +121,7 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
                 Terminal::getBufMut([this](TerminalBuf& termBuf) {
                     Terminal::getCursorMut([this, &termBuf](cursor_t& cursor) {
                         // Only add new row when at the last row
-                        if (cursor.y + 1 == termBuf.getRows().size()) {
+                        while (cursor.y + 1 >= termBuf.getRows().size()) {
                             termBuf.pushRow({});
                         }
 
