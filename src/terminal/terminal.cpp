@@ -33,7 +33,7 @@ void Terminal::open(int windowWidth, int windowHeight) {
 
     // TODO: Size based on window
     struct winsize winsize = {
-        .ws_row = 41, .ws_col = 133, .ws_xpixel = 0, .ws_ypixel = 0};
+        .ws_row = 41, .ws_col = 120, .ws_xpixel = 0, .ws_ypixel = 0};
     if (openpty(&s_Data->masterFd, &s_Data->slaveFd, nullptr, nullptr,
                 &winsize)) {
         FATAL("Failed to open pty: {}", strerror(errno));

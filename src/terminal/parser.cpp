@@ -19,7 +19,7 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
         codepoint_t codepoint = utf8::decode(it, data.end());
         codepoints.insert(codepoint);
 
-        switch (*it) {
+        switch (codepoint) {
         case c0::NUL: {
             continue;
         }

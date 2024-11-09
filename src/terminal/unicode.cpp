@@ -133,10 +133,10 @@ codepoint_t decode(iter_t& it, iter_t end) {
         SPDLOG_ERROR("Invalid UTF-8 header {:#b}", *it);
         return Font::REPLACEMENT_CHAR;
     }
-    it++;
 
-    int8_t i = 1;
-    for (; i < bytesRequired && it < end; i++, it++) {
+    uint8_t i = 1;
+    while (i < bytesRequired) {
+        it++;
         if (*it == 0xc0 || *it == 0xc1 || *it == 0xf5 || *it == 0xff) {
             SPDLOG_ERROR("Prohibited UTF-8 octet={:#x} with index={}", *it, i);
             return Font::REPLACEMENT_CHAR;
@@ -147,6 +147,7 @@ codepoint_t decode(iter_t& it, iter_t end) {
         }
 
         codepoint |= (*it & 0b00'111111) << (6 * (bytesRequired - i - 1));
+        i++;
     }
     if (i + 1 < bytesRequired && it == end) {
         SPDLOG_ERROR("UTF-8 sequence cut off, expected size {}", bytesRequired);
