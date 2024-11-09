@@ -1,6 +1,5 @@
 #include "font.hpp"
 #include "../terminal/codes.hpp"
-#include "../terminal/parser.hpp"
 #include "../utils.hpp"
 #include "opengl.hpp"
 #include <freetype/freetype.h>

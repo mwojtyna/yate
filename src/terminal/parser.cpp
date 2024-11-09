@@ -5,6 +5,7 @@
 #include "osc_parser.hpp"
 #include "terminal.hpp"
 #include "types.hpp"
+#include "unicode.hpp"
 #include <spdlog/spdlog.h>
 
 Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser)
@@ -15,7 +16,8 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
     std::unordered_set<codepoint_t> codepoints;
 
     for (auto it = data.begin(); it < data.end(); it++) {
-        codepoints.insert(*it);
+        codepoint_t codepoint = utf8::decode(it, data.end());
+        codepoints.insert(codepoint);
 
         switch (*it) {
         case c0::NUL: {
@@ -52,7 +54,7 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
             }
             default: {
                 SPDLOG_WARN(
-                    "Unsupported escape sequence 'ESC {}' (0x{:x}) in buf:",
+                    "Unsupported escape sequence 'ESC {}' ({:#x}) in buf:",
                     (char)*it, *it);
                 hexdump(data.data(), data.size(), SPDLOG_LEVEL_WARN);
             }
@@ -85,49 +87,48 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
             const Cell newCell = Cell{
                 .bgColor = bgColor,
                 .fgColor = fgColor,
-                .character = *it,
+                .character = codepoint,
                 .offset = m_State.offset,
             };
 
-            Terminal::getCursorMut([this, &newCell, &it](cursor_t& cursor) {
-                Terminal::getBufMut(
-                    [this, &newCell, &cursor, &it](TerminalBuf& termBuf) {
+            if (!isEol(newCell.character)) {
+                Terminal::getCursorMut([&newCell](cursor_t& cursor) {
+                    Terminal::getBufMut([&newCell,
+                                         &cursor](TerminalBuf& termBuf) {
                         if (!termBuf.getRows().empty()) {
                             std::vector<Cell>& row = termBuf.getRow(cursor.y);
-                            if (!isEol(*it)) {
-                                if (cursor.x + 1 > row.size()) {
-                                    row.push_back(std::move(newCell));
-                                } else {
-                                    row[cursor.x] = std::move(newCell);
-                                }
+                            if (cursor.x + 1 > row.size()) {
+                                row.push_back(std::move(newCell));
+                            } else {
+                                row[cursor.x] = std::move(newCell);
                             }
                         } else {
                             termBuf.pushRow({std::move(newCell)});
                         }
                     });
 
-                cursor.x++;
-            });
+                    cursor.x++;
+                });
+            }
 
-            if (*it == c0::HT) {
+            if (newCell.character == c0::HT) {
                 m_State.offset = 0;
             } else {
                 m_State.offset++;
             }
 
-            if (isEol(*it)) {
-                Terminal::getBufMut([this, &it](TerminalBuf& termBuf) {
-                    Terminal::getCursorMut(
-                        [this, &termBuf, &it](cursor_t& cursor) {
-                            // Only add new row when at the last row
-                            if (cursor.y + 1 == termBuf.getRows().size()) {
-                                termBuf.pushRow({});
-                            }
+            if (isEol(newCell.character)) {
+                Terminal::getBufMut([this](TerminalBuf& termBuf) {
+                    Terminal::getCursorMut([this, &termBuf](cursor_t& cursor) {
+                        // Only add new row when at the last row
+                        if (cursor.y + 1 == termBuf.getRows().size()) {
+                            termBuf.pushRow({});
+                        }
 
-                            m_State.offset = 0;
-                            cursor.x = 0;
-                            cursor.y++;
-                        });
+                        m_State.offset = 0;
+                        cursor.x = 0;
+                        cursor.y++;
+                    });
                 });
             }
             break;

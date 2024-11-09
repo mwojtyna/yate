@@ -4,14 +4,18 @@
 #include "csi_idents.hpp"
 #include "nav_keys.hpp"
 #include "terminal.hpp"
+#include "unicode.hpp"
 
 InputHandler::InputHandler(GLFWwindow* window) : m_Window(window) {}
 
 void InputHandler::setupHandlers() {
-    glfwSetCharCallback(m_Window, [](GLFWwindow* window, uint32_t codepoint) {
-        // TODO: UTF-8
-        Terminal::write({(uint8_t)codepoint});
-    });
+    // BUG: On wayland key repeat is not working. Works only when not running glfwSwapBuffers()
+    glfwSetCharCallback(m_Window,
+                        [](GLFWwindow* window, codepoint_t codepoint) {
+                            std::vector<uint8_t> utf8 = utf8::encode(codepoint);
+                            Terminal::write(std::move(utf8));
+                        });
+
     glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scanCode,
                                     int action, int mods) {
         if (action != GLFW_PRESS) {

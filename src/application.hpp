@@ -10,7 +10,7 @@ class Application {
 public:
     void start();
     ~Application();
-    GLFWwindow* getWindow();
+    GLFWwindow* getWindow() const;
 
     constexpr static int WIDTH = 1200;
     constexpr static int HEIGHT = 840;
