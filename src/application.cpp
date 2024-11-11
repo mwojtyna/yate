@@ -48,6 +48,7 @@ void Application::start() {
         FATAL("Failed to create window: {}", SDL_GetError());
     }
     SDL_GLContext ctx = SDL_GL_CreateContext(m_Window);
+    SDL_GL_SetSwapInterval(1);
 
     Renderer renderer;
     renderer.initialize();
@@ -124,7 +125,6 @@ void Application::start() {
     SPDLOG_INFO("Application started");
     while (!quit) {
         eventHandler.handleEvents(quit);
-
         renderer.clear();
         renderer.setWireframe(debugData.wireframe);
 
