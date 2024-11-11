@@ -93,15 +93,12 @@ void EventHandler::handleEvents(bool& quit) {
 #endif
             }
 
-            switch (event.key.mod) {
-            case SDL_KMOD_RCTRL:
-            case SDL_KMOD_LCTRL: {
-                if (std::isalpha(event.key.key)) {
+            if (event.key.mod & SDL_KMOD_CTRL) {
+                // Have to check range otherwise segfault if big number
+                if (event.key.key <= 127 && std::isalpha(event.key.key)) {
                     Terminal::write(
                         {static_cast<uint8_t>(1 + event.key.key - 'a')});
                 }
-                break;
-            }
             }
             break;
         }
