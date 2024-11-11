@@ -3,7 +3,7 @@
 
 bool checkError() {
     while (GLenum error = glGetError()) {
-        SPDLOG_ERROR("[OpenGL error] ({0:x})", error);
+        SPDLOG_ERROR("[OpenGL error] ({:#x})", error);
         return false;
     }
     return true;

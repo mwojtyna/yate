@@ -18,8 +18,8 @@ public:
     void clear();
     void setViewMat(const glm::mat4& mat);
 
-    static glm::mat4& getProjectionMat();
-    static glm::mat4& getViewMat();
+    static glm::mat4 getProjectionMat();
+    static glm::mat4 getViewMat();
 
 private:
     std::vector<Vertex> m_Vertices;

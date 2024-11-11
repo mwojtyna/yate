@@ -7,6 +7,7 @@
 #include "font.hpp"
 #include "opengl.hpp"
 #include "program.hpp"
+#include <SDL3/SDL_video.h>
 #include <cstddef>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/fwd.hpp>
@@ -19,7 +20,7 @@ glm::mat4 Renderer::s_ProjectionMat = glm::ortho(
 glm::mat4 Renderer::s_ViewMat = glm::mat4(1.0f);
 
 void Renderer::initialize() {
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
         FATAL("Failed to initialize OpenGL");
     }
 
@@ -192,11 +193,11 @@ void Renderer::clear() {
     glCall(glClear(GL_COLOR_BUFFER_BIT));
 }
 
-glm::mat4& Renderer::getProjectionMat() {
+glm::mat4 Renderer::getProjectionMat() {
     return s_ProjectionMat;
 }
 
-glm::mat4& Renderer::getViewMat() {
+glm::mat4 Renderer::getViewMat() {
     return s_ViewMat;
 }
 

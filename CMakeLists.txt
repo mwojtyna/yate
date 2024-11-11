@@ -41,15 +41,17 @@ endif()
 embed_shader(${PROJECT_NAME} "text.vert" "textVertexShader")
 embed_shader(${PROJECT_NAME} "text.frag" "textFragmentShader")
 
-# glfw
-message(STATUS "Fetching glfw...")
+# sdl
+message(STATUS "Fetching SDL3...")
 FetchContent_Declare(
-		glfw
-		GIT_REPOSITORY https://github.com/glfw/glfw
-		GIT_TAG        3.4
+		sdl
+		GIT_REPOSITORY https://github.com/libsdl-org/SDL
+		GIT_TAG        preview-3.1.6
 )
-FetchContent_MakeAvailable(glfw)
-target_compile_options(glfw PRIVATE -w) # Disable warnings
+option(SDL_TEST_LIBRARY "" OFF)
+FetchContent_MakeAvailable(sdl)
+target_compile_options(SDL_uclibc PRIVATE -w) # Disable warnings
+target_compile_options(SDL3-static PRIVATE -w) # Disable warnings
 
 # opengl
 find_package(OpenGL REQUIRED)
@@ -91,7 +93,7 @@ target_compile_options(glm PRIVATE -w) # Disable warnings
 file(GLOB IMGUI_SOURCES ./vendor/imgui/*.cpp)
 add_library(imgui STATIC ${IMGUI_SOURCES})
 target_include_directories(imgui PUBLIC ./vendor/imgui/)
-target_link_libraries(imgui PRIVATE glfw)
+target_link_libraries(imgui PRIVATE SDL3::SDL3)
 target_compile_options(imgui PRIVATE -w) # Disable warnings
 
 # freetype
@@ -114,5 +116,5 @@ target_compile_options(freetype PRIVATE -w) # Disable warnings
 target_include_directories(${PROJECT_NAME} PRIVATE ./vendor/stb/)
 
 set(INCLUDE_DIRS ./vendor/stb/)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw OpenGL::GL glad spdlog glm imgui freetype)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 OpenGL::GL glad spdlog glm imgui freetype)
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
