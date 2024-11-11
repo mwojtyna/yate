@@ -19,7 +19,7 @@ Yet Another Terminal Emulator
 - [x] PTY initialization
 - [x] Minimal terminal codes parsing
 - [x] Colors
-- [ ] UTF-8
+- [x] UTF-8
 
 ### later
 
