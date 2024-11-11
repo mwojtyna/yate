@@ -41,21 +41,18 @@ void Application::start() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                         SDL_GL_CONTEXT_PROFILE_CORE);
 
-    m_Window =
-        SDL_CreateWindow("yate", Application::WIDTH, Application::HEIGHT,
-                         SDL_WINDOW_OPENGL | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+    m_Window = SDL_CreateWindow("yate", Application::WIDTH, Application::HEIGHT,
+                                SDL_WINDOW_OPENGL);
     if (m_Window == nullptr) {
         FATAL("Failed to create window: {}", SDL_GetError());
     }
-    SDL_GLContext ctx = SDL_GL_CreateContext(m_Window);
-    SDL_GL_SetSwapInterval(1);
 
     Renderer renderer;
-    renderer.initialize();
+    renderer.initialize(m_Window);
     renderer.setBgColor(glm::vec3(0.10f, 0.11f, 0.15f));
     Program program(textVertexShader, textFragmentShader);
     Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 16);
-    DebugUI::initialize(m_Window, ctx);
+    DebugUI::initialize(m_Window, renderer.getContext());
     EventHandler eventHandler(m_Window);
 
     ThreadSafeQueue<codepoint_t> atlasQueue;
