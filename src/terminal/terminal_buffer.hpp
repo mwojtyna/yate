@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../rendering/types.hpp"
+#include "unicode.hpp"
 #include <glm/ext/vector_float4.hpp>
 #include <vector>
 

@@ -5,12 +5,24 @@
 
 #include "../terminal/terminal_buffer.hpp"
 #include "atlas.hpp"
-#include "types.hpp"
 #include <filesystem>
 #include <glm/ext/vector_float2.hpp>
 #include <stb_rect_pack.h>
 #include <unordered_map>
 #include <unordered_set>
+
+struct GlyphGeometry {
+    FT_Glyph_Metrics metrics;
+    stbrp_rect rect;
+    uint8_t* bitmap;
+};
+
+struct GlyphPos {
+    /// Atlas coordinates
+    float al, at, ar, ab;
+    /// World coordinates
+    float pl, pt, pr, pb;
+};
 
 class Font {
 public:

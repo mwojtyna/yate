@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../rendering/types.hpp"
 #include "csi_parser.hpp"
 #include "osc_parser.hpp"
+#include "unicode.hpp"
 #include <glm/ext/vector_float4.hpp>
 #include <unordered_set>
 #include <vector>
