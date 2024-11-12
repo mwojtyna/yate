@@ -13,6 +13,7 @@
 #include "utils.hpp"
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_events.h>
+#include <SDL3/SDL_hints.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_keyboard.h>
 #include <SDL3/SDL_timer.h>
@@ -33,6 +34,10 @@ void Application::start() {
 
     SPDLOG_INFO("SDL version: {}.{}.{}", SDL_MAJOR_VERSION, SDL_MINOR_VERSION,
                 SDL_MICRO_VERSION);
+    // Prefer wayland over xwayland
+    SDL_SetHintWithPriority(SDL_HINT_VIDEO_DRIVER, "wayland,x11",
+                            SDL_HINT_OVERRIDE);
+
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         FATAL("Failed to init SDL: {}", SDL_GetError());
     }
