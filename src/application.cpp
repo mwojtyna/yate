@@ -11,14 +11,6 @@
 #include "terminal/terminal.hpp"
 #include "terminal/thread_safe_queue.hpp"
 #include "utils.hpp"
-#include <SDL3/SDL_error.h>
-#include <SDL3/SDL_events.h>
-#include <SDL3/SDL_hints.h>
-#include <SDL3/SDL_init.h>
-#include <SDL3/SDL_keyboard.h>
-#include <SDL3/SDL_timer.h>
-#include <SDL3/SDL_version.h>
-#include <SDL3/SDL_video.h>
 #include <cassert>
 #include <cstdint>
 #include <glm/ext/matrix_float4x4.hpp>
@@ -32,22 +24,26 @@
 void Application::start() {
     spdlog::cfg::load_env_levels();
 
-    SPDLOG_INFO("SDL version: {}.{}.{}", SDL_MAJOR_VERSION, SDL_MINOR_VERSION,
-                SDL_MICRO_VERSION);
+    SDL_version sdlVersion;
+    SDL_GetVersion(&sdlVersion);
+    SPDLOG_INFO("SDL version: {}.{}.{}", sdlVersion.major, sdlVersion.major,
+                sdlVersion.patch);
+
     // Prefer wayland over xwayland
-    SDL_SetHintWithPriority(SDL_HINT_VIDEO_DRIVER, "wayland,x11",
+    SDL_SetHintWithPriority(SDL_HINT_VIDEODRIVER, "wayland,x11",
                             SDL_HINT_OVERRIDE);
 
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
-        FATAL("Failed to init SDL: {}", SDL_GetError());
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        FATAL("Failed to initialize SDL: {}", SDL_GetError());
     }
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                         SDL_GL_CONTEXT_PROFILE_CORE);
 
-    m_Window = SDL_CreateWindow("yate", Application::WIDTH, Application::HEIGHT,
-                                SDL_WINDOW_OPENGL);
+    m_Window = SDL_CreateWindow("yate", SDL_WINDOWPOS_UNDEFINED,
+                                SDL_WINDOWPOS_UNDEFINED, Application::WIDTH,
+                                Application::HEIGHT, SDL_WINDOW_OPENGL);
     if (m_Window == nullptr) {
         FATAL("Failed to create window: {}", SDL_GetError());
     }

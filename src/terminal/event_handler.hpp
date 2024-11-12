@@ -1,10 +1,12 @@
 #pragma once
 
-#include <SDL3/SDL_video.h>
+#include <SDL2/SDL.h>
 
 class EventHandler {
 public:
     EventHandler(SDL_Window* window);
+    ~EventHandler();
+
     void handleEvents(bool& quit);
 
 private:

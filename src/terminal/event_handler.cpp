@@ -4,24 +4,23 @@
 #include "csi_idents.hpp"
 #include "nav_keys.hpp"
 #include "terminal.hpp"
-#include <SDL3/SDL_events.h>
-#include <SDL3/SDL_keyboard.h>
-#include <SDL3/SDL_keycode.h>
-#include <SDL3/SDL_video.h>
 
 EventHandler::EventHandler(SDL_Window* window) : m_Window(window) {
-    SDL_StartTextInput(m_Window);
+    SDL_StartTextInput();
+}
+EventHandler::~EventHandler() {
+    SDL_StopTextInput();
 }
 
 void EventHandler::handleEvents(bool& quit) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
-        case SDL_EVENT_QUIT: {
+        case SDL_QUIT: {
             quit = true;
             return;
         }
-        case SDL_EVENT_TEXT_INPUT: {
+        case SDL_TEXTINPUT: {
             const char* text = event.text.text;
             std::vector<uint8_t> buf;
             for (size_t i = 0; text[i] != '\0'; i++) {
@@ -30,8 +29,10 @@ void EventHandler::handleEvents(bool& quit) {
             Terminal::write(std::move(buf));
             break;
         }
-        case SDL_EVENT_KEY_DOWN: {
-            switch (event.key.key) {
+        case SDL_KEYDOWN: {
+            SDL_Keysym key = event.key.keysym;
+
+            switch (key.sym) {
             case SDLK_BACKSPACE: {
                 Terminal::write({c0::BS});
                 break;
@@ -93,12 +94,15 @@ void EventHandler::handleEvents(bool& quit) {
 #endif
             }
 
-            if (event.key.mod & SDL_KMOD_CTRL) {
+            // Have to stop text input when Ctrl is held down to allow for repeating Ctrl-C for example
+            if (key.mod & KMOD_CTRL) {
+                SDL_StopTextInput();
                 // Have to check range otherwise segfault if big number
-                if (event.key.key <= 127 && std::isalpha(event.key.key)) {
-                    Terminal::write(
-                        {static_cast<uint8_t>(1 + event.key.key - 'a')});
+                if (key.sym <= 127 && std::isalpha(key.sym)) {
+                    Terminal::write({static_cast<uint8_t>(1 + key.sym - 'a')});
                 }
+            } else {
+                SDL_StartTextInput();
             }
             break;
         }

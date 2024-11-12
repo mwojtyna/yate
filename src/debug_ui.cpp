@@ -5,7 +5,7 @@
 #include <glm/ext/vector_float3.hpp>
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
-#include <imgui_impl_sdl3.h>
+#include <imgui_impl_sdl2.h>
 #include <spdlog/spdlog.h>
 
 ImGuiIO DebugUI::s_IO;
@@ -18,7 +18,7 @@ void DebugUI::initialize(SDL_Window* window, SDL_GLContext glContext) {
     s_IO.Fonts->AddFontDefault();
     s_IO.Fonts->Build();
     ImGui::StyleColorsDark();
-    ImGui_ImplSDL3_InitForOpenGL(window, glContext);
+    ImGui_ImplSDL2_InitForOpenGL(window, glContext);
     ImGui_ImplOpenGL3_Init();
 
     SPDLOG_DEBUG("Initialized debug UI");
@@ -26,7 +26,7 @@ void DebugUI::initialize(SDL_Window* window, SDL_GLContext glContext) {
 
 void DebugUI::destroy() {
     ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplSDL3_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
     SPDLOG_DEBUG("Shutdown debug UI");
 }
@@ -37,7 +37,7 @@ void DebugUI::draw(DebugUI::DebugData& data) {
     }
 
     ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplSDL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
     {

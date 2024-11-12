@@ -6,7 +6,6 @@
 #include "terminal.hpp"
 #include "terminal_buffer.hpp"
 #include "types.hpp"
-#include <SDL3/SDL_video.h>
 #include <spdlog/spdlog.h>
 #include <string>
 

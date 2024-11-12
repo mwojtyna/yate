@@ -3,7 +3,7 @@
 #include "font.hpp"
 #include "mesh.hpp"
 #include "program.hpp"
-#include <SDL3/SDL_video.h>
+#include <SDL2/SDL.h>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/vector_float3.hpp>
