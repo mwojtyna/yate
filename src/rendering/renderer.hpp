@@ -11,7 +11,8 @@
 
 class Renderer {
 public:
-    void initialize(SDL_Window* window);
+    Renderer(SDL_Window* window);
+
     void makeTextMesh(const std::vector<std::vector<Cell>>& cells, Font& font);
     void drawText(const glm::mat4& transform, Program& program);
     void setWireframe(const bool enabled);

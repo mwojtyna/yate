@@ -13,7 +13,7 @@ glm::mat4 Renderer::s_ProjectionMat = glm::ortho(
     0.0f, (float)Application::WIDTH, -(float)Application::HEIGHT, 0.0f);
 glm::mat4 Renderer::s_ViewMat = glm::mat4(1.0f);
 
-void Renderer::initialize(SDL_Window* window) {
+Renderer::Renderer(SDL_Window* window) {
     SDL_GLContext ctx = SDL_GL_CreateContext(window);
     SDL_GL_SetSwapInterval(1);
 

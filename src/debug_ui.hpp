@@ -16,13 +16,14 @@ public:
         bool& wireframe;
     };
 
-    static void initialize(SDL_Window* window, SDL_GLContext glContext);
-    static void destroy();
+    DebugUI(SDL_Window* window, SDL_GLContext glContext);
+    ~DebugUI();
 
-    static void draw(DebugUI::DebugData& data);
-    static void toggle();
+    void draw(DebugUI::DebugData& data);
+    void handleEvent(SDL_Event& event);
+    void toggle();
 
 private:
-    static ImGuiIO s_IO;
-    static bool s_ShowDemoWindow;
+    bool m_Show;
+    SDL_Window* m_Window;
 };

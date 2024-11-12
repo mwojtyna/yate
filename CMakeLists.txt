@@ -88,7 +88,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glm)
 target_compile_options(glm PRIVATE -w) # Disable warnings
 
-# imgui v1.91.0
+# imgui v1.91.5
 file(GLOB IMGUI_SOURCES ./vendor/imgui/*.cpp)
 add_library(imgui STATIC ${IMGUI_SOURCES})
 target_include_directories(imgui PUBLIC ./vendor/imgui/)

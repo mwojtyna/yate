@@ -1,5 +1,4 @@
 #include "event_handler.hpp"
-#include "../debug_ui.hpp"
 #include "codes.hpp"
 #include "csi_idents.hpp"
 #include "nav_keys.hpp"
@@ -12,9 +11,11 @@ EventHandler::~EventHandler() {
     SDL_StopTextInput();
 }
 
-void EventHandler::handleEvents(bool& quit) {
+void EventHandler::handleEvents(bool& quit, DebugUI& debugUI) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
+        debugUI.handleEvent(event);
+
         switch (event.type) {
         case SDL_QUIT: {
             quit = true;
@@ -88,7 +89,7 @@ void EventHandler::handleEvents(bool& quit) {
 
 #ifndef NDEBUG
             case SDLK_F12: {
-                DebugUI::toggle();
+                debugUI.toggle();
                 break;
             }
 #endif
@@ -101,7 +102,6 @@ void EventHandler::handleEvents(bool& quit) {
                 if (key.sym <= 127 && std::isalpha(key.sym)) {
                     Terminal::write({static_cast<uint8_t>(1 + key.sym - 'a')});
                 }
-            } else {
                 SDL_StartTextInput();
             }
             break;

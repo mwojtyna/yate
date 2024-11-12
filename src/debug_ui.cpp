@@ -8,23 +8,21 @@
 #include <imgui_impl_sdl2.h>
 #include <spdlog/spdlog.h>
 
-ImGuiIO DebugUI::s_IO;
-bool DebugUI::s_ShowDemoWindow = false;
-
-void DebugUI::initialize(SDL_Window* window, SDL_GLContext glContext) {
+DebugUI::DebugUI(SDL_Window* window, SDL_GLContext glContext)
+    : m_Window(window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    s_IO = ImGui::GetIO();
-    s_IO.Fonts->AddFontDefault();
-    s_IO.Fonts->Build();
+    ImGuiIO io = ImGui::GetIO();
+    io.Fonts->AddFontDefault();
+    io.Fonts->Build();
     ImGui::StyleColorsDark();
-    ImGui_ImplSDL2_InitForOpenGL(window, glContext);
+    ImGui_ImplSDL2_InitForOpenGL(m_Window, glContext);
     ImGui_ImplOpenGL3_Init();
 
     SPDLOG_DEBUG("Initialized debug UI");
 }
 
-void DebugUI::destroy() {
+DebugUI::~DebugUI() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
@@ -32,7 +30,7 @@ void DebugUI::destroy() {
 }
 
 void DebugUI::draw(DebugUI::DebugData& data) {
-    if (!s_ShowDemoWindow) {
+    if (!m_Show) {
         return;
     }
 
@@ -42,7 +40,7 @@ void DebugUI::draw(DebugUI::DebugData& data) {
 
     {
         char title[64];
-        snprintf(title, 64, "Debug (%f FPS, %llu ms)###DebugWindow",
+        snprintf(title, 64, "Debug (%f FPS, %lu ms)###DebugWindow",
                  1000.0 / data.frameTimeMs, data.frameTimeMs);
 
         ImGui::Begin(title);
@@ -66,6 +64,10 @@ void DebugUI::draw(DebugUI::DebugData& data) {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
+void DebugUI::handleEvent(SDL_Event& event) {
+    ImGui_ImplSDL2_ProcessEvent(&event);
+}
+
 void DebugUI::toggle() {
-    s_ShowDemoWindow = !s_ShowDemoWindow;
+    m_Show = !m_Show;
 }

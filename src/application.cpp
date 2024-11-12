@@ -33,7 +33,7 @@ void Application::start() {
     SDL_SetHintWithPriority(SDL_HINT_VIDEODRIVER, "wayland,x11",
                             SDL_HINT_OVERRIDE);
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
         FATAL("Failed to initialize SDL: {}", SDL_GetError());
     }
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -48,12 +48,11 @@ void Application::start() {
         FATAL("Failed to create window: {}", SDL_GetError());
     }
 
-    Renderer renderer;
-    renderer.initialize(m_Window);
+    Renderer renderer(m_Window);
     renderer.setBgColor(glm::vec3(0.10f, 0.11f, 0.15f));
     Program program(textVertexShader, textFragmentShader);
     Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 16);
-    DebugUI::initialize(m_Window, renderer.getContext());
+    DebugUI debugUI(m_Window, renderer.getContext());
     EventHandler eventHandler(m_Window);
 
     ThreadSafeQueue<codepoint_t> atlasQueue;
@@ -122,7 +121,7 @@ void Application::start() {
 
     SPDLOG_INFO("Application started");
     while (!quit) {
-        eventHandler.handleEvents(quit);
+        eventHandler.handleEvents(quit, debugUI);
         renderer.clear();
         renderer.setWireframe(debugData.wireframe);
 
@@ -192,7 +191,7 @@ void Application::start() {
 
         debugData.frameTimeMs = SDL_GetTicks() - prevTime;
         prevTime = SDL_GetTicks();
-        DebugUI::draw(debugData);
+        debugUI.draw(debugData);
 
         SDL_GL_SwapWindow(m_Window);
     }
@@ -200,7 +199,6 @@ void Application::start() {
 
 Application::~Application() {
     SPDLOG_INFO("Application exiting");
-    DebugUI::destroy();
     // FIX: Doesn't work on macos, because read() doesn't error for some reason
     Terminal::close();
     assert(m_TerminalThread->joinable());
