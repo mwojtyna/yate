@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../debug_ui.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 class EventHandler {
 public:

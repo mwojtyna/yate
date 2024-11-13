@@ -1,4 +1,4 @@
 #include "parser.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 Parser parser_setup(SDL_Window* window);
