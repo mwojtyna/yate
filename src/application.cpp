@@ -130,7 +130,7 @@ void Application::start() {
         renderer.clear();
         renderer.setWireframe(debugData.wireframe);
 
-        // Scroll down when necessary
+        // Scroll when necessary
         Terminal::getBuf([&](const TerminalBuf& termBuf) {
             size_t rows = termBuf.getRows().size();
             if (rows == prevRows) {
@@ -156,7 +156,7 @@ void Application::start() {
             glm::translate(glm::mat4(1.0f), charsPos), glm::vec3(charsScale));
         renderer.setViewMat(glm::translate(glm::mat4(1.0f), cameraPos));
 
-        // When new terminal data appears, update font atlas for new glyphs
+        // When new terminal data appears, update font atlas with new glyphs
         codepoint_t c;
         while (atlasQueue.pop(c)) {
             codepoints.insert(c);
