@@ -31,7 +31,7 @@ void Application::start() {
 
     // Prefer wayland over xwayland
     SDL_SetHintWithPriority(SDL_HINT_VIDEODRIVER, "wayland,x11,cocoa",
-                            SDL_HINT_OVERRIDE);
+                            SDL_HINT_NORMAL);
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
         FATAL("Failed to initialize SDL: {}", SDL_GetError());
