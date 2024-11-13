@@ -30,7 +30,7 @@ void Application::start() {
                 sdlVersion.patch);
 
     // Prefer wayland over xwayland
-    SDL_SetHintWithPriority(SDL_HINT_VIDEODRIVER, "wayland,x11",
+    SDL_SetHintWithPriority(SDL_HINT_VIDEODRIVER, "wayland,x11,cocoa",
                             SDL_HINT_OVERRIDE);
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
@@ -43,7 +43,8 @@ void Application::start() {
 
     m_Window = SDL_CreateWindow("yate", SDL_WINDOWPOS_UNDEFINED,
                                 SDL_WINDOWPOS_UNDEFINED, Application::WIDTH,
-                                Application::HEIGHT, SDL_WINDOW_OPENGL);
+                                Application::HEIGHT,
+                                SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
     if (m_Window == nullptr) {
         FATAL("Failed to create window: {}", SDL_GetError());
     }
