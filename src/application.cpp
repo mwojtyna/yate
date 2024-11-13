@@ -5,7 +5,7 @@
 #include "rendering/renderer.hpp"
 #include "shaders/text.frag.hpp"
 #include "shaders/text.vert.hpp"
-#include "terminal/input_handler.hpp"
+#include "terminal/event_handler.hpp"
 #include "terminal/parser.hpp"
 #include "terminal/parser_setup.hpp"
 #include "terminal/terminal.hpp"
@@ -24,30 +24,37 @@
 void Application::start() {
     spdlog::cfg::load_env_levels();
 
-    SPDLOG_INFO("GLFW version: {}", glfwGetVersionString());
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    SDL_version sdlVersion;
+    SDL_GetVersion(&sdlVersion);
+    SPDLOG_INFO("SDL version: {}.{}.{}", sdlVersion.major, sdlVersion.major,
+                sdlVersion.patch);
 
-    m_Window = glfwCreateWindow(Application::WIDTH, Application::HEIGHT, "yate",
-                                nullptr, nullptr);
+    // Prefer wayland over xwayland
+    SDL_SetHintWithPriority(SDL_HINT_VIDEODRIVER, "wayland,x11,cocoa",
+                            SDL_HINT_OVERRIDE);
 
-    if (m_Window == nullptr) {
-        const char* error;
-        glfwGetError(&error);
-        FATAL("Failed to create window: {}", error);
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0) {
+        FATAL("Failed to initialize SDL: {}", SDL_GetError());
     }
-    glfwMakeContextCurrent(m_Window);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                        SDL_GL_CONTEXT_PROFILE_CORE);
 
-    Renderer renderer;
-    renderer.initialize();
+    m_Window = SDL_CreateWindow("yate", SDL_WINDOWPOS_UNDEFINED,
+                                SDL_WINDOWPOS_UNDEFINED, Application::WIDTH,
+                                Application::HEIGHT,
+                                SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
+    if (m_Window == nullptr) {
+        FATAL("Failed to create window: {}", SDL_GetError());
+    }
+
+    Renderer renderer(m_Window);
     renderer.setBgColor(glm::vec3(0.10f, 0.11f, 0.15f));
     Program program(textVertexShader, textFragmentShader);
     Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 16);
-    DebugUI::initialize(m_Window);
-    InputHandler inputHandler(m_Window);
-    inputHandler.setupHandlers();
+    DebugUI debugUI(m_Window, renderer.getContext());
+    EventHandler eventHandler(m_Window);
 
     ThreadSafeQueue<codepoint_t> atlasQueue;
     Terminal::open(Application::WIDTH, Application::HEIGHT);
@@ -103,7 +110,7 @@ void Application::start() {
     float charsScale = 1.0f;
     glm::vec3 cameraPos(0);
     bool wireframe = false;
-    double prevTime = glfwGetTime();
+    uint64_t prevTime = SDL_GetTicks();
     auto debugData = DebugUI::DebugData{.frameTimeMs = 0,
                                         .charsPos = charsPos,
                                         .charsScale = charsScale,
@@ -111,9 +118,11 @@ void Application::start() {
                                         .wireframe = wireframe};
     std::unordered_set<codepoint_t> codepoints;
     size_t prevRows = 0;
+    bool quit = false;
 
     SPDLOG_INFO("Application started");
-    while (!glfwWindowShouldClose(m_Window)) {
+    while (!quit) {
+        eventHandler.handleEvents(quit, debugUI);
         renderer.clear();
         renderer.setWireframe(debugData.wireframe);
 
@@ -181,25 +190,23 @@ void Application::start() {
 
         renderer.drawText(transform, program);
 
-        debugData.frameTimeMs = (glfwGetTime() - prevTime) * 1000;
-        prevTime = glfwGetTime();
-        DebugUI::draw(debugData);
+        debugData.frameTimeMs = SDL_GetTicks() - prevTime;
+        prevTime = SDL_GetTicks();
+        debugUI.draw(debugData);
 
-        glfwSwapBuffers(m_Window);
-        glfwPollEvents();
+        SDL_GL_SwapWindow(m_Window);
     }
 }
 
 Application::~Application() {
     SPDLOG_INFO("Application exiting");
-    DebugUI::destroy();
     // FIX: Doesn't work on macos, because read() doesn't error for some reason
     Terminal::close();
     assert(m_TerminalThread->joinable());
     m_TerminalThread->join();
-    glfwTerminate();
+    SDL_Quit();
 }
 
-GLFWwindow* Application::getWindow() const {
+SDL_Window* Application::getWindow() const {
     return m_Window;
 }

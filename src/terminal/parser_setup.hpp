@@ -1,4 +1,4 @@
 #include "parser.hpp"
-#include <GLFW/glfw3.h>
+#include <SDL2/SDL.h>
 
-Parser parser_setup(GLFWwindow* window);
+Parser parser_setup(SDL_Window* window);

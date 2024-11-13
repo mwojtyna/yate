@@ -1,10 +1,7 @@
 #pragma once
 
-#include <glad/glad.h>
-// GLFW (include after glad)
-#include <GLFW/glfw3.h>
-
 #include <assert.h>
+#include <glad/glad.h>
 
 #ifdef NDEBUG
 #define glCall(x) x;

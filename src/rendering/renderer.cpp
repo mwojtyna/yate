@@ -4,13 +4,8 @@
 #include "../terminal/terminal.hpp"
 #include "../terminal/types.hpp"
 #include "../utils.hpp"
-#include "font.hpp"
 #include "opengl.hpp"
-#include "program.hpp"
 #include <cstddef>
-#include <glm/ext/matrix_float4x4.hpp>
-#include <glm/fwd.hpp>
-#include <memory>
 #include <spdlog/spdlog.h>
 #include <vector>
 
@@ -18,8 +13,11 @@ glm::mat4 Renderer::s_ProjectionMat = glm::ortho(
     0.0f, (float)Application::WIDTH, -(float)Application::HEIGHT, 0.0f);
 glm::mat4 Renderer::s_ViewMat = glm::mat4(1.0f);
 
-void Renderer::initialize() {
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+Renderer::Renderer(SDL_Window* window) {
+    SDL_GLContext ctx = SDL_GL_CreateContext(window);
+    SDL_GL_SetSwapInterval(1);
+
+    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
         FATAL("Failed to initialize OpenGL");
     }
 
@@ -192,14 +190,18 @@ void Renderer::clear() {
     glCall(glClear(GL_COLOR_BUFFER_BIT));
 }
 
-glm::mat4& Renderer::getProjectionMat() {
+void Renderer::setViewMat(const glm::mat4& mat) {
+    s_ViewMat = mat;
+}
+
+SDL_GLContext Renderer::getContext() const {
+    return m_GlContext;
+}
+
+glm::mat4 Renderer::getProjectionMat() {
     return s_ProjectionMat;
 }
 
-glm::mat4& Renderer::getViewMat() {
+glm::mat4 Renderer::getViewMat() {
     return s_ViewMat;
-}
-
-void Renderer::setViewMat(const glm::mat4& mat) {
-    s_ViewMat = mat;
 }

@@ -1,26 +1,29 @@
 #pragma once
 
+#include <SDL2/SDL.h>
+#include <cstdint>
 #include <glm/ext/vector_float3.hpp>
 #include <imgui.h>
-#include <imgui_impl_glfw.h>
+#include <imgui_impl_sdl2.h>
 
 class DebugUI {
 public:
     struct DebugData {
-        double frameTimeMs;
+        uint64_t frameTimeMs;
         glm::vec3& charsPos;
         float& charsScale;
         glm::vec3& cameraPos;
         bool& wireframe;
     };
 
-    static void initialize(GLFWwindow* window);
-    static void destroy();
+    DebugUI(SDL_Window* window, SDL_GLContext glContext);
+    ~DebugUI();
 
-    static void draw(DebugUI::DebugData& data);
-    static void toggle();
+    void draw(DebugUI::DebugData& data);
+    void handleEvent(SDL_Event& event);
+    void toggle();
 
 private:
-    static ImGuiIO s_IO;
-    static bool s_ShowDemoWindow;
+    bool m_Show;
+    SDL_Window* m_Window;
 };

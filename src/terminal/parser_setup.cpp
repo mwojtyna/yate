@@ -83,7 +83,7 @@ static void setCursor(uint32_t x, uint32_t y) {
     });
 }
 
-Parser parser_setup(GLFWwindow* window) {
+Parser parser_setup(SDL_Window* window) {
     CsiParser csi;
 
     csi.addHandler(csiidents::ICH, [](const std::vector<uint32_t> args,
@@ -333,10 +333,10 @@ Parser parser_setup(GLFWwindow* window) {
     // WTF: When capturing window pointer as a reference, SOMETIMES the next rendered prompt is [�?[
     // BUT, this bug only happens after the new terminal reading function, and when running on Linux
     osc.addHandler(0, [window](const std::vector<std::string> data) {
-        glfwSetWindowTitle(window, data[0].c_str());
+        SDL_SetWindowTitle(window, data[0].c_str());
     });
     osc.addHandler(2, [window](const std::vector<std::string> data) {
-        glfwSetWindowTitle(window, data[0].c_str());
+        SDL_SetWindowTitle(window, data[0].c_str());
     });
 
     Parser parser(std::move(csi), std::move(osc));
