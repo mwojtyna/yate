@@ -9,11 +9,11 @@
 #include <spdlog/spdlog.h>
 #include <vector>
 
-glm::mat4 Renderer::s_ProjectionMat = glm::ortho(
-    0.0f, (float)Application::WIDTH, -(float)Application::HEIGHT, 0.0f);
-glm::mat4 Renderer::s_ViewMat = glm::mat4(1.0f);
-
-Renderer::Renderer(SDL_Window* window) {
+Renderer::Renderer(SDL_Window* window, float contentScale = 1)
+    : m_ProjectionMat(
+          glm::ortho(0.0f, ((float)Application::WIDTH * contentScale),
+                     (-(float)Application::HEIGHT * contentScale), 0.0f)),
+      m_ViewMat(1), m_ContentScale(contentScale) {
     SDL_GLContext ctx = SDL_GL_CreateContext(window);
     SDL_GL_SetSwapInterval(1);
 
@@ -175,7 +175,7 @@ void Renderer::drawText(const glm::mat4& transform, Program& program) {
     }
 
     m_GlyphMesh->update(m_Vertices, m_Indices);
-    m_GlyphMesh->draw();
+    m_GlyphMesh->draw(m_ProjectionMat, m_ViewMat);
 }
 
 void Renderer::setWireframe(const bool enabled) {
@@ -190,18 +190,10 @@ void Renderer::clear() {
     glCall(glClear(GL_COLOR_BUFFER_BIT));
 }
 
-void Renderer::setViewMat(const glm::mat4& mat) {
-    s_ViewMat = mat;
-}
-
 SDL_GLContext Renderer::getContext() const {
     return m_GlContext;
 }
 
-glm::mat4 Renderer::getProjectionMat() {
-    return s_ProjectionMat;
-}
-
-glm::mat4 Renderer::getViewMat() {
-    return s_ViewMat;
+void Renderer::setViewMat(const glm::mat4& mat) {
+    m_ViewMat = mat;
 }

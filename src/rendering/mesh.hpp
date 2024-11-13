@@ -15,7 +15,7 @@ public:
          const glm::mat4& transform, Program& program);
     ~Mesh();
 
-    void draw() const;
+    void draw(glm::mat4& projection, glm::mat4& view) const;
     void update(std::vector<Vertex>& vertices, std::vector<GLuint>& indices);
 
 private:

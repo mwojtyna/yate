@@ -48,11 +48,15 @@ void Application::start() {
     if (m_Window == nullptr) {
         FATAL("Failed to create window: {}", SDL_GetError());
     }
+    int realWidth;
+    SDL_GL_GetDrawableSize(m_Window, &realWidth, nullptr);
+    float contentScale = (float)realWidth / Application::WIDTH;
 
-    Renderer renderer(m_Window);
+    Renderer renderer(m_Window, contentScale);
     renderer.setBgColor(glm::vec3(0.10f, 0.11f, 0.15f));
     Program program(textVertexShader, textFragmentShader);
-    Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf", 16);
+    Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf",
+              16 * contentScale);
     DebugUI debugUI(m_Window, renderer.getContext());
     EventHandler eventHandler(m_Window);
 
@@ -137,7 +141,7 @@ void Application::start() {
             // Also subtract initial charsPos.y
             // Scroll down
             while (rows * metrics.height - metrics.ascender >
-                   Application::HEIGHT + charsPos.y) {
+                   Application::HEIGHT * contentScale + charsPos.y) {
                 charsPos.y += metrics.height;
             }
 

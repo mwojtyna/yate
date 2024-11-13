@@ -23,7 +23,6 @@ Font::Font(std::filesystem::path path, float size)
         FATAL("Failed to load font '{}'", path.c_str());
     }
 
-    // TODO: Calculate dpi to hopefully fix wrong font size
     error = FT_Set_Char_Size(m_Font, 0, size * 64, 0, 0);
 
     auto initial = std::unordered_set<codepoint_t>();

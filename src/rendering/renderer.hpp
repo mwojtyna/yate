@@ -11,25 +11,22 @@
 
 class Renderer {
 public:
-    Renderer(SDL_Window* window);
+    Renderer(SDL_Window* window, float contentScale);
 
     void makeTextMesh(const std::vector<std::vector<Cell>>& cells, Font& font);
     void drawText(const glm::mat4& transform, Program& program);
     void setWireframe(const bool enabled);
     void setBgColor(const glm::vec3& color);
     void clear();
-    void setViewMat(const glm::mat4& mat);
     SDL_GLContext getContext() const;
-
-    static glm::mat4 getProjectionMat();
-    static glm::mat4 getViewMat();
+    void setViewMat(const glm::mat4& mat);
 
 private:
     std::vector<Vertex> m_Vertices;
     std::vector<index_t> m_Indices;
     std::unique_ptr<Mesh> m_GlyphMesh;
     SDL_GLContext m_GlContext;
-
-    static glm::mat4 s_ProjectionMat;
-    static glm::mat4 s_ViewMat;
+    glm::mat4 m_ProjectionMat;
+    glm::mat4 m_ViewMat;
+    float m_ContentScale;
 };

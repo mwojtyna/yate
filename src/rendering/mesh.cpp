@@ -1,7 +1,6 @@
 #include "mesh.hpp"
 #include "index_buffer.hpp"
 #include "opengl.hpp"
-#include "renderer.hpp"
 #include "vertex_array.hpp"
 #include "vertex_buffer.hpp"
 #include <glm/ext/matrix_float4x4.hpp>
@@ -22,9 +21,8 @@ Mesh::~Mesh() {
     SPDLOG_DEBUG("Deleted mesh");
 }
 
-void Mesh::draw() const {
-    glm::mat4 mvp =
-        Renderer::getProjectionMat() * Renderer::getViewMat() * m_Transform;
+void Mesh::draw(glm::mat4& projection, glm::mat4& view) const {
+    glm::mat4 mvp = projection * view * m_Transform;
     m_Program.setUniformMatrix4("u_MVP", mvp);
 
     m_Va->bind();
