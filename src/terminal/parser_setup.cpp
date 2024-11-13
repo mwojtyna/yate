@@ -265,14 +265,14 @@ Parser parser_setup(SDL_Window* window) {
                 break;
             }
             case 38: {
-                uint32_t extendedColorType = args[i++];
+                uint8_t extendedColorType = args[i++];
                 switch (extendedColorType) {
                 case 2: {
-                    uint32_t r = args[i++];
-                    uint32_t g = args[i++];
-                    uint32_t b = args[i++];
+                    uint8_t r = args[i++];
+                    uint8_t g = args[i++];
+                    uint8_t b = args[i++];
                     parserState.fgColor =
-                        glm::vec4(r / 256.0, g / 256.0, b / 256.0, 1);
+                        glm::vec4(r / 255.0, g / 255.0, b / 255.0, 1);
                     break;
                 }
                 case 5: {
@@ -288,14 +288,14 @@ Parser parser_setup(SDL_Window* window) {
                 continue;
             }
             case 48: {
-                uint32_t extendedColorType = args[i++];
+                uint8_t extendedColorType = args[i++];
                 switch (extendedColorType) {
                 case 2: {
-                    uint32_t r = args[i++];
-                    uint32_t g = args[i++];
-                    uint32_t b = args[i++];
+                    uint8_t r = args[i++];
+                    uint8_t g = args[i++];
+                    uint8_t b = args[i++];
                     parserState.bgColor =
-                        glm::vec4(r / 256.0, g / 256.0, b / 256.0, 1);
+                        glm::vec4(r / 255.0, g / 255.0, b / 255.0, 1);
                     break;
                 }
                 case 5: {
