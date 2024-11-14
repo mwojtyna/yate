@@ -330,8 +330,6 @@ Parser parser_setup(SDL_Window* window) {
     });
 
     OscParser osc;
-    // WTF: When capturing window pointer as a reference, SOMETIMES the next rendered prompt is [�?[
-    // BUT, this bug only happens after the new terminal reading function, and when running on Linux
     osc.addHandler(0, [window](const std::vector<std::string> data) {
         SDL_SetWindowTitle(window, data[0].c_str());
     });

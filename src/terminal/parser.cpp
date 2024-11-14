@@ -1,5 +1,4 @@
 #include "parser.hpp"
-#include "../utils.hpp"
 #include "codes.hpp"
 #include "csi_parser.hpp"
 #include "osc_parser.hpp"
@@ -12,7 +11,7 @@ Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser)
     : m_CsiParser(csiParser), m_OscParser(oscParser) {};
 
 std::unordered_set<codepoint_t>
-Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
+Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data, SDL_Window* window) {
     std::unordered_set<codepoint_t> codepoints;
 
     for (auto it = data.begin(); it < data.end(); it++) {
@@ -43,20 +42,36 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data) {
             it++;
             switch (*it) {
             case c0::CSI: {
-                it++;
-                m_CsiParser.parse(it, data.end(), m_State);
+                m_CsiParser.parse(++it, data.end(), m_State);
                 break;
             }
             case c0::OSC: {
-                it++;
-                m_OscParser.parse(it, data.end());
+                m_OscParser.parse(++it, data.end());
+                break;
+            }
+            case '7': {
+                m_State.savedCursorData = Terminal::getCursor();
+                break;
+            }
+            case '8': {
+                Terminal::setCursor(m_State.savedCursorData);
+                break;
+            }
+            case 'k': {
+                std::string title = readUntilST(++it, data.end());
+                SDL_SetWindowTitle(window, title.c_str());
+                break;
+            }
+            case 'M': {
+                Terminal::getCursorMut([](cursor_t& cursor) {
+                    // TODO: Scroll when needed
+                    cursor.y = std::max<float>(cursor.y - 1, 0);
+                });
                 break;
             }
             default: {
-                SPDLOG_WARN(
-                    "Unsupported escape sequence 'ESC {}' ({:#x}) in buf:",
-                    (char)*it, *it);
-                hexdump(data.data(), data.size(), SPDLOG_LEVEL_WARN);
+                SPDLOG_WARN("Unsupported escape sequence 'ESC {}' ({:#x})",
+                            (char)*it, *it);
             }
             }
             break;
@@ -165,6 +180,22 @@ std::vector<uint32_t> Parser::parsePs(iter_t& it, iter_t end) {
     }
 
     return {};
+}
+
+std::string Parser::readUntilST(iter_t& it, iter_t end) {
+    std::string out = "";
+
+    for (; it < end; it++) {
+        out += *it;
+
+        if (*it == c0::ESC && *(it + 1) == '\\') {
+            it++;
+            return out;
+        }
+    }
+
+    SPDLOG_ERROR("Buf ended before ST");
+    return out;
 }
 
 bool Parser::isEol(codepoint_t character) {

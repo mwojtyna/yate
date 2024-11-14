@@ -133,6 +133,7 @@ std::vector<uint8_t> Terminal::read() {
             // TODO: Parse escape codes and determine if an escape sequence hasn't ended yet,
             // meaning we have to wait until the next chunk
             // (sometimes we read too quickly and a part of an escape sequence is cut off)
+            // Do the same for UTF-8
             buffer.insert(buffer.end(), tempBuf.begin(),
                           tempBuf.begin() + bytesRead);
             if (bytesRead < CHUNK_SIZE) {

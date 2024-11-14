@@ -15,4 +15,5 @@ struct ParserState {
     glm::vec4 fgColor = colors::defaultFg;
     bool inversed = false;
     size_t offset = 0;
+    cursor_t savedCursorData;
 };

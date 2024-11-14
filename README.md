@@ -130,21 +130,21 @@ Credit to https://xtermjs.org/docs/api/vtfeatures/
 
 ### ESC
 
-| Mnemonic | Name                        | Sequence | Short Description                                     | Support |
-| -------- | --------------------------- | -------- | ----------------------------------------------------- | ------- |
-| SC       | Save Cursor                 | ESC 7    | Save cursor position, charmap and text attributes.    | &cross; |
-| RC       | Restore Cursor              | ESC 8    | Restore cursor position, charmap and text attributes. | &cross; |
-| DECALN   | Screen Alignment Pattern    | ESC # 8  | Fill viewport with a test pattern (E).                | &cross; |
-| IND      | Index                       | ESC D    | Move the cursor one line down scrolling if needed.    | &cross; |
-| NEL      | Next Line                   | ESC E    | Move the cursor to the beginning of the next row.     | &cross; |
-| HTS      | Horizontal Tabulation Set   | ESC H    | Places a tab stop at the current cursor position.     | &cross; |
-| IR       | Reverse Index               | ESC M    | Move the cursor one line up scrolling if needed.      | &cross; |
-| DCS      | Device Control String       | ESC P    | Start of a DCS sequence.                              | &cross; |
-| CSI      | Control Sequence Introducer | ESC [    | Start of a CSI sequence.                              | &cross; |
-| ST       | String Terminator           | ESC \    | Terminator used for string type sequences.            | &cross; |
-| OSC      | Operating System Command    | ESC ]    | Start of an OSC sequence.                             | &cross; |
-| PM       | Privacy Message             | ESC ^    | Start of a privacy message.                           | &cross; |
-| APC      | Application Program Command | ESC \_   | Start of an APC sequence.                             | &cross; |
+| Mnemonic | Name                        | Sequence | Short Description                                     | Support             |
+| -------- | --------------------------- | -------- | ----------------------------------------------------- | ------------------- |
+| SC       | Save Cursor                 | ESC 7    | Save cursor position, charmap and text attributes.    | &check;             |
+| RC       | Restore Cursor              | ESC 8    | Restore cursor position, charmap and text attributes. | &check;             |
+| DECALN   | Screen Alignment Pattern    | ESC # 8  | Fill viewport with a test pattern (E).                | &cross;             |
+| IND      | Index                       | ESC D    | Move the cursor one line down scrolling if needed.    | &cross;             |
+| NEL      | Next Line                   | ESC E    | Move the cursor to the beginning of the next row.     | &cross;             |
+| HTS      | Horizontal Tabulation Set   | ESC H    | Places a tab stop at the current cursor position.     | &cross;             |
+| IR       | Reverse Index               | ESC M    | Move the cursor one line up scrolling if needed.      | Only move cursor up |
+| DCS      | Device Control String       | ESC P    | Start of a DCS sequence.                              | &cross;             |
+| CSI      | Control Sequence Introducer | ESC [    | Start of a CSI sequence.                              | &cross;             |
+| ST       | String Terminator           | ESC \    | Terminator used for string type sequences.            | &cross;             |
+| OSC      | Operating System Command    | ESC ]    | Start of an OSC sequence.                             | &cross;             |
+| PM       | Privacy Message             | ESC ^    | Start of a privacy message.                           | &cross;             |
+| APC      | Application Program Command | ESC \_   | Start of an APC sequence.                             | &cross;             |
 
 ### OSC
 

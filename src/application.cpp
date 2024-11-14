@@ -80,7 +80,7 @@ void Application::start() {
                 }
 
                 std::unordered_set<codepoint_t> codepoints =
-                    parser.parseAndModifyTermBuf(rawCodes);
+                    parser.parseAndModifyTermBuf(rawCodes, m_Window);
                 if (codepoints.empty()) {
                     continue;
                 }

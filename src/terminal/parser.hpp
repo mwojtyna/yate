@@ -3,6 +3,7 @@
 #include "csi_parser.hpp"
 #include "osc_parser.hpp"
 #include "unicode.hpp"
+#include <SDL.h>
 #include <glm/ext/vector_float4.hpp>
 #include <unordered_set>
 #include <vector>
@@ -13,9 +14,10 @@ public:
 
     /// Returns: list of parsed character codepoints
     std::unordered_set<codepoint_t>
-    parseAndModifyTermBuf(std::vector<uint8_t>& data);
+    parseAndModifyTermBuf(std::vector<uint8_t>& data, SDL_Window* window);
 
     static std::vector<uint32_t> parsePs(iter_t& it, iter_t end);
+    static std::string readUntilST(iter_t& it, iter_t end);
     static bool isEol(codepoint_t character);
 
 private:
