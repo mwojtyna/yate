@@ -7,8 +7,9 @@
 #include "unicode.hpp"
 #include <spdlog/spdlog.h>
 
-Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser)
-    : m_CsiParser(csiParser), m_OscParser(oscParser) {};
+Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser,
+               EscParser&& escParser)
+    : m_CsiParser(csiParser), m_OscParser(oscParser), m_EscParser(escParser) {};
 
 std::unordered_set<codepoint_t>
 Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data, SDL_Window* window) {
@@ -42,36 +43,17 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data, SDL_Window* window) {
             it++;
             switch (*it) {
             case c0::CSI: {
-                m_CsiParser.parse(++it, data.end(), m_State);
+                it++;
+                m_CsiParser.parse(it, data.end(), m_State);
                 break;
             }
             case c0::OSC: {
-                m_OscParser.parse(++it, data.end());
-                break;
-            }
-            case '7': {
-                m_State.savedCursorData = Terminal::getCursor();
-                break;
-            }
-            case '8': {
-                Terminal::setCursor(m_State.savedCursorData);
-                break;
-            }
-            case 'k': {
-                std::string title = readUntilST(++it, data.end());
-                SDL_SetWindowTitle(window, title.c_str());
-                break;
-            }
-            case 'M': {
-                Terminal::getCursorMut([](cursor_t& cursor) {
-                    // TODO: Scroll when needed
-                    cursor.y = std::max<float>(cursor.y - 1, 0);
-                });
+                it++;
+                m_OscParser.parse(it, data.end());
                 break;
             }
             default: {
-                SPDLOG_WARN("Unsupported escape sequence 'ESC {}' ({:#x})",
-                            (char)*it, *it);
+                m_EscParser.parse(it, data.end(), m_State);
             }
             }
             break;

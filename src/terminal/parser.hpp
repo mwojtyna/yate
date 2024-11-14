@@ -1,6 +1,7 @@
 #pragma once
 
 #include "csi_parser.hpp"
+#include "esc_parser.hpp"
 #include "osc_parser.hpp"
 #include "unicode.hpp"
 #include <SDL.h>
@@ -10,7 +11,7 @@
 
 class Parser {
 public:
-    Parser(CsiParser&& csiParser, OscParser&& oscParser);
+    Parser(CsiParser&& csiParser, OscParser&& oscParser, EscParser&& escParser);
 
     /// Returns: list of parsed character codepoints
     std::unordered_set<codepoint_t>
@@ -24,4 +25,5 @@ private:
     ParserState m_State;
     CsiParser m_CsiParser;
     OscParser m_OscParser;
+    EscParser m_EscParser;
 };

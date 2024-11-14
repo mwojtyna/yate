@@ -2,6 +2,7 @@
 #include "../rendering/colors.hpp"
 #include "csi_idents.hpp"
 #include "csi_parser.hpp"
+#include "esc_parser.hpp"
 #include "osc_parser.hpp"
 #include "terminal.hpp"
 #include "terminal_buffer.hpp"
@@ -337,7 +338,31 @@ Parser parser_setup(SDL_Window* window) {
         SDL_SetWindowTitle(window, data[0].c_str());
     });
 
-    Parser parser(std::move(csi), std::move(osc));
+    EscParser esc;
+    esc.addHandler(
+        '7', [](ParserState& parserState, std::optional<std::string> arg) {
+            parserState.savedCursorData = Terminal::getCursor();
+        });
+    esc.addHandler(
+        '8', [](ParserState& parserState, std::optional<std::string> arg) {
+            Terminal::setCursor(parserState.savedCursorData);
+        });
+    esc.addHandler(
+        'k',
+        [window](ParserState& parserState, std::optional<std::string> arg) {
+            assert(arg.has_value());
+            SDL_SetWindowTitle(window, arg.value().c_str());
+        },
+        true);
+    esc.addHandler(
+        'M', [](ParserState& parserState, std::optional<std::string> arg) {
+            Terminal::getCursorMut([](cursor_t& cursor) {
+                // TODO: Scroll when needed
+                cursor.y = std::max<float>(cursor.y - 1, 0);
+            });
+        });
+
+    Parser parser(std::move(csi), std::move(osc), std::move(esc));
 
     return parser;
 }
