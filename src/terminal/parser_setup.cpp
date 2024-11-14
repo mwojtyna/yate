@@ -128,16 +128,20 @@ Parser parser_setup(SDL_Window* window) {
         case 0: {
             cursor_t cursor = Terminal::getCursor();
             Terminal::getBufMut([&cursor](TerminalBuf& termBuf) {
-                std::vector<Cell>& row = termBuf.getRow(cursor.y);
-                row.erase(row.begin() + cursor.x, row.end());
+                if (!termBuf.getRows().empty()) {
+                    std::vector<Cell>& row = termBuf.getRow(cursor.y);
+                    row.erase(row.begin() + cursor.x, row.end());
+                }
             });
             break;
         }
         // Erase complete line.
         case 2: {
             Terminal::getBufMut([](TerminalBuf& termBuf) {
-                cursor_t cursor = Terminal::getCursor();
-                termBuf.deleteRow(cursor.y);
+                if (!termBuf.getRows().empty()) {
+                    cursor_t cursor = Terminal::getCursor();
+                    termBuf.deleteRow(cursor.y);
+                }
             });
             break;
         }
