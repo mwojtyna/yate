@@ -43,7 +43,7 @@ void OscParser::addHandler(ident_t ident, handlerfn_t handler) {
 
 // STATIC
 std::vector<std::string> OscParser::parseArgs(iter_t& it, iter_t end) {
-    std::vector<std::string> args{""};
+    std::vector<std::string> args;
 
     size_t argIdx = 0;
     for (; it < end; it++) {
@@ -54,6 +54,10 @@ std::vector<std::string> OscParser::parseArgs(iter_t& it, iter_t end) {
         if (*it == c0::ESC && *(it + 1) == c0::ST) {
             it++;
             break;
+        }
+
+        if (args.empty()) {
+            args.push_back("");
         }
 
         // Next argument

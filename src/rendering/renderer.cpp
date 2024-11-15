@@ -61,22 +61,23 @@ void Renderer::makeTextMesh(const std::vector<std::vector<Cell>>& cells,
                     isCursor ? glm::vec4(1) : cell.bgColor;
 
                 // Background
-                m_Vertices.push_back(
-                    {.pos = {pen.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
-                     .color = bgColor,
-                     .bg = true}); // left bottom
-                m_Vertices.push_back(
-                    {.pos = {pen.x + bgSize.x, pen.y + bgSize.y + bgOffsetY,
-                             0.0f},
-                     .color = bgColor,
-                     .bg = true}); // right bottom
-                m_Vertices.push_back(
-                    {.pos = {pen.x + bgSize.x, pen.y + bgOffsetY, 0.0f},
-                     .color = bgColor,
-                     .bg = true}); // right top
-                m_Vertices.push_back({.pos = {pen.x, pen.y + bgOffsetY, 0.0f},
-                                      .color = bgColor,
-                                      .bg = true}); // left top
+                m_Vertices.emplace_back(
+                    Vertex{.pos = {pen.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
+                           .color = bgColor,
+                           .bg = true}); // left bottom
+                m_Vertices.emplace_back(
+                    Vertex{.pos = {pen.x + bgSize.x,
+                                   pen.y + bgSize.y + bgOffsetY, 0.0f},
+                           .color = bgColor,
+                           .bg = true}); // right bottom
+                m_Vertices.emplace_back(
+                    Vertex{.pos = {pen.x + bgSize.x, pen.y + bgOffsetY, 0.0f},
+                           .color = bgColor,
+                           .bg = true}); // right top
+                m_Vertices.emplace_back(
+                    Vertex{.pos = {pen.x, pen.y + bgOffsetY, 0.0f},
+                           .color = bgColor,
+                           .bg = true}); // left top
 
                 // Background first triangle
                 bgIndices.push_back(curIndex + 0);
@@ -94,22 +95,26 @@ void Renderer::makeTextMesh(const std::vector<std::vector<Cell>>& cells,
             const glm::vec4 fgColor =
                 isCursor ? glm::vec4(0, 0, 0, 1) : cell.fgColor;
 
-            m_Vertices.push_back({.pos = {pen.x + g.pl, pen.y + g.pb, 0.0f},
-                                  .color = fgColor,
-                                  .uv = {g.al, g.ab},
-                                  .bg = false}); // left bottom
-            m_Vertices.push_back({.pos = {pen.x + g.pr, pen.y + g.pb, 0.0f},
-                                  .color = fgColor,
-                                  .uv = {g.ar, g.ab},
-                                  .bg = false}); // right bottom
-            m_Vertices.push_back({.pos = {pen.x + g.pr, pen.y + g.pt, 0.0f},
-                                  .color = fgColor,
-                                  .uv = {g.ar, g.at},
-                                  .bg = false}); // right top
-            m_Vertices.push_back({.pos = {pen.x + g.pl, pen.y + g.pt, 0.0f},
-                                  .color = fgColor,
-                                  .uv = {g.al, g.at},
-                                  .bg = false}); // left top
+            m_Vertices.emplace_back(
+                Vertex{.pos = {pen.x + g.pl, pen.y + g.pb, 0.0f},
+                       .color = fgColor,
+                       .uv = {g.al, g.ab},
+                       .bg = false}); // left bottom
+            m_Vertices.emplace_back(
+                Vertex{.pos = {pen.x + g.pr, pen.y + g.pb, 0.0f},
+                       .color = fgColor,
+                       .uv = {g.ar, g.ab},
+                       .bg = false}); // right bottom
+            m_Vertices.emplace_back(
+                Vertex{.pos = {pen.x + g.pr, pen.y + g.pt, 0.0f},
+                       .color = fgColor,
+                       .uv = {g.ar, g.at},
+                       .bg = false}); // right top
+            m_Vertices.emplace_back(
+                Vertex{.pos = {pen.x + g.pl, pen.y + g.pt, 0.0f},
+                       .color = fgColor,
+                       .uv = {g.al, g.at},
+                       .bg = false}); // left top
 
             // Foreground first triangle
             fgIndices.push_back(curIndex + 0);
@@ -130,21 +135,22 @@ void Renderer::makeTextMesh(const std::vector<std::vector<Cell>>& cells,
             font.getGlyphPos(cursorCell, pen);
 
             // Background
-            m_Vertices.push_back(
-                {.pos = {pen.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
-                 .color = cursorCell.bgColor,
-                 .bg = true}); // left bottom
-            m_Vertices.push_back(
-                {.pos = {pen.x + bgSize.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
-                 .color = cursorCell.bgColor,
-                 .bg = true}); // right bottom
-            m_Vertices.push_back(
-                {.pos = {pen.x + bgSize.x, pen.y + bgOffsetY, 0.0f},
-                 .color = cursorCell.bgColor,
-                 .bg = true}); // right top
-            m_Vertices.push_back({.pos = {pen.x, pen.y + bgOffsetY, 0.0f},
-                                  .color = cursorCell.bgColor,
-                                  .bg = true}); // left top
+            m_Vertices.emplace_back(
+                Vertex{.pos = {pen.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
+                       .color = cursorCell.bgColor,
+                       .bg = true}); // left bottom
+            m_Vertices.emplace_back(Vertex{
+                .pos = {pen.x + bgSize.x, pen.y + bgSize.y + bgOffsetY, 0.0f},
+                .color = cursorCell.bgColor,
+                .bg = true}); // right bottom
+            m_Vertices.emplace_back(
+                Vertex{.pos = {pen.x + bgSize.x, pen.y + bgOffsetY, 0.0f},
+                       .color = cursorCell.bgColor,
+                       .bg = true}); // right top
+            m_Vertices.emplace_back(
+                Vertex{.pos = {pen.x, pen.y + bgOffsetY, 0.0f},
+                       .color = cursorCell.bgColor,
+                       .bg = true}); // left top
 
             // Background first triangle
             bgIndices.push_back(curIndex + 0);

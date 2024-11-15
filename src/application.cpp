@@ -62,8 +62,7 @@ void Application::start() {
 
     ThreadSafeQueue<codepoint_t> atlasQueue;
     Terminal::open(Application::WIDTH, Application::HEIGHT);
-    m_TerminalThread = std::make_unique<std::thread>([this, &atlasQueue, &font,
-                                                      &renderer]() {
+    m_TerminalThread = std::make_unique<std::thread>([this, &atlasQueue]() {
         Parser parser = parser_setup(m_Window);
         while (!Terminal::shouldClose()) {
             try {
@@ -86,18 +85,9 @@ void Application::start() {
                 }
 
                 for (const codepoint_t c : codepoints) {
-                    // Skip control characters
-                    if (c >= ' ') {
-                        atlasQueue.push(c);
-                    }
+                    // Don't skip any codepoints, in the render loop we must recalculate text mesh if any data has been received
+                    atlasQueue.push(c);
                 }
-
-                Terminal::getBuf(
-                    [&font, &renderer](const TerminalBuf& termBuf) {
-                        // TODO: Don't recalculate all
-                        renderer.makeTextMesh(termBuf.getRows(), font);
-                    });
-
             } catch (TerminalReadException& e) {
                 if (!Terminal::shouldClose()) {
                     SPDLOG_ERROR("Failed reading from terminal: {}", e.what());
@@ -162,13 +152,11 @@ void Application::start() {
             codepoints.insert(c);
         }
         if (!codepoints.empty()) {
-            bool anyNew = font.updateAtlas(codepoints);
-            if (anyNew) {
-                Terminal::getBuf(
-                    [&font, &renderer](const TerminalBuf& termBuf) {
-                        renderer.makeTextMesh(termBuf.getRows(), font);
-                    });
-            }
+            font.updateAtlas(codepoints);
+            Terminal::getBuf([&font, &renderer](const TerminalBuf& termBuf) {
+                // TODO: Don't recalculate all
+                renderer.makeTextMesh(termBuf.getRows(), font);
+            });
             codepoints.clear();
         }
 
