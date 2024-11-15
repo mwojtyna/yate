@@ -40,14 +40,14 @@ void DebugUI::draw(DebugUI::DebugData& data) {
 
     {
         char title[64];
-        snprintf(title, 64, "Debug (%f FPS, %llu ms)###DebugWindow",
+        snprintf(title, 64, "Debug (%f FPS, %lu ms)###DebugWindow",
                  1000.0 / data.frameTimeMs, data.frameTimeMs);
 
         ImGui::Begin(title);
 
         ImGui::SeparatorText("Characters");
         ImGui::SliderFloat2("position###charPos", &data.charsPos.x,
-                            -Application::WIDTH * 2, Application::WIDTH * 2);
+                            -Application::WIDTH * 10, Application::WIDTH * 10);
         ImGui::SliderFloat("scale###charScale", &data.charsScale, 0.0f, 50.0f);
 
         ImGui::SeparatorText("Camera");

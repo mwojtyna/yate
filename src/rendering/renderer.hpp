@@ -13,7 +13,8 @@ class Renderer {
 public:
     Renderer(SDL_Window* window, float contentScale);
 
-    void makeTextMesh(const std::vector<std::vector<Cell>>& cells, Font& font);
+    void makeTextMesh(const std::vector<std::vector<Cell>>& cells,
+                      cursor_t cursor, Font& font);
     void drawText(const glm::mat4& transform, Program& program);
     void setWireframe(const bool enabled);
     void setBgColor(const glm::vec3& color);

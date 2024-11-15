@@ -1,7 +1,6 @@
 #include "renderer.hpp"
 #include "../application.hpp"
 #include "../terminal/parser.hpp"
-#include "../terminal/terminal.hpp"
 #include "../terminal/types.hpp"
 #include "../utils.hpp"
 #include "opengl.hpp"
@@ -31,14 +30,13 @@ Renderer::Renderer(SDL_Window* window, float contentScale = 1)
 }
 
 void Renderer::makeTextMesh(const std::vector<std::vector<Cell>>& cells,
-                            Font& font) {
+                            cursor_t cursor, Font& font) {
     m_Vertices.clear();
     m_Indices.clear();
 
     std::vector<index_t> bgIndices, fgIndices;
     size_t curIndex = 0;
     glm::vec2 pen(0);
-    cursor_t cursor = Terminal::getCursor();
 
     const double bgOffsetY = font.getMetricsInPx().descender;
     const glm::vec2 bgSize(font.getMetricsInPx().max_advance,

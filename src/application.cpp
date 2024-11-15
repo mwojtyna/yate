@@ -153,10 +153,13 @@ void Application::start() {
         }
         if (!codepoints.empty()) {
             font.updateAtlas(codepoints);
-            Terminal::getBuf([&font, &renderer](const TerminalBuf& termBuf) {
-                // TODO: Don't recalculate all
-                renderer.makeTextMesh(termBuf.getRows(), font);
-            });
+            // WARNING: For some reason getting cursor must be outside of getBuf(), otherwise the app hangs
+            cursor_t cursor = Terminal::getCursor();
+            Terminal::getBuf(
+                [&font, &renderer, &cursor](const TerminalBuf& termBuf) {
+                    // TODO: Don't recalculate all
+                    renderer.makeTextMesh(termBuf.getRows(), cursor, font);
+                });
             codepoints.clear();
         }
 

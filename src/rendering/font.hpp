@@ -47,6 +47,6 @@ private:
     FT_Face m_Font;
     Atlas m_Atlas;
     // TODO: Dynamically choose atlas size
-    const uint32_t atlasSize = 1024;
+    const uint32_t atlasSize = 4096;
     std::unordered_map<codepoint_t, GlyphGeometry> m_CodepointToGeometry;
 };
