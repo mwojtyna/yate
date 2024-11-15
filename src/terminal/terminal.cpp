@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
+#include <filesystem>
 #include <format>
 #include <pwd.h>
 #include <spdlog/spdlog.h>
@@ -87,18 +88,18 @@ void Terminal::open(int windowWidth, int windowHeight) {
                         std::strerror(errno));
         }
 
-        const char* argv[] = {"bash", nullptr};
         std::vector<const char*> envs;
         for (size_t i = 0; environ[i] != nullptr; i++) {
             envs.push_back(environ[i]);
         }
-        envs.push_back(
-            std::format("SHELL={}", "/bin/bash" /* user->pw_shell */).c_str());
+        envs.push_back(std::format("SHELL={}", user->pw_shell).c_str());
         envs.push_back(std::format("TTY={}", s_Data->ptyPath.c_str()).c_str());
         envs.push_back(nullptr);
 
-        if (execve("/bin/bash", (char* const*)argv,
-                   (char* const*)envs.data()) == -1) {
+        const char* argv[] = {
+            std::filesystem::path(user->pw_shell).filename().c_str(), nullptr};
+        if (execve(user->pw_shell, const_cast<char* const*>(argv),
+                   const_cast<char* const*>(envs.data())) == -1) {
             FATAL_CHILD("Failed opening shell: {}", std::strerror(errno));
         }
     } else if (pid != -1) {
