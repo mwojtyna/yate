@@ -31,6 +31,8 @@ inline constexpr uint8_t ESC = '\e';
 inline constexpr uint8_t CSI = '[';
 /// OSC 7-bit opening character
 inline constexpr uint8_t OSC = ']';
+// String terminator, 7-bit version (MUST BE PRECEDED BY ESC)
+inline constexpr uint8_t ST = '\\';
 } // namespace c0
 
 namespace c1 {

@@ -170,8 +170,10 @@ std::string Parser::readUntilST(iter_t& it, iter_t end) {
     for (; it < end; it++) {
         out += *it;
 
-        if (*it == c0::ESC && *(it + 1) == '\\') {
+        if (*it == c0::ESC && *(it + 1) == c0::ST) {
             it++;
+            return out;
+        } else if (*it == c1::ST) {
             return out;
         }
     }

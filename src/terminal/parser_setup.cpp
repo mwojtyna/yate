@@ -335,11 +335,11 @@ Parser parser_setup(SDL_Window* window) {
     });
 
     OscParser osc;
-    osc.addHandler(0, [window](const std::vector<std::string> data) {
-        SDL_SetWindowTitle(window, data[0].c_str());
+    osc.addHandler(0, [window](const std::vector<std::string> args) {
+        SDL_SetWindowTitle(window, args[0].c_str());
     });
-    osc.addHandler(2, [window](const std::vector<std::string> data) {
-        SDL_SetWindowTitle(window, data[0].c_str());
+    osc.addHandler(2, [window](const std::vector<std::string> args) {
+        SDL_SetWindowTitle(window, args[0].c_str());
     });
 
     EscParser esc;

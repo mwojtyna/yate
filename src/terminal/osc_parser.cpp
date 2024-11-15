@@ -47,9 +47,16 @@ std::vector<std::string> OscParser::parseArgs(iter_t& it, iter_t end) {
 
     size_t argIdx = 0;
     for (; it < end; it++) {
+        // Finish sequence
         if (*it == c0::BEL || *it == c1::ST) {
             break;
         }
+        if (*it == c0::ESC && *(it + 1) == c0::ST) {
+            it++;
+            break;
+        }
+
+        // Next argument
         if (*it == ARG_SEPARATOR) {
             argIdx++;
             args.push_back("");
