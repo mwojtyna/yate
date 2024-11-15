@@ -98,7 +98,8 @@ bool Font::updateAtlas(std::unordered_set<codepoint_t>& codepoints) {
         m_Atlas.newTarget(atlasSize, atlasSize, m_Font->num_glyphs);
     }
     if (!m_Atlas.pack(rects, numGlyphs)) {
-        FATAL("Failed to calculate glyph packing");
+        SPDLOG_ERROR("Failed to calculate glyph packing");
+        return true;
     }
     SPDLOG_DEBUG("Calculated glyph packing, {} new glyphs",
                  newCodepoints.size());
@@ -106,7 +107,7 @@ bool Font::updateAtlas(std::unordered_set<codepoint_t>& codepoints) {
     for (auto& [codepoint, glyph] : codepointToGeometry) {
         glyph.rect = rects[codepointToRectIndex[codepoint]];
         if (!glyph.rect.was_packed) {
-            FATAL("One or more glyphs weren't packed");
+            SPDLOG_ERROR("One or more glyphs weren't packed");
         }
 
         glCall(glTexSubImage2D(GL_TEXTURE_2D, 0, glyph.rect.x, glyph.rect.y,
