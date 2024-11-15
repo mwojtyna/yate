@@ -3,6 +3,8 @@
 #include "csi_parser.hpp"
 #include "esc_parser.hpp"
 #include "osc_parser.hpp"
+#include "terminal_buffer.hpp"
+#include "types.hpp"
 #include "unicode.hpp"
 #include <SDL.h>
 #include <glm/ext/vector_float4.hpp>
@@ -14,8 +16,10 @@ public:
     Parser(CsiParser&& csiParser, OscParser&& oscParser, EscParser&& escParser);
 
     /// Returns: list of parsed character codepoints
-    std::unordered_set<codepoint_t>
-    parseAndModifyTermBuf(std::vector<uint8_t>& data, SDL_Window* window);
+    std::unordered_set<codepoint_t> parse(std::vector<uint8_t>& data,
+                                          SDL_Window* window,
+                                          TerminalBuf& termBuf,
+                                          cursor_t& cursor);
 
     static std::vector<uint32_t> parsePs(iter_t& it, iter_t end);
     static std::string readUntilST(iter_t& it, iter_t end);

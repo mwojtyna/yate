@@ -1,5 +1,6 @@
 #pragma once
 
+#include "terminal_buffer.hpp"
 #include "types.hpp"
 #include <functional>
 #include <optional>
@@ -8,11 +9,12 @@
 
 class EscParser {
     using ident_t = char;
-    using handler_t =
-        std::function<void(ParserState&, std::optional<std::string>)>;
+    using handler_t = std::function<void(ParserState&, TerminalBuf&, cursor_t&,
+                                         std::optional<std::string>)>;
 
 public:
-    void parse(iter_t& it, iter_t end, ParserState& parserState);
+    void parse(iter_t& it, iter_t end, ParserState& parserState,
+               TerminalBuf& termBuf, cursor_t& cursor);
     void addHandler(char ident, handler_t handler, bool acceptsArg = false);
 
 private:

@@ -4,7 +4,8 @@
 #include <optional>
 #include <string>
 
-void EscParser::parse(iter_t& it, iter_t end, ParserState& parserState) {
+void EscParser::parse(iter_t& it, iter_t end, ParserState& parserState,
+                      TerminalBuf& termBuf, cursor_t& cursor) {
     char character = *it;
     if (!m_Handlers.contains(character)) {
         SPDLOG_WARN("Unsupported escape sequence 'ESC {}' ({:#x})",
@@ -14,9 +15,11 @@ void EscParser::parse(iter_t& it, iter_t end, ParserState& parserState) {
 
     if (m_Handlers[character].acceptsArg) {
         std::string arg = Parser::readUntilST(it, end);
-        m_Handlers[character].function(parserState, std::move(arg));
+        m_Handlers[character].function(parserState, termBuf, cursor,
+                                       std::move(arg));
     } else {
-        m_Handlers[character].function(parserState, std::nullopt);
+        m_Handlers[character].function(parserState, termBuf, cursor,
+                                       std::nullopt);
     }
 }
 

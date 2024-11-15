@@ -13,41 +13,30 @@
 
 class Terminal {
 public:
-    struct TerminalData {
-        // These are set on open() and not changed later, so they don't need to be thread-safe
-        int masterFd;
-        int slaveFd;
-        pid_t termProcessPid;
-        std::string ptyPath;
+    void open(int windowWidth, int windowHeight);
+    void close();
+    bool shouldClose() const;
+    std::vector<uint8_t> read() const;
+    void write(std::vector<uint8_t>&& bytes);
 
-        std::atomic<bool> shouldClose;
-        TerminalBuf buf;
-        std::shared_mutex bufMutex;
-        cursor_t cursor;
-        std::shared_mutex cursorMutex;
-    };
+    void getBuf(std::function<void(const TerminalBuf&)> cb) const;
+    void getBufMut(std::function<void(TerminalBuf&)> cb);
 
-    Terminal() = delete;
-    Terminal(Terminal& terminal) = delete;
-    Terminal(Terminal&& terminal) = delete;
-    ~Terminal() = delete;
-
-    static void open(int windowWidth, int windowHeight);
-    static void close();
-    static bool shouldClose();
-    static std::vector<uint8_t> read();
-    static void write(std::vector<uint8_t>&& bytes);
-
-    static void getBuf(std::function<void(const TerminalBuf&)> cb);
-    static void getBufMut(std::function<void(TerminalBuf&)> cb);
-
-    static void getCursor(std::function<void(const cursor_t&)> cb);
-    static cursor_t getCursor();
-    static void getCursorMut(std::function<void(cursor_t&)> cb);
-    static void setCursor(cursor_t value);
+    cursor_t getCursor() const;
+    void getCursorMut(std::function<void(cursor_t&)> cb);
 
 private:
-    static TerminalData* s_Data;
+    // These are set on open() and not changed later, so they don't need to be thread-safe
+    int m_MasterFd;
+    int m_SlaveFd;
+    pid_t m_TermProcessPid;
+    std::string m_PtyPath;
+
+    std::atomic<bool> m_ShouldClose;
+    TerminalBuf m_Buf;
+    mutable std::shared_mutex m_BufMutex;
+    cursor_t m_Cursor;
+    mutable std::shared_mutex m_CursorMutex;
 };
 
 class TerminalReadException : std::exception {

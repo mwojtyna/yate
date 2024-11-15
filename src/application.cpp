@@ -61,12 +61,13 @@ void Application::start() {
     EventHandler eventHandler(m_Window);
 
     ThreadSafeQueue<codepoint_t> atlasQueue;
-    Terminal::open(Application::WIDTH, Application::HEIGHT);
+
+    m_Terminal.open(Application::WIDTH, Application::HEIGHT);
     m_TerminalThread = std::make_unique<std::thread>([this, &atlasQueue]() {
         Parser parser = parser_setup(m_Window);
-        while (!Terminal::shouldClose()) {
+        while (!m_Terminal.shouldClose()) {
             try {
-                std::vector<uint8_t> rawCodes = Terminal::read();
+                std::vector<uint8_t> rawCodes = m_Terminal.read();
                 SPDLOG_DEBUG("Read from terminal:");
                 HEXDUMP(rawCodes.data(), rawCodes.size());
 
@@ -74,12 +75,19 @@ void Application::start() {
                 // Sometimes when the terminal is being closed, a running program will send a message to signal it is being closed (e.g. ssh).
                 // That message would try to be rendered, but the render thread has finished, calling the font's destructor,
                 // which means deleted font data would be read, resulting in a segfault.
-                if (Terminal::shouldClose()) {
+                if (m_Terminal.shouldClose()) {
                     break;
                 }
 
-                std::unordered_set<codepoint_t> codepoints =
-                    parser.parseAndModifyTermBuf(rawCodes, m_Window);
+                std::unordered_set<codepoint_t> codepoints;
+                m_Terminal.getBufMut([&codepoints, &rawCodes, this,
+                                      &parser](TerminalBuf& termBuf) {
+                    m_Terminal.getCursorMut([&codepoints, &parser, &rawCodes,
+                                             this, &termBuf](cursor_t& cursor) {
+                        codepoints =
+                            parser.parse(rawCodes, m_Window, termBuf, cursor);
+                    });
+                });
                 if (codepoints.empty()) {
                     continue;
                 }
@@ -89,7 +97,7 @@ void Application::start() {
                     atlasQueue.push(c);
                 }
             } catch (TerminalReadException& e) {
-                if (!Terminal::shouldClose()) {
+                if (!m_Terminal.shouldClose()) {
                     SPDLOG_ERROR("Failed reading from terminal: {}", e.what());
                 }
             }
@@ -116,12 +124,12 @@ void Application::start() {
 
     SPDLOG_INFO("Application started");
     while (!quit) {
-        eventHandler.handleEvents(quit, debugUI);
+        eventHandler.handleEvents(quit, m_Terminal, debugUI);
         renderer.clear();
         renderer.setWireframe(debugData.wireframe);
 
         // Scroll when necessary
-        Terminal::getBuf([&](const TerminalBuf& termBuf) {
+        m_Terminal.getBuf([&](const TerminalBuf& termBuf) {
             size_t rows = termBuf.getRows().size();
             if (rows == prevRows) {
                 return;
@@ -153,11 +161,10 @@ void Application::start() {
         }
         if (!codepoints.empty()) {
             font.updateAtlas(codepoints);
-            // WARNING: For some reason getting cursor must be outside of getBuf(), otherwise the app hangs
-            cursor_t cursor = Terminal::getCursor();
-            Terminal::getBuf(
-                [&font, &renderer, &cursor](const TerminalBuf& termBuf) {
+            m_Terminal.getBuf(
+                [&font, &renderer, this](const TerminalBuf& termBuf) {
                     // TODO: Don't recalculate all
+                    cursor_t cursor = m_Terminal.getCursor();
                     renderer.makeTextMesh(termBuf.getRows(), cursor, font);
                 });
             codepoints.clear();
@@ -196,7 +203,7 @@ void Application::start() {
 Application::~Application() {
     SPDLOG_INFO("Application exiting");
     // FIX: Doesn't work on macos, because read() doesn't error for some reason
-    Terminal::close();
+    m_Terminal.close();
     assert(m_TerminalThread->joinable());
     m_TerminalThread->join();
     SDL_Quit();

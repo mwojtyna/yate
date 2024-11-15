@@ -2,7 +2,6 @@
 #include "codes.hpp"
 #include "csi_parser.hpp"
 #include "osc_parser.hpp"
-#include "terminal.hpp"
 #include "types.hpp"
 #include "unicode.hpp"
 #include <spdlog/spdlog.h>
@@ -11,8 +10,10 @@ Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser,
                EscParser&& escParser)
     : m_CsiParser(csiParser), m_OscParser(oscParser), m_EscParser(escParser) {};
 
-std::unordered_set<codepoint_t>
-Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data, SDL_Window* window) {
+std::unordered_set<codepoint_t> Parser::parse(std::vector<uint8_t>& data,
+                                              SDL_Window* window,
+                                              TerminalBuf& termBuf,
+                                              cursor_t& cursor) {
     std::unordered_set<codepoint_t> codepoints;
 
     for (auto it = data.begin(); it < data.end(); it++) {
@@ -25,12 +26,12 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data, SDL_Window* window) {
         }
 
         case c0::BS: {
-            Terminal::getCursorMut([](cursor_t& cursor) { cursor.x--; });
+            cursor.x--;
             break;
         }
 
         case c0::CR: {
-            Terminal::getCursorMut([](cursor_t& cursor) { cursor.x = 0; });
+            cursor.x = 0;
             break;
         }
         case c0::BEL: {
@@ -44,16 +45,16 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data, SDL_Window* window) {
             switch (*it) {
             case c0::CSI: {
                 it++;
-                m_CsiParser.parse(it, data.end(), m_State);
+                m_CsiParser.parse(it, data.end(), m_State, termBuf, cursor);
                 break;
             }
             case c0::OSC: {
                 it++;
-                m_OscParser.parse(it, data.end());
+                m_OscParser.parse(it, data.end(), termBuf, cursor);
                 break;
             }
             default: {
-                m_EscParser.parse(it, data.end(), m_State);
+                m_EscParser.parse(it, data.end(), m_State, termBuf, cursor);
             }
             }
             break;
@@ -62,12 +63,12 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data, SDL_Window* window) {
         // 8-bit
         case c1::CSI: {
             it++;
-            m_CsiParser.parse(it, data.end(), m_State);
+            m_CsiParser.parse(it, data.end(), m_State, termBuf, cursor);
             break;
         }
         case c1::OSC: {
             it++;
-            m_OscParser.parse(it, data.end());
+            m_OscParser.parse(it, data.end(), termBuf, cursor);
             break;
         }
 
@@ -89,23 +90,18 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data, SDL_Window* window) {
             };
 
             if (!isEol(newCell.character)) {
-                Terminal::getCursorMut([&newCell](cursor_t& cursor) {
-                    Terminal::getBufMut([&newCell,
-                                         &cursor](TerminalBuf& termBuf) {
-                        if (!termBuf.getRows().empty()) {
-                            std::vector<Cell>& row = termBuf.getRow(cursor.y);
-                            if (cursor.x + 1 > row.size()) {
-                                row.push_back(std::move(newCell));
-                            } else {
-                                row[cursor.x] = std::move(newCell);
-                            }
-                        } else {
-                            termBuf.pushRow({std::move(newCell)});
-                        }
-                    });
+                if (!termBuf.getRows().empty()) {
+                    std::vector<Cell>& row = termBuf.getRow(cursor.y);
+                    if (cursor.x + 1 > row.size()) {
+                        row.push_back(std::move(newCell));
+                    } else {
+                        row[cursor.x] = std::move(newCell);
+                    }
+                } else {
+                    termBuf.pushRow({std::move(newCell)});
+                }
 
-                    cursor.x++;
-                });
+                cursor.x++;
             }
 
             if (newCell.character == c0::HT) {
@@ -115,18 +111,14 @@ Parser::parseAndModifyTermBuf(std::vector<uint8_t>& data, SDL_Window* window) {
             }
 
             if (isEol(newCell.character)) {
-                Terminal::getBufMut([this](TerminalBuf& termBuf) {
-                    Terminal::getCursorMut([this, &termBuf](cursor_t& cursor) {
-                        // Only add new row when at the last row
-                        while (cursor.y + 1 >= termBuf.getRows().size()) {
-                            termBuf.pushRow({});
-                        }
+                // Only add new row when at the last row
+                while (cursor.y + 1 >= termBuf.getRows().size()) {
+                    termBuf.pushRow({});
+                }
 
-                        m_State.offset = 0;
-                        cursor.x = 0;
-                        cursor.y++;
-                    });
-                });
+                m_State.offset = 0;
+                cursor.x = 0;
+                cursor.y++;
             }
             break;
         }

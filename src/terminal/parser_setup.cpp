@@ -4,7 +4,6 @@
 #include "csi_parser.hpp"
 #include "esc_parser.hpp"
 #include "osc_parser.hpp"
-#include "terminal.hpp"
 #include "terminal_buffer.hpp"
 #include "types.hpp"
 #include <spdlog/spdlog.h>
@@ -47,102 +46,83 @@ static glm::vec4 getBrightColorFromPs(uint32_t ps, bool bg) {
         return bg ? colors::defaultBg : colors::defaultFg;
     }
 }
-static void cursorForward(const uint32_t ps) {
-    Terminal::getCursorMut([ps](cursor_t& cursor) {
-        Terminal::getBufMut([ps, &cursor](TerminalBuf& termBuf) {
-            auto& row = termBuf.getRow(cursor.y);
-            while (cursor.x + ps + 1 > row.size()) {
-                row.push_back(Cell::empty());
-            }
-            cursor.x += ps;
-        });
-    });
+static void cursorForward(const uint32_t ps, TerminalBuf& termBuf,
+                          cursor_t& cursor) {
+    auto& row = termBuf.getRow(cursor.y);
+    while (cursor.x + ps + 1 > row.size()) {
+        row.push_back(Cell::empty());
+    }
+    cursor.x += ps;
 }
 /// Argument must start at 0
-static void setCursorX(uint32_t x) {
-    Terminal::getCursorMut(
-        [&x](cursor_t& cursor) { cursor.x = std::max<float>(0, x); });
+static void setCursorX(uint32_t x, cursor_t& cursor) {
+    cursor.x = std::max<float>(0, x);
 }
 /// Arguments must start at 0
-static void setCursor(uint32_t x, uint32_t y) {
-    Terminal::getCursorMut([&x, &y](cursor_t& cursor) {
-        Terminal::getBufMut([&x, &y, &cursor](TerminalBuf& termBuf) {
-            x = std::max<float>(0, x);
-            y = std::max<float>(0, y);
+static void setCursor(uint32_t x, uint32_t y, TerminalBuf& termBuf,
+                      cursor_t& cursor) {
+    x = std::max<float>(0, x);
+    y = std::max<float>(0, y);
 
-            while (cursor.y + y + 1 > termBuf.getRows().size()) {
-                termBuf.pushRow({});
-            }
-            auto& row = termBuf.getRow(cursor.y);
-            while (cursor.x + x + 1 > row.size()) {
-                row.push_back(Cell::empty());
-            }
+    while (cursor.y + y + 1 > termBuf.getRows().size()) {
+        termBuf.pushRow({});
+    }
+    auto& row = termBuf.getRow(cursor.y);
+    while (cursor.x + x + 1 > row.size()) {
+        row.push_back(Cell::empty());
+    }
 
-            cursor.x = x;
-            cursor.y = y;
-        });
-    });
+    cursor.x = x;
+    cursor.y = y;
 }
 
 Parser parser_setup(SDL_Window* window) {
     CsiParser csi;
 
     csi.addHandler(csiidents::ICH, [](const std::vector<uint32_t> args,
-                                      ParserState& parserState) {
+                                      ParserState& parserState,
+                                      TerminalBuf& termBuf, cursor_t& cursor) {
         assert(args.size() == 0 || args.size() == 1);
         const uint32_t ps = DEFAULT(args, 1);
-        Terminal::getBufMut([ps](TerminalBuf& termBuf) {
-            Terminal::getCursorMut([&termBuf, ps](cursor_t& cursor) {
-                std::vector<Cell>& row = termBuf.getRow(cursor.y);
-                row.insert(row.begin() + cursor.x, ps, Cell::empty());
-            });
-        });
+        std::vector<Cell>& row = termBuf.getRow(cursor.y);
+        row.insert(row.begin() + cursor.x, ps, Cell::empty());
     });
     csi.addHandler(csiidents::CUU, [](const std::vector<uint32_t> args,
-                                      ParserState& parserState) {
+                                      ParserState& parserState,
+                                      TerminalBuf& termBuf, cursor_t& cursor) {
         assert(args.size() == 0 || args.size() == 1);
         const uint32_t ps = DEFAULT(args, 1);
-        Terminal::getCursorMut([ps](cursor_t& cursor) {
-            cursor.y = std::max<float>(0, cursor.y - ps);
-        });
+        cursor.y = std::max<float>(0, cursor.y - ps);
     });
     csi.addHandler(csiidents::CUD, [](const std::vector<uint32_t> args,
-                                      ParserState& parserState) {
+                                      ParserState& parserState,
+                                      TerminalBuf& termBuf, cursor_t& cursor) {
         assert(args.size() == 0 || args.size() == 1);
         const uint32_t ps = DEFAULT(args, 1);
-        Terminal::getCursorMut([ps](cursor_t& cursor) {
-            Terminal::getBufMut([ps, &cursor](TerminalBuf& termBuf) {
-                while (cursor.y + ps + 1 > termBuf.getRows().size()) {
-                    termBuf.pushRow({});
-                }
-            });
-            cursor.y += ps;
-        });
+        while (cursor.y + ps + 1 > termBuf.getRows().size()) {
+            termBuf.pushRow({});
+        }
+        cursor.y += ps;
     });
     csi.addHandler(csiidents::EL, [](const std::vector<uint32_t> args,
-                                     ParserState& parserState) {
+                                     ParserState& parserState,
+                                     TerminalBuf& termBuf, cursor_t& cursor) {
         assert(args.size() == 0 || args.size() == 1);
         const uint32_t ps = DEFAULT(args, 0);
         switch (ps) {
         // Erase from the cursor through the end of the row.
         case 0: {
-            cursor_t cursor = Terminal::getCursor();
-            Terminal::getBufMut([&cursor](TerminalBuf& termBuf) {
-                if (!termBuf.getRows().empty()) {
-                    std::vector<Cell>& row = termBuf.getRow(cursor.y);
-                    row.erase(row.begin() + cursor.x, row.end());
-                }
-            });
+            if (!termBuf.getRows().empty()) {
+                std::vector<Cell>& row = termBuf.getRow(cursor.y);
+                row.erase(row.begin() + cursor.x, row.end());
+            }
             break;
         }
         // Erase complete line.
         case 2: {
-            Terminal::getBufMut([](TerminalBuf& termBuf) {
-                if (!termBuf.getRows().empty()) {
-                    cursor_t cursor = Terminal::getCursor();
-                    termBuf.deleteRow(cursor.y);
-                }
-            });
+            if (!termBuf.getRows().empty()) {
+                termBuf.deleteRow(cursor.y);
+            }
             break;
         }
         default: {
@@ -152,99 +132,96 @@ Parser parser_setup(SDL_Window* window) {
         }
     });
     csi.addHandler(csiidents::CUF, [](const std::vector<uint32_t> args,
-                                      ParserState& parserState) {
+                                      ParserState& parserState,
+                                      TerminalBuf& termBuf, cursor_t& cursor) {
         assert(args.size() == 0 || args.size() == 1);
         const uint32_t ps = DEFAULT(args, 1);
-        cursorForward(ps);
+        cursorForward(ps, termBuf, cursor);
     });
     csi.addHandler(csiidents::CUB, [](const std::vector<uint32_t> args,
-                                      ParserState& parserState) {
+                                      ParserState& parserState,
+                                      TerminalBuf& termBuf, cursor_t& cursor) {
         assert(args.size() == 0 || args.size() == 1);
         const uint32_t ps = DEFAULT(args, 1);
-        Terminal::getCursorMut([ps](cursor_t& cursor) {
-            cursor.x = std::max<float>(0, cursor.x - ps);
-        });
+        cursor.x = std::max<float>(0, cursor.x - ps);
     });
     csi.addHandler(csiidents::CHA, [](const std::vector<uint32_t> args,
-                                      ParserState& parserState) {
+                                      ParserState& parserState,
+                                      TerminalBuf& termBuf, cursor_t& cursor) {
         assert(args.size() == 0 || args.size() == 1);
         const uint32_t ps = DEFAULT(args, 1);
-        setCursorX(ps - 1);
+        setCursorX(ps - 1, cursor);
     });
     csi.addHandler(csiidents::CUP, [](const std::vector<uint32_t> args,
-                                      ParserState& parserState) {
+                                      ParserState& parserState,
+                                      TerminalBuf& termBuf, cursor_t& cursor) {
         assert(args.size() == 0 || args.size() == 2);
         uint32_t x = args.size() == 0 ? 1 : args[0];
         uint32_t y = args.size() == 0 ? 1 : args[1];
-        setCursor(x - 1, y - 1);
+        setCursor(x - 1, y - 1, termBuf, cursor);
     });
     csi.addHandler(csiidents::ED, [](const std::vector<uint32_t> args,
-                                     ParserState& parserState) {
+                                     ParserState& parserState,
+                                     TerminalBuf& termBuf, cursor_t& cursor) {
         assert(args.size() == 0 || args.size() == 1);
         const uint32_t ps = DEFAULT(args, 0);
-        Terminal::getCursorMut([ps](cursor_t& cursor) {
-            switch (ps) {
-            // Erase from the cursor through the end of the viewport.
-            case 0: {
-                Terminal::getBufMut([&cursor](TerminalBuf& termBuf) {
-                    std::vector<Cell>& row = termBuf.getRow(cursor.y);
-                    row.erase(row.begin() + cursor.x, row.end());
-                    termBuf.deleteRows(cursor.y + 1, termBuf.getRows().size());
-                });
-                break;
-            }
-            // Erase complete viewport.
-            case 2: {
-                Terminal::getBufMut([&cursor](TerminalBuf& termBuf) {
-                    termBuf.deleteRows(0, termBuf.getRows().size());
-                });
-                break;
-            }
-            // Erase scrollback (same as ED(1) for now)
-            case 3: {
-                Terminal::getBufMut([&cursor](TerminalBuf& termBuf) {
-                    termBuf.deleteRows(0, termBuf.getRows().size());
-                });
-                break;
-            }
-            default: {
-                SPDLOG_WARN("Unimplemented ED({})", ps);
-                break;
-            }
-            }
-        });
+        switch (ps) {
+        // Erase from the cursor through the end of the viewport.
+        case 0: {
+            std::vector<Cell>& row = termBuf.getRow(cursor.y);
+            row.erase(row.begin() + cursor.x, row.end());
+            termBuf.deleteRows(cursor.y + 1, termBuf.getRows().size());
+            break;
+        }
+        // Erase complete viewport.
+        case 2: {
+            termBuf.deleteRows(0, termBuf.getRows().size());
+            break;
+        }
+        // Erase scrollback (same as ED(1) for now)
+        case 3: {
+            termBuf.deleteRows(0, termBuf.getRows().size());
+            break;
+        }
+        default: {
+            SPDLOG_WARN("Unimplemented ED({})", ps);
+            break;
+        }
+        }
     });
     csi.addHandler(csiidents::DCH, [](const std::vector<uint32_t> args,
-                                      ParserState& parserState) {
+                                      ParserState& parserState,
+                                      TerminalBuf& termBuf, cursor_t& cursor) {
         assert(args.size() == 0 || args.size() == 1);
         const uint32_t ps = DEFAULT(args, 1);
-        Terminal::getBufMut([ps](TerminalBuf& termBuf) {
-            cursor_t cursor = Terminal::getCursor();
-            std::vector<Cell>& row = termBuf.getRow(cursor.y);
-            row.erase(row.begin() + cursor.x, row.begin() + cursor.x + ps);
-        });
+        std::vector<Cell>& row = termBuf.getRow(cursor.y);
+        row.erase(row.begin() + cursor.x, row.begin() + cursor.x + ps);
     });
     csi.addHandler(csiidents::HPA, [](const std::vector<uint32_t> args,
-                                      ParserState& parserState) {
+                                      ParserState& parserState,
+                                      TerminalBuf& termBuf, cursor_t& cursor) {
         assert(args.size() == 0 || args.size() == 1);
         const uint32_t ps = DEFAULT(args, 1);
-        setCursorX(ps - 1);
+        setCursorX(ps - 1, cursor);
     });
     csi.addHandler(csiidents::HPR, [](const std::vector<uint32_t> args,
-                                      ParserState& parserState) {
+                                      ParserState& parserState,
+                                      TerminalBuf& termBuf, cursor_t& cursor) {
         assert(args.size() == 0 || args.size() == 1);
         const uint32_t ps = DEFAULT(args, 1);
-        cursorForward(ps);
+        cursorForward(ps, termBuf, cursor);
     });
     csi.addHandler(csiidents::HVP, [](const std::vector<uint32_t> args,
-                                      ParserState& parserState) {
+                                      ParserState& parserState,
+                                      TerminalBuf& termBuf, cursor_t& cursor) {
         assert(args.size() == 0 || args.size() == 2);
         uint32_t x = args.size() == 0 ? 1 : args[0];
         uint32_t y = args.size() == 0 ? 1 : args[1];
-        setCursor(x - 1, y - 1);
+        setCursor(x - 1, y - 1, termBuf, cursor);
     });
     csi.addHandler(csiidents::SGR, [](const std::vector<uint32_t> args,
-                                      ParserState& parserState) {
+                                      ParserState& parserState,
+                                      TerminalBuf& termBuf, cursor_t& cursor) {
         assert(args.size() >= 0 && args.size() <= 32);
         if (args.size() == 0) {
             parserState.bgColor = colors::defaultBg;
@@ -335,36 +312,37 @@ Parser parser_setup(SDL_Window* window) {
     });
 
     OscParser osc;
-    osc.addHandler(0, [window](const std::vector<std::string> args) {
+    osc.addHandler(0, [window](const std::vector<std::string> args,
+                               TerminalBuf& termBuf, cursor_t& cursor) {
         SDL_SetWindowTitle(window, args[0].c_str());
     });
-    osc.addHandler(2, [window](const std::vector<std::string> args) {
+    osc.addHandler(2, [window](const std::vector<std::string> args,
+                               TerminalBuf& termBuf, cursor_t& cursor) {
         SDL_SetWindowTitle(window, args[0].c_str());
     });
 
     EscParser esc;
-    esc.addHandler(
-        '7', [](ParserState& parserState, std::optional<std::string> arg) {
-            parserState.savedCursorData = Terminal::getCursor();
-        });
-    esc.addHandler(
-        '8', [](ParserState& parserState, std::optional<std::string> arg) {
-            Terminal::setCursor(parserState.savedCursorData);
-        });
+    esc.addHandler('7', [](ParserState& parserState, TerminalBuf& termBuf,
+                           cursor_t& cursor, std::optional<std::string> arg) {
+        parserState.savedCursorData = cursor;
+    });
+    esc.addHandler('8', [](ParserState& parserState, TerminalBuf& termBuf,
+                           cursor_t& cursor, std::optional<std::string> arg) {
+        cursor = parserState.savedCursorData;
+    });
     esc.addHandler(
         'k',
-        [window](ParserState& parserState, std::optional<std::string> arg) {
+        [window](ParserState& parserState, TerminalBuf& termBuf,
+                 cursor_t& cursor, std::optional<std::string> arg) {
             assert(arg.has_value());
             SDL_SetWindowTitle(window, arg.value().c_str());
         },
         true);
-    esc.addHandler(
-        'M', [](ParserState& parserState, std::optional<std::string> arg) {
-            Terminal::getCursorMut([](cursor_t& cursor) {
-                // TODO: Scroll when needed
-                cursor.y = std::max<float>(cursor.y - 1, 0);
-            });
-        });
+    esc.addHandler('M', [](ParserState& parserState, TerminalBuf& termBuf,
+                           cursor_t& cursor, std::optional<std::string> arg) {
+        // TODO: Scroll when needed
+        cursor.y = std::max<float>(cursor.y - 1, 0);
+    });
 
     Parser parser(std::move(csi), std::move(osc), std::move(esc));
 

@@ -6,7 +6,8 @@
 #include <spdlog/spdlog.h>
 #include <string>
 
-void OscParser::parse(iter_t& it, iter_t end) {
+void OscParser::parse(iter_t& it, iter_t end, TerminalBuf& termBuf,
+                      cursor_t& cursor) {
     std::optional<uint32_t> ident = std::nullopt;
     std::string identStr = "";
     for (; std::isdigit(*it); it++) {
@@ -31,7 +32,7 @@ void OscParser::parse(iter_t& it, iter_t end) {
     uint8_t identv = ident.value();
     std::vector<std::string> args = parseArgs(it, end);
     if (m_Handlers.contains(identv)) {
-        m_Handlers[identv](args);
+        m_Handlers[identv](args, termBuf, cursor);
     } else {
         SPDLOG_WARN("Unsupported OSC sequence with ident={}", identv);
     }

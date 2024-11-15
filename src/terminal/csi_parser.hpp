@@ -2,6 +2,7 @@
 
 #include "../utils.hpp"
 #include "codes.hpp"
+#include "terminal_buffer.hpp"
 #include "types.hpp"
 #include <cstdint>
 #include <functional>
@@ -44,11 +45,12 @@ struct std::hash<CsiIdent> {
 };
 
 class CsiParser {
-    using handlerfn_t =
-        std::function<void(const std::vector<uint32_t>, ParserState&)>;
+    using handlerfn_t = std::function<void(
+        const std::vector<uint32_t>, ParserState&, TerminalBuf&, cursor_t&)>;
 
 public:
-    void parse(iter_t& it, iter_t end, ParserState& parserState);
+    void parse(iter_t& it, iter_t end, ParserState& parserState,
+               TerminalBuf& termBuf, cursor_t& cursor);
     void addHandler(const CsiIdent& ident, handlerfn_t handler);
 
 private:
