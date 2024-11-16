@@ -45,7 +45,6 @@ Font::~Font() {
 
 /// Returns: true if any codepoints were new, false if not
 bool Font::updateAtlas(std::unordered_set<codepoint_t>& codepoints) {
-    bool anyNew = false;
     FT_Error error = 0;
 
     // Filter out already rendered glyphs
@@ -53,7 +52,6 @@ bool Font::updateAtlas(std::unordered_set<codepoint_t>& codepoints) {
     for (codepoint_t c : codepoints) {
         if (!m_CodepointToGeometry.contains(c)) {
             newCodepoints.insert(c);
-            anyNew = true;
         }
     }
     if (newCodepoints.empty()) {
@@ -61,13 +59,22 @@ bool Font::updateAtlas(std::unordered_set<codepoint_t>& codepoints) {
     }
 
     size_t numGlyphs = m_CodepointToGeometry.size() + newCodepoints.size();
-    size_t rectIndex = m_CodepointToGeometry.size();
+    size_t rectIndex = 0;
     // We have to pass an array of rects to stbrp_pack_rects later, so we can't just make a Codepoint->stbrp_rect map
     stbrp_rect rects[Atlas::CAPACITY];
     std::unordered_map<codepoint_t, size_t> codepointToRectIndex;
     std::unordered_map<codepoint_t, GlyphGeometry> codepointToGeometry;
 
-    for (codepoint_t c : newCodepoints) {
+    // Unfortunately we have to pack all glyphs every time, otherwise the packing is increasingly worse every time we add a glyph
+    std::unordered_set<codepoint_t> codepointsToPack(numGlyphs);
+    for (const auto& [codepoint, _] : m_CodepointToGeometry) {
+        codepointsToPack.insert(codepoint);
+    }
+    for (const auto& codepoint : newCodepoints) {
+        codepointsToPack.insert(codepoint);
+    }
+
+    for (codepoint_t c : codepointsToPack) {
         FT_UInt glyphIndex = FT_Get_Char_Index(m_Font, c);
 
         error = FT_Load_Glyph(m_Font, glyphIndex, FT_LOAD_DEFAULT);
@@ -94,15 +101,13 @@ bool Font::updateAtlas(std::unordered_set<codepoint_t>& codepoints) {
         codepointToGeometry[c] = glyph;
     }
 
-    if (!m_Atlas.initialized()) {
-        m_Atlas.newTarget(atlasSize, atlasSize, m_Font->num_glyphs);
-    }
+    m_Atlas.newTarget(atlasSize, atlasSize, m_Font->num_glyphs);
     if (!m_Atlas.pack(rects, numGlyphs)) {
         SPDLOG_ERROR("Failed to calculate glyph packing");
         return true;
     }
-    SPDLOG_DEBUG("Calculated glyph packing, {} new glyphs",
-                 newCodepoints.size());
+    SPDLOG_DEBUG("Calculated glyph packing for {} glyphs",
+                 codepointsToPack.size());
 
     for (auto& [codepoint, glyph] : codepointToGeometry) {
         glyph.rect = rects[codepointToRectIndex[codepoint]];
@@ -118,7 +123,7 @@ bool Font::updateAtlas(std::unordered_set<codepoint_t>& codepoints) {
     }
 
     SPDLOG_DEBUG("Generated {}x{} font atlas", atlasSize, atlasSize);
-    return anyNew;
+    return true;
 }
 
 GlyphPos Font::getGlyphPos(const Cell& cell, glm::vec2& pen) {
