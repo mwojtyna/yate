@@ -19,6 +19,7 @@ endfunction()
 
 include(FetchContent)
 
+# Compiles on Ubuntu 20.04 with gcc-13 and g++-13 (custom ppa)
 cmake_minimum_required(VERSION 3.16)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED True)
@@ -40,6 +41,12 @@ endif()
 
 embed_shader(${PROJECT_NAME} "text.vert" "textVertexShader")
 embed_shader(${PROJECT_NAME} "text.frag" "textFragmentShader")
+
+# On Arch pty.h is inside glibc, but on Ubuntu 20.04 it is inside libutil
+find_library(UTIL_LIB util)
+if(UTIL_LIB)
+	target_link_libraries(yate PRIVATE ${UTIL_LIB})
+endif()
 
 # sdl
 message(STATUS "Fetching SDL...")
