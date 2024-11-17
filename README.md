@@ -2,13 +2,22 @@
 
 Yet Another Terminal Emulator
 
-## Build and run
+## Compiling
+
+Dependencies (tested on Ubuntu 20.04):
+
+- `cmake` >= 3.16
+- `gcc` >= 13
+- `g++` >= 13
+- `libgl-dev` >= 1.3.2
+- `libxkbcommon-dev` >= 0.10.0 (when compiling with Wayland support)
+- `libwayland-dev` >= 1.23.0 (when compiling with Wayland support)
 
 `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j && build/yate`
 
 ## Configuration
 
-- Set log level with `SPDLOG_LEVEL` environment variable
+- Set log level with `SPDLOG_LEVEL` environment variable (off, error, warning, info, debug, trace)
 
 ## Todo
 
