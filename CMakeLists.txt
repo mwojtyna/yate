@@ -33,6 +33,7 @@ project(yate VERSION 0.1.0 LANGUAGES C CXX)
 file(GLOB_RECURSE SOURCE_FILES ./src/*.cpp)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE ./include)
+target_link_options(${PROJECT_NAME} PRIVATE -static-libstdc++ -static-libgcc)
 
 add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wswitch-enum -Wformat=2)
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
