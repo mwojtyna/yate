@@ -19,8 +19,9 @@ endfunction()
 
 include(FetchContent)
 
-cmake_minimum_required(VERSION 3.27)
-set(CMAKE_C_STANDARD 17)
+# Compiles on Ubuntu 20.04 with gcc-13 and g++-13 (custom ppa)
+cmake_minimum_required(VERSION 3.16)
+set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED True)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -32,6 +33,7 @@ project(yate VERSION 0.1.0 LANGUAGES C CXX)
 file(GLOB_RECURSE SOURCE_FILES ./src/*.cpp)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE ./include)
+target_link_options(${PROJECT_NAME} PRIVATE -static-libstdc++ -static-libgcc)
 
 add_compile_options(-Wall -Wextra -Wpedantic -Wfloat-equal -Wundef -Wshadow -Wswitch-enum -Wformat=2)
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -40,6 +42,12 @@ endif()
 
 embed_shader(${PROJECT_NAME} "text.vert" "textVertexShader")
 embed_shader(${PROJECT_NAME} "text.frag" "textFragmentShader")
+
+# On Arch pty.h is inside glibc, but on Ubuntu 20.04 it is inside libutil
+find_library(UTIL_LIB util)
+if(UTIL_LIB)
+	target_link_libraries(yate PRIVATE ${UTIL_LIB})
+endif()
 
 # sdl
 message(STATUS "Fetching SDL...")

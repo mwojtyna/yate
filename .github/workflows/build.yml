@@ -1,0 +1,36 @@
+name: Build and deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install gcc-13 and libraries
+        run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+          sudo apt-get update -y
+          sudo apt-get install gcc-13 g++-13 -y
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 10
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 10
+          sudo apt-get install libegl-dev libxkbcommon-dev libwayland-dev -y
+
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_TYPE=Release
+
+      - name: Build
+        run: cmake --build build -j
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yate
+          path: build/yate
