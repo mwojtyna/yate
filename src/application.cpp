@@ -83,9 +83,8 @@ void Application::start() {
                 m_Terminal.getBufMut([&codepoints, &rawCodes, this,
                                       &parser](TerminalBuf& termBuf) {
                     m_Terminal.getCursorMut([&codepoints, &parser, &rawCodes,
-                                             this, &termBuf](cursor_t& cursor) {
-                        codepoints =
-                            parser.parse(rawCodes, m_Window, termBuf, cursor);
+                                             &termBuf](cursor_t& cursor) {
+                        codepoints = parser.parse(rawCodes, termBuf, cursor);
                     });
                 });
                 if (codepoints.empty()) {

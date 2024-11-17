@@ -11,7 +11,6 @@ Parser::Parser(CsiParser&& csiParser, OscParser&& oscParser,
     : m_CsiParser(csiParser), m_OscParser(oscParser), m_EscParser(escParser) {};
 
 std::unordered_set<codepoint_t> Parser::parse(std::vector<uint8_t>& data,
-                                              SDL_Window* window,
                                               TerminalBuf& termBuf,
                                               cursor_t& cursor) {
     std::unordered_set<codepoint_t> codepoints;

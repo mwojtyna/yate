@@ -16,10 +16,8 @@ public:
     Parser(CsiParser&& csiParser, OscParser&& oscParser, EscParser&& escParser);
 
     /// Returns: list of parsed character codepoints
-    std::unordered_set<codepoint_t> parse(std::vector<uint8_t>& data,
-                                          SDL_Window* window,
-                                          TerminalBuf& termBuf,
-                                          cursor_t& cursor);
+    std::unordered_set<codepoint_t>
+    parse(std::vector<uint8_t>& data, TerminalBuf& termBuf, cursor_t& cursor);
 
     static std::vector<uint32_t> parsePs(iter_t& it, iter_t end);
     static std::string readUntilST(iter_t& it, iter_t end);
