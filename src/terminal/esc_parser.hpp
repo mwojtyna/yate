@@ -15,7 +15,7 @@ class EscParser {
 public:
     void parse(iter_t& it, iter_t end, ParserState& parserState,
                TerminalBuf& termBuf, cursor_t& cursor);
-    void addHandler(char ident, handler_t handler, bool acceptsArg = false);
+    void addHandler(ident_t ident, handler_t handler, bool acceptsArg = false);
 
 private:
     struct Handler {
