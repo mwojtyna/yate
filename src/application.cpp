@@ -55,7 +55,7 @@ void Application::start() {
     Renderer renderer(m_Window, contentScale);
     renderer.setBgColor(glm::vec3(0.10f, 0.11f, 0.15f));
     Program program(textVertexShader, textFragmentShader);
-    Font font("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf",
+    Font font("/usr/share/fonts/truetype/ubuntu/UbuntuMono-R.ttf",
               16 * contentScale);
     DebugUI debugUI(m_Window, renderer.getContext());
     EventHandler eventHandler(m_Window);
