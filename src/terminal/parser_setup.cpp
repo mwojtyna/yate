@@ -236,6 +236,7 @@ Parser parser_setup(SDL_Window* window) {
             case 0: {
                 parserState.bgColor = colors::defaultBg;
                 parserState.fgColor = colors::defaultFg;
+                parserState.inversed = false;
                 break;
             }
             case 7: {
