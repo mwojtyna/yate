@@ -322,24 +322,19 @@ Parser parser_setup(SDL_Window* window) {
     });
 
     EscParser esc;
-    esc.addHandler('7', [](ParserState& parserState, TerminalBuf& termBuf,
-                           cursor_t& cursor, std::optional<std::string> arg) {
-        parserState.savedCursorData = cursor;
-    });
-    esc.addHandler('8', [](ParserState& parserState, TerminalBuf& termBuf,
-                           cursor_t& cursor, std::optional<std::string> arg) {
-        cursor = parserState.savedCursorData;
-    });
     esc.addHandler(
-        'k',
-        [window](ParserState& parserState, TerminalBuf& termBuf,
-                 cursor_t& cursor, std::optional<std::string> arg) {
-            assert(arg.has_value());
-            SDL_SetWindowTitle(window, arg.value().c_str());
-        },
-        true);
+        '7', [](ParserState& parserState, TerminalBuf& termBuf,
+                cursor_t& cursor) { parserState.savedCursorData = cursor; });
+    esc.addHandler(
+        '8', [](ParserState& parserState, TerminalBuf& termBuf,
+                cursor_t& cursor) { cursor = parserState.savedCursorData; });
+    esc.addHandlerWithArg('k', [window](ParserState& parserState,
+                                        TerminalBuf& termBuf, cursor_t& cursor,
+                                        std::string arg) {
+        SDL_SetWindowTitle(window, arg.c_str());
+    });
     esc.addHandler('M', [](ParserState& parserState, TerminalBuf& termBuf,
-                           cursor_t& cursor, std::optional<std::string> arg) {
+                           cursor_t& cursor) {
         // TODO: Scroll when needed
         cursor.y = std::max<float>(cursor.y - 1, 0);
     });

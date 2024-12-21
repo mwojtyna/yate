@@ -1,27 +1,30 @@
 #include "esc_parser.hpp"
 #include "parser.hpp"
-#include "spdlog/spdlog.h"
-#include <optional>
+#include <spdlog/spdlog.h>
 #include <string>
 
 void EscParser::parse(iter_t& it, iter_t end, ParserState& parserState,
                       TerminalBuf& termBuf, cursor_t& cursor) {
     char ident = *it;
-    if (!m_Handlers.contains(ident)) {
+    if (!m_Handlers.contains(ident) && !m_HandlersWithArg.contains(ident)) {
         SPDLOG_WARN("Unsupported escape sequence 'ESC {}' ({:#x})", (char)ident,
                     (uint8_t)ident);
         return;
     }
 
-    if (m_Handlers[ident].acceptsArg) {
-        std::string arg = Parser::readUntilST(++it, end);
-        m_Handlers[ident].function(parserState, termBuf, cursor,
-                                   std::move(arg));
+    if (m_Handlers.contains(ident)) {
+        m_Handlers[ident](parserState, termBuf, cursor);
     } else {
-        m_Handlers[ident].function(parserState, termBuf, cursor, std::nullopt);
+        // Must be a handler with arg
+        std::string arg = Parser::readUntilST(++it, end);
+        m_HandlersWithArg[ident](parserState, termBuf, cursor, arg);
     }
 }
 
-void EscParser::addHandler(ident_t ident, handler_t handler, bool acceptsArg) {
-    m_Handlers[ident] = Handler{.function = handler, .acceptsArg = acceptsArg};
+void EscParser::addHandler(ident_t ident, handler_t handler) {
+    m_Handlers[ident] = handler;
+}
+
+void EscParser::addHandlerWithArg(ident_t ident, handler_with_arg_t handler) {
+    m_HandlersWithArg[ident] = handler;
 }
