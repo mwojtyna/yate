@@ -26,5 +26,7 @@ void TerminalBuf::deleteRow(size_t row) {
     m_Buf.erase(m_Buf.begin() + row);
 }
 void TerminalBuf::deleteRows(size_t row, size_t end) {
-    m_Buf.erase(m_Buf.begin() + row, m_Buf.begin() + end);
+    if (row < end) {
+        m_Buf.erase(m_Buf.begin() + row, m_Buf.begin() + end);
+    }
 }
