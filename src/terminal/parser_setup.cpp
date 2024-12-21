@@ -331,7 +331,10 @@ Parser parser_setup(SDL_Window* window) {
     esc.addHandlerWithArg('k', [window](ParserState& parserState,
                                         TerminalBuf& termBuf, cursor_t& cursor,
                                         std::string arg) {
+    // On macos you cannot set window title from a thread different than main
+#ifndef __APPLE__
         SDL_SetWindowTitle(window, arg.c_str());
+#endif
     });
     esc.addHandler('M', [](ParserState& parserState, TerminalBuf& termBuf,
                            cursor_t& cursor) {
