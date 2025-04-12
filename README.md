@@ -2,6 +2,8 @@
 
 Yet Another Terminal Emulator
 
+https://github.com/user-attachments/assets/d097eb88-42e0-4fa6-ba6e-95c4d463b738
+
 ## Compiling
 
 Dependencies (tested on Ubuntu 20.04):

@@ -57,7 +57,7 @@ message(STATUS "Fetching SDL...")
 FetchContent_Declare(
 		sdl
 		GIT_REPOSITORY https://github.com/libsdl-org/SDL
-		GIT_TAG        release-2.30.9
+		GIT_TAG        release-2.32.4
 )
 set(SDL_TEST OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(sdl)
